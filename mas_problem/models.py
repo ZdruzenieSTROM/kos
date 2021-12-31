@@ -8,14 +8,14 @@ User = get_user_model()  # Neviem ci bude stacit django USer model pr9padne si h
 
 
 class Grade(models.Model):
-    verbose_name = models.CharField()
-    shortcut = models.CharField()
+    verbose_name = models.CharField(max_length=50)
+    shortcut = models.CharField(max_length=5)
 
 
 class Competitor(models.Model):
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     # Nechajme zatial ako text, časom prepojíme asi v backendom stránky
-    school = models.CharField()
+    school = models.CharField(max_length=128)
     grade = models.ForeignKey(Grade, on_delete=models.SET_NULL, null=True)
     is_active = BooleanField()
 
@@ -25,7 +25,7 @@ class Game(models.Model):
     end = models.DateTimeField()
     registration_start = models.DateTimeField()
     registration_end = models.DateTimeField()
-    max_session_duration = models.DurationField
+    max_session_duration = models.DurationField()
 
 
 class Level(models.Model):
