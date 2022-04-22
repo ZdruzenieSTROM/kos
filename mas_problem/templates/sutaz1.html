@@ -1,0 +1,13 @@
+{% for user in users %}
+    <div>
+        {% if error_message %}
+            <p class="bg-danger p-d ml-b">{{ error_message }}</p>
+        
+        {% else %}
+            <p>Ahoj {{ user.username}} zostavajúci čas {{cas}}</p>
+            <h1><a href="">{{ user.first_name }}</a></h1>
+            <p>{{ user.text|linebreaksbr }}</p>        
+        {% endif %}        
+
+    </div>
+{% endfor %}

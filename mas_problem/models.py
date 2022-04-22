@@ -18,6 +18,8 @@ class Competitor(models.Model):
     school = models.CharField(max_length=128)
     grade = models.ForeignKey(Grade, on_delete=models.SET_NULL, null=True)
     is_active = BooleanField()
+    
+
 
 
 class Game(models.Model):
@@ -27,17 +29,15 @@ class Game(models.Model):
     registration_end = models.DateTimeField()
     max_session_duration = models.DurationField()
 
-
 class Level(models.Model):
     game = models.ForeignKey(Game, on_delete=models.CASCADE)
     order = models.IntegerField()
     min_solved_to_unlock = models.IntegerField()
-    is_starting_level_for_grades = models.ManyToManyField(Grade)
-    previous_level = models.ForeignKey(
-        'Level', on_delete=models.CASCADE, null=True)
-
+    is_starting_level_for_grades = models.ManyToManyField(Grade, blank=True)
+    previous_level = models.ForeignKey('Level', on_delete=models.SET_NULL, null=True, blank=True)
 
 class Problem(models.Model):
+    level = models.ForeignKey(Level, on_delete=models.CASCADE)
     text = models.TextField()
     solution = models.FloatField()  # Treba overiť čo všetko môže byť výsledok
 

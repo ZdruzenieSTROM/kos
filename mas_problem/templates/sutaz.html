@@ -1,0 +1,25 @@
+<div>
+    {% if error_message %}
+        <p class="bg-danger p-d ml-b">{{ error_message }}</p>
+        
+    {% else %}
+        <p>Ahoj {{ user.username}} zostavajúci čas {{cas}}</p> 
+        
+        {{zadanie.text}}
+        <br>
+
+        <form action="{% url 'sutaz' %}" method="post">
+            {% csrf_token %}
+            {{form}}
+
+           <div class="col-md-6 col-md-offset-4">
+            <input type="submit" value="Odošli" class="btn btn-success">
+            <!-- <input id="level" name="level" type="hidden" value="{{level}}"> -->
+        </div>
+        </form>
+       
+        
+
+    {% endif %}        
+
+</div>
