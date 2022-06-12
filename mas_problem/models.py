@@ -12,16 +12,6 @@ class Grade(models.Model):
     shortcut = models.CharField(max_length=5)
 
 
-class Competitor(models.Model):
-    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
-    # Nechajme zatial ako text, časom prepojíme asi v backendom stránky
-    school = models.CharField(max_length=128)
-    grade = models.ForeignKey(Grade, on_delete=models.SET_NULL, null=True)
-    is_active = BooleanField()
-    
-
-
-
 class Game(models.Model):
     start = models.DateTimeField()
     end = models.DateTimeField()
@@ -29,12 +19,26 @@ class Game(models.Model):
     registration_end = models.DateTimeField()
     max_session_duration = models.DurationField()
 
+
 class Level(models.Model):
     game = models.ForeignKey(Game, on_delete=models.CASCADE)
     order = models.IntegerField()
     min_solved_to_unlock = models.IntegerField()
     is_starting_level_for_grades = models.ManyToManyField(Grade, blank=True)
-    previous_level = models.ForeignKey('Level', on_delete=models.SET_NULL, null=True, blank=True)
+    previous_level = models.ForeignKey(
+        'Level', on_delete=models.SET_NULL, null=True, blank=True)
+
+
+class Competitor(models.Model):
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    # Nechajme zatial ako text, časom prepojíme asi v backendom stránky
+    school = models.CharField(max_length=128)
+    grade = models.ForeignKey(Grade, on_delete=models.SET_NULL, null=True)
+    game = models.ForeignKey(Game, on_delete=models.CASCADE, null=True)
+    current_level = models.ForeignKey(
+        Level, on_delete=models.CASCADE, null=True)
+    is_active = BooleanField()
+
 
 class Problem(models.Model):
     level = models.ForeignKey(Level, on_delete=models.CASCADE)

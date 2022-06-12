@@ -1,0 +1,11 @@
+{% for puzzle in puzzles %}
+{{puzzle.level}}. {{puzzle.name}} - <a href="{% url '' %}">Stiahnuť</a>
+<form>
+    <input>
+</form>
+{% for submission in puzzle.team_submission %}
+{{submission.competitor_answer}} - {{submission.competitor_answer}} - {% if submission.correct %} SPRÁVNE {% else %}
+NESPRÁVNE {% endif %}
+{% endfor %}
+
+{% endfor %}
