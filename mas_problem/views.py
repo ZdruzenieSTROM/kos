@@ -1,38 +1,40 @@
-from django.shortcuts import render, redirect
-from django.http import HttpResponseRedirect
+from datetime import datetime, timezone
 
-from django.contrib.auth.models import User
-from django.contrib.auth import login, authenticate, logout
 from django.contrib import messages
-from django.contrib.auth.forms import AuthenticationForm #add this
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.forms import AuthenticationForm  # add this
+from django.contrib.auth.models import User
+from django.http import HttpResponseRedirect
+from django.shortcuts import render
 
-from .models import Submission, User, Competitor, Grade, Game, Level, Problem
-from .forms import RegisterForm, AnswerForm
+from .forms import AnswerForm, RegisterForm
+from .models import Competitor, Game, Level, Problem, Submission, User
 
 
 def say_hello(request):
     return render(request, 'base.html')
 
+
 def users_list(request):
     users = User.objects.filter(first_name='a2')
     return render(request, 'user_list.html', {'users': users})
 
+
 def sutaz(request):
-    from datetime import datetime, timezone
-    
+
     level = None
-   
+
     user = None
     if request.user.is_authenticated:
         user = request.user
-        competitor = Competitor.objects.select_related().filter(user= user)[0]
+        competitor = Competitor.objects.select_related().filter(user=user)[0]
     else:
         error_message = 'Neprihlaseny user.'
-        return render(request, 'message.html', {'error_message' : error_message})
+        return render(request, 'message.html', {'error_message': error_message})
 
     if user is None or competitor is None:
         error_message = 'No user'
-        return render(request, 'message.html', {'error_message' : error_message})
+        return render(request, 'message.html', {'error_message': error_message})
 
     if request.method == 'POST':
         # create a form instance and populate it with data from the request:
@@ -42,36 +44,40 @@ def sutaz(request):
             level = Level.objects.get(pk=form.cleaned_data['level'])
             odpoved = form.cleaned_data['Odpoved']
             # vyhodnotenie otazky
-            #PROBLEM
-            problems = Problem.objects.filter(level= level)
+            # PROBLEM
+            problems = Problem.objects.filter(level=level)
             if len(problems) == 0:
                 error_message = 'Nenasla sa uloha.'
-                return render(request, 'message.html', {'error_message' : error_message})
+                return render(request, 'message.html', {'error_message': error_message})
             problem = problems[0]
 
-            if odpoved != problem.solution:        
+            if odpoved != problem.solution:
                 error_message = 'Nespravna odpoved.'
             else:
-                submition = Submission(problem = problem, competitor = competitor, competitor_answer = odpoved, submited_at = datetime.now(), correct = True)
+                submition = Submission(
+                    problem=problem,
+                    competitor=competitor,
+                    competitor_answer=odpoved,
+                    submited_at=datetime.now(),
+                    correct=True
+                )
                 submition.save()
-                levels = Level.objects.filter(previous_level = level)
+                levels = Level.objects.filter(previous_level=level)
                 if len(levels) == 0:
                     error_message = "uspesne si ukoncil sutaz"
-                    return render(request, 'message.html', {'error_message' : error_message})
+                    return render(request, 'message.html', {'error_message': error_message})
                 level = levels[0]
-
-
-
 
     # ziskam Game
     start_time = datetime.now(timezone.utc)
-    games = Game.objects.filter(start__lt= start_time).filter(end__gt= start_time)
+    games = Game.objects.filter(
+        start__lt=start_time).filter(end__gt=start_time)
     if len(games) == 0:
         error_message = 'Momentálne pre teba nebeží súťaž.'
-        return render(request, 'message.html', {'error_message' : error_message})
+        return render(request, 'message.html', {'error_message': error_message})
     game = games[0]
 
-    #overime, ci este mame cas
+    # overime, ci este mame cas
     """
     if game.end < start_time:
         error_message = 'Tvoj čas uplynul, momentálne pre teba nebeží súťaž.'
@@ -83,23 +89,31 @@ def sutaz(request):
 
     # LEVEL
     if level is None:
-        levels = Level.objects.filter(game= game).filter(is_starting_level_for_grades= competitor.grade)
+        levels = Level.objects.filter(game=game).filter(
+            is_starting_level_for_grades=competitor.grade)
         if len(levels) == 0:
             error_message = 'Nenasiel sa ziaden level pre tvoj grade ' + competitor.grade
-            return render(request, 'message.html', {'error_message' : error_message})
+            return render(request, 'message.html', {'error_message': error_message})
         else:
             level = levels[0]
 
-    #PROBLEM
-    problems = Problem.objects.filter(level= level)
+    # PROBLEM
+    problems = Problem.objects.filter(level=level)
     if len(problems) == 0:
         error_message = 'Nenasla sa uloha.'
-        return render(request, 'message.html', {'error_message' : error_message})
+        return render(request, 'message.html', {'error_message': error_message})
     problem = problems[0]
 
-    form = AnswerForm(initial={"level":level.pk})
-    return render(request, 'sutaz.html', {'user':user, 'cas' : diff, 'error_message' : error_message, 'zadanie': problem,'form':form,'level':level})
-
+    form = AnswerForm(initial={"level": level.pk})
+    return render(request, 'sutaz.html',
+                  {'user': user,
+                   'cas': diff,
+                   'error_message': error_message,
+                   'zadanie': problem,
+                   'form': form,
+                   'level': level
+                   }
+                  )
 
 
 def login_request(request):
@@ -114,17 +128,17 @@ def login_request(request):
                 messages.info(request, f"You are now logged in as {username}.")
                 return HttpResponseRedirect('/strom/main')
             else:
-                messages.error(request,"Invalid username or password.")
+                messages.error(request, "Invalid username or password.")
         else:
-            messages.error(request,"Invalid username or password.")
+            messages.error(request, "Invalid username or password.")
     form = AuthenticationForm()
-    return render(request=request, template_name="login.html", context={"login_form":form})
-    
+    return render(request=request, template_name="login.html", context={"login_form": form})
+
 
 def user_register(request):
     # if this is a POST request we need to process the form data
     template = 'register.html'
-   
+
     if request.method == 'POST':
         # create a form instance and populate it with data from the request:
         form = RegisterForm(request.POST)
@@ -155,24 +169,25 @@ def user_register(request):
                 user.first_name = form.cleaned_data['first_name']
                 user.last_name = form.cleaned_data['last_name']
                 user.save()
-                competitor = Competitor(user= user, school= form.cleaned_data['school'], is_active= True, grade=form.cleaned_data['grade'])
+                competitor = Competitor(
+                    user=user, school=form.cleaned_data['school'], is_active=True, grade=form.cleaned_data['grade'])
                 competitor.save()
-               
+
                 # Login the user
                 login(request, user)
 
-                messages.success(request, "Registration successful." )
-                
+                messages.success(request, "Registration successful.")
+
                 # redirect to start the competition
                 return HttpResponseRedirect('/strom/main')
-                
 
    # No post data availabe, let's just show the page.
     else:
         form = RegisterForm()
 
-    return render(request, template, {'form': form})    
+    return render(request, template, {'form': form})
+
 
 def logout_request(request):
-	logout(request)
-	return HttpResponseRedirect('/strom/main')
+    logout(request)
+    return HttpResponseRedirect('/strom/main')
