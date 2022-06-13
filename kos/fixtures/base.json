@@ -17,7 +17,7 @@
             "solution": "banan",
             "level": 1,
             "location": "Dóm slepej Alžbety",
-            "offline_show_delay": "T00:10:00.000Z"
+            "offline_show_delay": "00:10:00.000"
         }
     },
     {
@@ -29,7 +29,7 @@
             "solution": "jablko",
             "level": 2,
             "location": "Turbanova veža",
-            "offline_show_delay": "T00:10:00.000Z"
+            "offline_show_delay": "00:10:00.000"
         }
     },
     {
@@ -41,7 +41,7 @@
             "solution": "hruska",
             "level": 3,
             "location": "Košický hostinec (na bare)",
-            "offline_show_delay": "T00:10:00.000Z"
+            "offline_show_delay": "00:10:00.000"
         }
     }
 ]
