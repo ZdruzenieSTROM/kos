@@ -24,7 +24,7 @@ class Puzzle(models.Model):
         verbose_name = 'šifra'
         verbose_name_plural = 'šifry'
 
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=100, default='šifra')
     game = models.ForeignKey(Game, on_delete=models.SET_NULL, null=True)
     solution = models.CharField(verbose_name='Riešenie', max_length=100)
     file = models.FileField(verbose_name='Zadanie')
