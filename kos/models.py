@@ -12,12 +12,16 @@ class Game(models.Model):
     start = models.DateTimeField(verbose_name='Začiatok hry')
     end = models.DateTimeField(verbose_name='Koniec hry')
 
+    def __str__(self):
+        return self.name
+
 
 class Puzzle(models.Model):
     """Šifra"""
     class Meta:
         verbose_name = 'šifra'
 
+    name = models.CharField(max_length=100)
     game = models.ForeignKey(Game, on_delete=models.SET_NULL, null=True)
     solution = models.CharField(verbose_name='Riešenie', max_length=100)
     file = models.FileField(verbose_name='Zadanie')
@@ -25,6 +29,9 @@ class Puzzle(models.Model):
     level = models.PositiveIntegerField(verbose_name='Úroveň/Poradie')
     location = models.TextField(null=True)
     offline_show_delay = models.TimeField(null=True)
+
+    def __str__(self):
+        return self.name
 
     def team_submissions(self, team):
         pass
@@ -43,6 +50,9 @@ class Category(models.Model):
     is_active = models.BooleanField(default=True)
     slug = models.SlugField()
 
+    def __str__(self):
+        return self.name
+
 
 class Team(models.Model):
     name = models.CharField(max_length=70)
@@ -53,10 +63,16 @@ class Team(models.Model):
     category = models.ForeignKey(
         Category, on_delete=models.SET_NULL, null=True)
 
+    def __str__(self):
+        return f'{self.name}'
+
 
 class TeamMember(models.Model):
     team = models.ForeignKey(Team, on_delete=models.CASCADE)
     name = models.CharField(max_length=100)
+
+    def __str__(self):
+        return f'{self.name} ({self.team})'
 
 
 class Submission(models.Model):
