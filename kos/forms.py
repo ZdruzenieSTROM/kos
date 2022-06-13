@@ -4,6 +4,7 @@ from .models import Category
 
 
 class RegisterForm(forms.Form):
+    """Kos team registration form"""
     team_name = forms.CharField(
         widget=forms.TextInput(attrs={'class': 'form-control'}),
         label='Názov tímu')
@@ -31,9 +32,12 @@ class RegisterForm(forms.Form):
         widget=forms.TextInput(attrs={'class': 'form-control'}),
         label='5. člen tímu', required=False
     )
-    # category = forms.ChoiceField(
-    #     choices=Category.objects.all()
-    # )
+    category = forms.ChoiceField(
+        choices=Category.objects.all()
+    )
+    is_online = forms.BooleanField(
+        widget=forms.HiddenInput()
+    )
 
     def clean_password2(self):
         password1 = self.cleaned_data.get('password')
