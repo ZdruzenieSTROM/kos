@@ -39,8 +39,8 @@
                               <a href="/strom/sutaz">Začni súťaž</a>
                         </li> -->
                     {% else %}
-                    <li><a href="{% url 'mas-problem:login' %}">Prihlásenie</a></li>
-                    <li><a href="/strom/register">Registrácia</a></li>
+                    <li><a href="{% url 'kos:login' %}">Prihlásenie</a></li>
+                    <li><a href="{% url 'kos:registration' %}">Registrácia</a></li>
                     {% endif %}
                 </ul>
             </div>
@@ -50,11 +50,6 @@
     <div class="container">
         <div class="row">
             {% block content %}{% endblock %}
-            {% if user.is_active %}
-            <div class="col-md-1 col-md-offset-1">
-                <a class="btn btn-success" href="/strom/sutaz">Začni súťaž</a>
-            </div>
-            {% endif %}
         </div>
     </div>
 

@@ -1,5 +1,10 @@
+{% extends "kos/base.html" %}
+
+{% block title %}{{game.name}}{% endblock %}
+
+{% block content %}
 {% for puzzle in puzzles %}
-{{puzzle.level}}. {{puzzle.name}} - <a href="{% url '' %}">Stiahnuť</a>
+{{puzzle.level}}. {{puzzle.name}} - <a href="">Stiahnuť</a>
 <form>
     <input>
 </form>
@@ -9,3 +14,4 @@ NESPRÁVNE {% endif %}
 {% endfor %}
 
 {% endfor %}
+{% endblock %}

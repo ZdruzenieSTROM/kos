@@ -1,0 +1,12 @@
+{% extends "kos/base.html" %}
+
+{% block title %}Prihlásenie{% endblock %}
+
+{% block content %}
+<h2>Prihlásenie</h2>
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Prihlásiť</button>
+</form>
+{% endblock %}

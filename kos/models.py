@@ -69,7 +69,12 @@ class Team(models.Model):
         verbose_name_plural = 'tímy'
 
     name = models.CharField(max_length=70)
-    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    user = models.OneToOneField(
+        User, on_delete=models.SET_NULL,
+        null=True,
+        primary_key=False,
+        related_name='team'
+    )
     current_level = models.PositiveSmallIntegerField(default=1)
     game = models.ForeignKey(Game, on_delete=models.CASCADE)
     is_online = models.BooleanField(default=False)
