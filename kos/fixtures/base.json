@@ -15,18 +15,29 @@
             "name": "Prázdna",
             "game": 0,
             "solution": "banan",
+            "unlock_code": "kolomaz",
             "level": 1,
             "location": "Dóm slepej Alžbety",
             "offline_show_delay": "00:10:00.000"
         }
     },
     {
-        "model": "kos.Puzzle",
+        "model": "kos.Hint",
         "pk": 0,
+        "fields": {
+            "puzzle": 0,
+            "text": "Take zlte to je",
+            "show_after": "00:00:01.000"
+        }
+    },
+    {
+        "model": "kos.Puzzle",
+        "pk": 1,
         "fields": {
             "name": "Krásna",
             "game": 0,
             "solution": "jablko",
+            "unlock_code": "kolobeh",
             "level": 2,
             "location": "Turbanova veža",
             "offline_show_delay": "00:10:00.000"
@@ -34,11 +45,12 @@
     },
     {
         "model": "kos.Puzzle",
-        "pk": 0,
+        "pk": 2,
         "fields": {
             "name": "Posledná",
             "game": 0,
             "solution": "hruska",
+            "unlock_code": "koloman",
             "level": 3,
             "location": "Košický hostinec (na bare)",
             "offline_show_delay": "00:10:00.000"
