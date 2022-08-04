@@ -66,6 +66,7 @@ class GameView(LoginRequiredMixin, DetailView):
         for puzzle in puzzles:
             puzzle.current_submissions = puzzle.team_submissions(team)
         context['visible_puzzles'] = puzzles
+        context['team'] = team
         return context
 
     def get_object(self):
@@ -83,8 +84,15 @@ class GameView(LoginRequiredMixin, DetailView):
         answer = request.POST['answer']
         # Check if team can submit
         puzzle = Puzzle.objects.get(pk=puzzle_id)
-        if puzzle.level > team.current_level or puzzle.has_team_passed:
+        if puzzle.level > team.current_level:
             return HttpResponseForbidden()
+        if puzzle.has_team_passed:
+            is_correct = puzzle.check_unlock(answer)
+            if is_correct:
+                team.current_level = max(puzzle.level+1, team.current_level)
+                team.save()
+            return super().get(request, *args, **kwargs)
+
         # Check answer
         is_correct = puzzle.check_solution(answer)
         Submission.objects.create(
@@ -93,7 +101,7 @@ class GameView(LoginRequiredMixin, DetailView):
             competitor_answer=answer,
             correct=is_correct
         )
-        if is_correct:
+        if is_correct and team.is_online:
             team.current_level = max(puzzle.level+1, team.current_level)
             team.save()
 

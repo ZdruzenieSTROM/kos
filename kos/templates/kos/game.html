@@ -8,6 +8,7 @@
 <div>
     {{puzzle.level}}. {{puzzle.name}} - <a href="">Stiahnuť</a>
 </div>
+
 {% if not puzzle.correctly_submitted %}
 <form action="" method="post">
     {% csrf_token %}
@@ -16,12 +17,19 @@
     <input type="Submit" value="Odovzdať" />
 </form>
 {% endif %}
+
 {% for submission in puzzle.current_submissions %}
 <div class="answer-alert {% if submission.correct %}success{% endif %}">
     Zadané heslo: <strong>{{submission.competitor_answer}}</strong> - {% if submission.correct %} SPRÁVNE {% else %}
     NESPRÁVNE {% endif %}
 </div>
 {% endfor %}
+
+{% if puzzle.correctly_submitted and not team.is_online %}
+<div class="answer-alert info">
+    Miesto ďalšej šifry: {{puzzle.location}}
+</div>
+{% endif %}
 
 {% endfor %}
 {% endblock %}
