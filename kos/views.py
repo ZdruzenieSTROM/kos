@@ -1,11 +1,14 @@
+
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import LoginView
+from django.db.models import Max
+from django.http import HttpResponse, HttpResponseForbidden
 from django.urls import reverse_lazy
 from django.utils.timezone import now
 from django.views.generic import DetailView, FormView, ListView
 
 from .forms import AuthForm, EditTeamForm, RegisterForm
-from .models import Game, Puzzle, Team, TeamMember, User
+from .models import Game, Puzzle, Submission, Team, TeamMember, User
 
 
 class LoginFormView(LoginView):
@@ -55,14 +58,46 @@ class GameView(LoginRequiredMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        team = self.request.user.team
-        context['visible_puzzles'] = Puzzle.objects.filter(
-            game=self.get_object(), level__lte=team.current_level).prefetch_related()
+        team = self.get_team()
+        puzzles = Puzzle.objects.filter(
+            game=self.get_object(), level__lte=team.current_level).annotate(
+                correctly_submitted=Max('submissions__correct')
+        )
+        for puzzle in puzzles:
+            puzzle.current_submissions = puzzle.team_submissions(team)
+        context['visible_puzzles'] = puzzles
         return context
 
     def get_object(self):
-        user = self.request.user
-        return user.team.game
+        return self.get_team().game
+
+    def get_team(self):
+        """Resolve team from game and user"""
+        # TODO: Allow multiple teams for user maybe
+        return self.request.user.team
+
+    def post(self, request, *args, **kwargs):
+        """Submit answer for puzzle"""
+        team = self.get_team()
+        puzzle_id = int(request.POST['puzzle'])
+        answer = request.POST['answer']
+        # Check if team can submit
+        puzzle = Puzzle.objects.get(pk=puzzle_id)
+        if puzzle.level > team.current_level or puzzle.has_team_passed:
+            return HttpResponseForbidden()
+        # Check answer
+        is_correct = puzzle.check_solution(answer)
+        Submission.objects.create(
+            puzzle=puzzle,
+            team=team,
+            competitor_answer=answer,
+            correct=is_correct
+        )
+        if is_correct:
+            team.current_level = max(puzzle.level+1, team.current_level)
+            team.save()
+
+        return super().get(request, *args, **kwargs)
 
 
 class GameResultsView(DetailView):

@@ -3,14 +3,24 @@
 {% block title %}{{game.name}}{% endblock %}
 
 {% block content %}
-{% for puzzle in puzzles %}
-{{puzzle.level}}. {{puzzle.name}} - <a href="">Stiahnuť</a>
-<form>
-    <input>
+
+{% for puzzle in visible_puzzles %}
+<div>
+    {{puzzle.level}}. {{puzzle.name}} - <a href="">Stiahnuť</a>
+</div>
+{% if not puzzle.correctly_submitted %}
+<form action="" method="post">
+    {% csrf_token %}
+    <input type="text" id="answer{{puzzle.id}}" name="answer">
+    <input type="hidden" name="puzzle" value="{{puzzle.id}}">
+    <input type="Submit" value="Odovzdať" />
 </form>
-{% for submission in puzzle.team_submission %}
-{{submission.competitor_answer}} - {{submission.competitor_answer}} - {% if submission.correct %} SPRÁVNE {% else %}
-NESPRÁVNE {% endif %}
+{% endif %}
+{% for submission in puzzle.current_submissions %}
+<div class="answer-alert {% if submission.correct %}success{% endif %}">
+    Zadané heslo: <strong>{{submission.competitor_answer}}</strong> - {% if submission.correct %} SPRÁVNE {% else %}
+    NESPRÁVNE {% endif %}
+</div>
 {% endfor %}
 
 {% endfor %}
