@@ -17,6 +17,7 @@ class Game(models.Model):
     name = models.CharField(max_length=100)
     start = models.DateTimeField(verbose_name='Začiatok hry')
     end = models.DateTimeField(verbose_name='Koniec hry')
+    is_public = models.BooleanField(verbose_name='Verejná hra', default=True)
 
     def __str__(self):
         return self.name
