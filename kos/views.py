@@ -1,7 +1,8 @@
 
+
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import LoginView
-from django.db.models import Max
+from django.db.models import Count, Max, Q
 from django.http import HttpResponse, HttpResponseForbidden
 from django.urls import reverse_lazy
 from django.utils.timezone import now
@@ -48,6 +49,7 @@ class SignUpView(FormView):
 class GameIntroductionView(DetailView):
     template_name = 'kos/game_intro.html'
     model = Game
+    login_url = reverse_lazy('kos:login')
 
 
 class GameView(LoginRequiredMixin, DetailView):
@@ -109,7 +111,21 @@ class GameView(LoginRequiredMixin, DetailView):
 
 
 class GameResultsView(DetailView):
-    """Results of a game"""
+    model = Game
+    template_name = 'kos/results.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        game = self.request.user.team.game
+        results = game.team_set.annotate(
+            solved_puzzles=Count('submissions', filter=Q(
+                submissions__correct=True)),
+            last_correct_submission=Max(
+                'submissions__submited_at', filter=Q(submissions__correct=True))
+        ).order('solved_puzzles', 'last_correct_submission')
+        context['online_teams'] = results.filter(is_online=True)
+        context['offline_teams'] = results.filter(is_online=False)
+        return context
 
 
 class GameResultsExportView(DetailView):

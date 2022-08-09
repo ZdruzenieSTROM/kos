@@ -12,5 +12,6 @@ urlpatterns = [
     path('login', views.LoginFormView.as_view(), name='login'),
     path('game', views.GameView.as_view(), name='game'),
     path('game-intro', views.GameIntroductionView.as_view(), name='game-intro'),
+    path('results', views.GameView.as_view(), name='results')
 
 ]

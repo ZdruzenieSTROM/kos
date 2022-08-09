@@ -1,0 +1,47 @@
+{% extends "kos/base.html" %}
+
+{% block title %}{{game.name}}{% endblock %}
+
+{% block content %}
+
+<h1>Výsledky</h1>
+
+<h2>Online:</h2>
+
+
+{% for team in online_teams %}
+<table>
+    <tr>
+        <th>Poradie</th>
+        <th>Názov tímu</th>
+        <th>Počet vyriešených šifier</th>
+        <th>Posledné správne odovzdanie</th>
+    </tr>
+    <tr>
+        <td>{{ forloop.counter }}</td>
+        <td>{{ team.name }}</td>
+        <td>{{ team.current_level }}</td>
+        <td>{{ team.last_correct_submission }}</td>
+    </tr>
+</table>
+
+{% endfor %}
+
+{% for team in offline_teams %}
+<table>
+    <tr>
+        <th>Poradie</th>
+        <th>Názov tímu</th>
+        <th>Počet vyriešených šifier</th>
+        <th>Posledné správne odovzdanie</th>
+    </tr>
+    <tr>
+        <td>{{ forloop.counter }}</td>
+        <td>{{ team.name }}</td>
+        <td>{{ team.current_level }}</td>
+        <td>{{ team.last_correct_submission }}</td>
+    </tr>
+</table>
+
+{% endfor %}
+{% endblock %}
