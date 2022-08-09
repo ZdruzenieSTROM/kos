@@ -76,7 +76,7 @@ class Hint(models.Model):
     count_as_penalty = models.BooleanField(
         verbose_name='Počíta sa do penalty')
     prerequisites = models.ManyToManyField(
-        'Hint', verbose_name='Nutné zobrať pred')
+        'Hint', verbose_name='Nutné zobrať pred', blank=True)
 
     def get_time_to_take(self, team):
         """Zostávajúci čas do hintu"""
@@ -117,7 +117,8 @@ class Team(models.Model):
     is_online = models.BooleanField(default=False)
     category = models.ForeignKey(
         Category, on_delete=models.SET_NULL, null=True)
-    hints_taken = models.ManyToManyField(Hint, verbose_name='Zobraté hinty')
+    hints_taken = models.ManyToManyField(
+        Hint, verbose_name='Zobraté hinty', blank=True)
 
     def __str__(self):
         return f'{self.name}'

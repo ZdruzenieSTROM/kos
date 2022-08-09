@@ -38,3 +38,9 @@ class CategoryAdmin(admin.ModelAdmin):
 class SubmissionAdmin(admin.ModelAdmin):
     list_display = ('team', 'puzzle', 'submited_at', 'competitor_answer')
     list_filter = ('team', 'puzzle')
+
+
+@admin.register(models.Hint)
+class HintAdmin(admin.ModelAdmin):
+    list_display = ('puzzle', 'show_after', 'hint_penalty', 'count_as_penalty')
+    list_filter = ('count_as_penalty', 'puzzle')
