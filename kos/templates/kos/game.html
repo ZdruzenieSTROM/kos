@@ -6,7 +6,7 @@
 
 {% for puzzle in visible_puzzles %}
 <div>
-    {{puzzle.level}}. {{puzzle.name}} - <a href="">Stiahnuť</a>
+    <h2>{{puzzle.level}}. {{puzzle.name}} - <a href="">Stiahnuť</a></h2>
 </div>
 
 {% if not puzzle.correctly_submitted %}
@@ -17,7 +17,15 @@
     <input type="Submit" value="Odovzdať" />
 </form>
 {% endif %}
+<h3>Hinty:</h3>
+{% for hint in puzzle.hint_set.all %}
+<form action="" method="post">
+    {% csrf_token %}
+    <input type="Submit" value="Zobrať hint" />
+</form>
+{% endfor %}
 
+<h3>Pokusy:</h3>
 {% for submission in puzzle.current_submissions %}
 <div class="answer-alert {% if submission.correct %}success{% endif %}">
     Zadané heslo: <strong>{{submission.competitor_answer}}</strong> - {% if submission.correct %} SPRÁVNE {% else %}
@@ -27,7 +35,8 @@
 
 {% if puzzle.correctly_submitted and not team.is_online %}
 <div class="answer-alert info">
-    Miesto ďalšej šifry: {{puzzle.location}}
+    <h3>Miesto ďalšej šifry:</h3>
+    {{puzzle.location}}
 </div>
 {% endif %}
 

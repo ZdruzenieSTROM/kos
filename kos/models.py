@@ -80,7 +80,8 @@ class Hint(models.Model):
 
     def get_time_to_take(self, team):
         """Zostávajúci čas do hintu"""
-        # TODO: Sfunkčniť
+        if set(team.hints_taken).issuperset(set(self.prerequisites)):
+            return None
         return self.show_after + self.hint_penalty*team.get_penalties()
 
 
