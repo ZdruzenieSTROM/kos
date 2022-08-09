@@ -70,8 +70,8 @@ class Hint(models.Model):
 
     puzzle = models.ForeignKey(Puzzle, on_delete=models.CASCADE)
     text = models.TextField(verbose_name='Znenie hintu')
-    show_after = models.TimeField(verbose_name='Povoliť zobrazenie po')
-    hint_penalty = models.TimeField(
+    show_after = models.DurationField(verbose_name='Povoliť zobrazenie po')
+    hint_penalty = models.DurationField(
         verbose_name='Penalta za predošlé hinty', default=0)
     count_as_penalty = models.BooleanField(
         verbose_name='Počíta sa do penalty')
