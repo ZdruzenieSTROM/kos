@@ -38,7 +38,7 @@ class Puzzle(models.Model):
     unlock_code = models.CharField(
         verbose_name='Kód na odomknutie šifry', max_length=50, null=True)
     file = models.FileField(verbose_name='Zadanie')
-    pdf_solution = models.FileField(verbose_name='Riešenie v PDF')
+    pdf_solution = models.FileField(verbose_name='Riešenie v PDF', null=True)
     level = models.PositiveIntegerField(verbose_name='Úroveň/Poradie')
     location = models.TextField(null=True)
 
