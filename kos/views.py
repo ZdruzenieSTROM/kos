@@ -3,7 +3,7 @@
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.views import LoginView
 from django.db.models import Count, Max, Q
-from django.http import HttpResponseForbidden
+from django.http import FileResponse, HttpResponseForbidden
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.utils.timezone import now
@@ -60,6 +60,18 @@ class GameIntroductionView(DetailView):
     template_name = 'kos/game_intro.html'
     model = Game
     login_url = reverse_lazy('kos:login')
+
+
+class PuzzleView(UserPassesTestMixin, LoginRequiredMixin, DetailView, GetTeamMixin):
+    model = Puzzle
+
+    def test_func(self):
+        puzzle = self.get_object()
+        return self.get_team().current_level >= puzzle.level
+
+    def get(self, request, *args, **kwargs):
+        puzzle = self.get_object()
+        return FileResponse(puzzle.file)
 
 
 class GameView(LoginRequiredMixin, DetailView, GetTeamMixin):

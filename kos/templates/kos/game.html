@@ -6,7 +6,8 @@
 
 {% for puzzle in visible_puzzles %}
 <div>
-    <h2>{{puzzle.level}}. {{puzzle.name}} - <a href="">Stiahnuť</a></h2>
+    <h2>{{puzzle.level}}. {{puzzle.name}} - <a href="{% url 'kos:puzzle' pk=puzzle.pk %}" target="_blank">Stiahnuť</a>
+    </h2>
 </div>
 
 {% if not puzzle.correctly_submitted %}
