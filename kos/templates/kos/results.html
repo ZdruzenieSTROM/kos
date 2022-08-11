@@ -6,10 +6,12 @@
 
 <h1>Výsledky</h1>
 
+{% if online_teams %}
+
 <h2>Online:</h2>
 
 
-{% for team in online_teams %}
+
 <table>
     <tr>
         <th>Poradie</th>
@@ -17,17 +19,20 @@
         <th>Počet vyriešených šifier</th>
         <th>Posledné správne odovzdanie</th>
     </tr>
+    {% for team in online_teams %}
     <tr>
-        <td>{{ forloop.counter }}</td>
+        <td>{{ forloop.counter }}.</td>
         <td>{{ team.name }}</td>
-        <td>{{ team.current_level }}</td>
+        <td>{{ team.solved_puzzles }}</td>
         <td>{{ team.last_correct_submission }}</td>
     </tr>
+    {% endfor %}
 </table>
+{% endif %}
 
-{% endfor %}
+{% if offilne_teams %}
+<h2>Offline:</h2>
 
-{% for team in offline_teams %}
 <table>
     <tr>
         <th>Poradie</th>
@@ -35,13 +40,16 @@
         <th>Počet vyriešených šifier</th>
         <th>Posledné správne odovzdanie</th>
     </tr>
+    {% for team in offline_teams %}
     <tr>
-        <td>{{ forloop.counter }}</td>
+        <td>{{ forloop.counter }}.</td>
         <td>{{ team.name }}</td>
-        <td>{{ team.current_level }}</td>
+        <td>{{ team.solved_puzzlesl }}</td>
         <td>{{ team.last_correct_submission }}</td>
     </tr>
+    {% endfor %}
 </table>
+{% endif %}
 
-{% endfor %}
+
 {% endblock %}

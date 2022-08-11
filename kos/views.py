@@ -1,15 +1,25 @@
 
 
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.views import LoginView
 from django.db.models import Count, Max, Q
-from django.http import HttpResponse, HttpResponseForbidden
+from django.http import HttpResponseForbidden
+from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.utils.timezone import now
 from django.views.generic import DetailView, FormView, ListView
 
 from .forms import AuthForm, EditTeamForm, RegisterForm
-from .models import Game, Puzzle, Submission, Team, TeamMember, User
+from .models import Game, Hint, Puzzle, Submission, Team, TeamMember, User
+
+
+class GetTeamMixin:
+    """Support for resolving team"""
+
+    def get_team(self):
+        """Resolve team from game and user"""
+        # TODO: Allow multiple teams for user maybe
+        return self.request.user.team
 
 
 class LoginFormView(LoginView):
@@ -52,7 +62,7 @@ class GameIntroductionView(DetailView):
     login_url = reverse_lazy('kos:login')
 
 
-class GameView(LoginRequiredMixin, DetailView):
+class GameView(LoginRequiredMixin, DetailView, GetTeamMixin):
     """View current game state"""
     model = Game
     template_name = 'kos/game.html'
@@ -74,11 +84,6 @@ class GameView(LoginRequiredMixin, DetailView):
     def get_object(self):
         return self.get_team().game
 
-    def get_team(self):
-        """Resolve team from game and user"""
-        # TODO: Allow multiple teams for user maybe
-        return self.request.user.team
-
     def post(self, request, *args, **kwargs):
         """Submit answer for puzzle"""
         team = self.get_team()
@@ -88,7 +93,7 @@ class GameView(LoginRequiredMixin, DetailView):
         puzzle = Puzzle.objects.get(pk=puzzle_id)
         if puzzle.level > team.current_level:
             return HttpResponseForbidden()
-        if puzzle.has_team_passed:
+        if puzzle.has_team_passed(team):
             is_correct = puzzle.check_unlock(answer)
             if is_correct:
                 team.current_level = max(puzzle.level+1, team.current_level)
@@ -121,11 +126,31 @@ class GameResultsView(DetailView):
             solved_puzzles=Count('submissions', filter=Q(
                 submissions__correct=True)),
             last_correct_submission=Max(
-                'submissions__submited_at', filter=Q(submissions__correct=True))
-        ).order('solved_puzzles', 'last_correct_submission')
+                'submissions__submitted_at', filter=Q(submissions__correct=True))
+        ).order_by('solved_puzzles', 'last_correct_submission')
         context['online_teams'] = results.filter(is_online=True)
         context['offline_teams'] = results.filter(is_online=False)
         return context
+
+
+class HintView(UserPassesTestMixin, DetailView, GetTeamMixin):
+    model = Hint
+
+    def test_func(self):
+        hint = self.get_object()
+        team = self.get_team()
+        time_to_take = hint.get_time_to_take(team)
+        return (
+            time_to_take is not None
+            and time_to_take > 0
+            and not team.hints_taken.filter(pk=hint.pk).exists()
+            and not team.submissions.filter(correct=True, puzzle=hint.puzzle).exists()
+        )
+
+    def post(self, request, *args, **kwargs):
+        self.get_team().hints_taken.add(self.get_object())
+
+        return redirect('kos:game')
 
 
 class GameResultsExportView(DetailView):

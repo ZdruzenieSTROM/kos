@@ -17,8 +17,7 @@
             "solution": "banan",
             "unlock_code": "kolomaz",
             "level": 1,
-            "location": "Dóm slepej Alžbety",
-            "offline_show_delay": "00:10:00.000"
+            "location": "Dóm slepej Alžbety"
         }
     },
     {
@@ -27,7 +26,8 @@
         "fields": {
             "puzzle": 0,
             "text": "Take zlte to je",
-            "show_after": "00:00:01.000"
+            "show_after": "10.000",
+            "count_as_penalty": true
         }
     },
     {
@@ -39,8 +39,7 @@
             "solution": "jablko",
             "unlock_code": "kolobeh",
             "level": 2,
-            "location": "Turbanova veža",
-            "offline_show_delay": "00:10:00.000"
+            "location": "Turbanova veža"
         }
     },
     {
@@ -52,8 +51,7 @@
             "solution": "hruska",
             "unlock_code": "koloman",
             "level": 3,
-            "location": "Košický hostinec (na bare)",
-            "offline_show_delay": "00:10:00.000"
+            "location": "Košický hostinec (na bare)"
         }
     }
 ]

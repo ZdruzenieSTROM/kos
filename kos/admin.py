@@ -36,7 +36,7 @@ class CategoryAdmin(admin.ModelAdmin):
 
 @admin.register(models.Submission)
 class SubmissionAdmin(admin.ModelAdmin):
-    list_display = ('team', 'puzzle', 'submited_at', 'competitor_answer')
+    list_display = ('team', 'puzzle', 'submitted_at', 'competitor_answer')
     list_filter = ('team', 'puzzle')
 
 

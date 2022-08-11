@@ -1,8 +1,11 @@
 
 
+from datetime import timedelta
+
 from django.contrib.auth import get_user_model
 from django.db import models
 from django.db.models import Max
+from django.utils.timezone import now
 from unidecode import unidecode
 
 User = get_user_model()
@@ -48,7 +51,7 @@ class Puzzle(models.Model):
 
     def has_team_passed(self, team):
         """Vráti bool či tím už šifru vyriešil"""
-        return self.submissions.filter(team=team).aggregate(Max('correct'))
+        return self.submissions.filter(team=team).aggregate(Max('correct'))['correct__max']
 
     @staticmethod
     def __check_equal(string1: str, string2: str) -> bool:
@@ -73,7 +76,7 @@ class Hint(models.Model):
     text = models.TextField(verbose_name='Znenie hintu')
     show_after = models.DurationField(verbose_name='Povoliť zobrazenie po')
     hint_penalty = models.DurationField(
-        verbose_name='Penalta za predošlé hinty', default=0)
+        verbose_name='Penalta za predošlé hinty', default=timedelta(0))
     count_as_penalty = models.BooleanField(
         verbose_name='Počíta sa do penalty')
     prerequisites = models.ManyToManyField(
@@ -81,9 +84,14 @@ class Hint(models.Model):
 
     def get_time_to_take(self, team):
         """Zostávajúci čas do hintu"""
-        if set(team.hints_taken).issuperset(set(self.prerequisites)):
+        last_submission = team.get_last_correct_submission_time()
+        if last_submission is None:
+            last_submission = self.puzzle.game.start
+        elapsed_time = last_submission - now()
+        if set(team.hints_taken.all()).issuperset(set(self.prerequisites.all())):
             return None
-        return self.show_after + self.hint_penalty*team.get_penalties()
+        minimum_elapsed_time = self.show_after + self.hint_penalty*team.get_penalties()
+        return minimum_elapsed_time - elapsed_time
 
 
 class Category(models.Model):
@@ -128,6 +136,9 @@ class Team(models.Model):
         """Spočíta počet zobratých hintov, ktoré sa rátajú ako penalty"""
         return self.hints_taken.filter(count_as_penalty=True).count()
 
+    def get_last_correct_submission_time(self):
+        return self.submissions.filter(correct=True).aggregate(Max('submitted_at'))['submitted_at__max']
+
 
 class TeamMember(models.Model):
     """Člen tímu"""
@@ -149,7 +160,8 @@ class Submission(models.Model):
         verbose_name_plural = 'odovzdania šifier'
     puzzle = models.ForeignKey(
         Puzzle, on_delete=models.CASCADE, related_name='submissions')
-    team = models.ForeignKey(Team, on_delete=models.CASCADE)
+    team = models.ForeignKey(
+        Team, on_delete=models.CASCADE, related_name='submissions')
     competitor_answer = models.CharField(max_length=100)
-    submited_at = models.DateTimeField(auto_now=True, auto_created=True)
+    submitted_at = models.DateTimeField(auto_now=True, auto_created=True)
     correct = models.BooleanField()  # Neviem ci bude nutné nechám na zváženie

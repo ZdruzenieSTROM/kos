@@ -50,5 +50,5 @@ class Submission(models.Model):
     problem = models.ForeignKey(Problem, on_delete=models.CASCADE)
     competitor = models.ForeignKey(Competitor, on_delete=models.CASCADE)
     competitor_answer = models.FloatField()  # Upravit podla Problem.solution
-    submited_at = models.DateTimeField()
+    submitted_at = models.DateTimeField()
     correct = models.BooleanField()  # Neviem ci bude nutné nechám na zváženie

@@ -19,10 +19,16 @@
 {% endif %}
 <h3>Hinty:</h3>
 {% for hint in puzzle.hint_set.all %}
-<form action="" method="post">
+{% if hint in team.hints_taken.all %}
+<div>{{hint.text}}</div>
+{% else %}
+{% if not puzzle.correctly_submitted %}
+<form action="{% url 'kos:hint' pk=hint.pk %}" method="post">
     {% csrf_token %}
     <input type="Submit" value="Zobrať hint" />
 </form>
+{%endif%}
+{% endif %}
 {% endfor %}
 
 <h3>Pokusy:</h3>
