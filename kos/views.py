@@ -7,7 +7,7 @@ from django.http import FileResponse, HttpResponseForbidden
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.utils.timezone import now
-from django.views.generic import DetailView, FormView, ListView
+from django.views.generic import DetailView, FormView, ListView, UpdateView
 
 from .forms import AuthForm, EditTeamForm, RegisterForm
 from .models import Game, Hint, Puzzle, Submission, Team, TeamMember, User
@@ -128,6 +128,7 @@ class GameView(LoginRequiredMixin, DetailView, GetTeamMixin):
 
 
 class GameResultsView(DetailView):
+    """Výsledková listina"""
     model = Game
     template_name = 'kos/results.html'
 
@@ -165,8 +166,9 @@ class HintView(UserPassesTestMixin, DetailView, GetTeamMixin):
         return redirect('kos:game')
 
 
-class GameResultsExportView(DetailView):
+class GameResultsLatexExportView(GameResultsView):
     """Results for pdf"""
+    template_name = 'kos/results.tex'
 
 
 class HistoryGameView(ListView):
@@ -174,12 +176,34 @@ class HistoryGameView(ListView):
     queryset = Game.objects.filter(end__lte=now())
 
 
-class TeamInfoView(FormView):
+class TeamInfoView(FormView, GetTeamMixin):
     """Team profile"""
     form_class = EditTeamForm
-    success_url = reverse_lazy("change-profile")
+    success_url = reverse_lazy("kos:change-profile")
     template_name = "kos/change_profile.html"
 
+    def get_initial(self):
+        team = self.get_team()
+        init_dict = {
+            'category': team.category,
+            'is_online': team.is_online
+        }
+        for i, member in enumerate(team.members.all()):
+            init_dict[f'team_member_{i+1}'] = member.name
+        return init_dict
 
-def submit():
-    """Submit puzzle solution"""
+    def form_valid(self, form):
+        team = self.get_team()
+        team.members.all().delete()
+        member_id = 1
+        try:
+            while True:
+                if form.cleaned_data[f'team_member_{member_id}'] == '':
+                    break
+                team.members.add(
+                    TeamMember(
+                        name=form.cleaned_data[f'team_member_{member_id}']), bulk=False)
+                member_id += 1
+        except KeyError:
+            pass
+        return super().form_valid(form)

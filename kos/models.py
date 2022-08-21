@@ -146,7 +146,8 @@ class TeamMember(models.Model):
     class Meta:
         verbose_name = 'Člen tímu'
         verbose_name_plural = 'Členovia tímov'
-    team = models.ForeignKey(Team, on_delete=models.CASCADE)
+    team = models.ForeignKey(
+        Team, on_delete=models.CASCADE, related_name='members')
     name = models.CharField(max_length=100)
 
     def __str__(self):
