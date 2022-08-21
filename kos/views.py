@@ -7,7 +7,7 @@ from django.http import FileResponse, HttpResponseForbidden
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.utils.timezone import now
-from django.views.generic import DetailView, FormView, ListView, UpdateView
+from django.views.generic import DetailView, FormView, ListView
 
 from .forms import AuthForm, EditTeamForm, RegisterForm
 from .models import Game, Hint, Puzzle, Submission, Team, TeamMember, User
@@ -57,12 +57,14 @@ class SignUpView(FormView):
 
 
 class GameIntroductionView(DetailView):
+    """Informácie pred hrou. Zobrazia sa ak hra ešte nezačala"""
     template_name = 'kos/game_intro.html'
     model = Game
     login_url = reverse_lazy('kos:login')
 
 
 class PuzzleView(UserPassesTestMixin, LoginRequiredMixin, DetailView, GetTeamMixin):
+    """Vráti PDF so šifrou"""
     model = Puzzle
 
     def test_func(self):
@@ -147,6 +149,7 @@ class GameResultsView(DetailView):
 
 
 class HintView(UserPassesTestMixin, DetailView, GetTeamMixin):
+    """Vezme hint"""
     model = Hint
 
     def test_func(self):
@@ -161,8 +164,8 @@ class HintView(UserPassesTestMixin, DetailView, GetTeamMixin):
         )
 
     def post(self, request, *args, **kwargs):
+        """Pridaj hint"""
         self.get_team().hints_taken.add(self.get_object())
-
         return redirect('kos:game')
 
 

@@ -138,7 +138,10 @@ class Team(models.Model):
         return self.hints_taken.filter(count_as_penalty=True).count()
 
     def get_last_correct_submission_time(self):
-        return self.submissions.filter(correct=True).aggregate(Max('submitted_at'))['submitted_at__max']
+        """Vráti čas poslednej správne odovzdanej šifry"""
+        return self.submissions.filter(correct=True).aggregate(
+            Max('submitted_at')
+        )['submitted_at__max']
 
 
 class TeamMember(models.Model):
