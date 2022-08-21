@@ -58,7 +58,7 @@ def sutaz(request):
                     problem=problem,
                     competitor=competitor,
                     competitor_answer=odpoved,
-                    submited_at=datetime.now(),
+                    submitted_at=datetime.now(),
                     correct=True
                 )
                 submition.save()

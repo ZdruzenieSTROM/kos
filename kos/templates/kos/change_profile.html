@@ -1,0 +1,14 @@
+{% extends "kos/base.html" %}
+
+{% block title %}Registrácia{% endblock %}
+
+{% block content %}
+<h2>Zmena údajov tímu</h2>
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Uložiť</button>
+</form>
+
+<a href="{% url 'kos:change-password' %}">Zmeniť heslo</a>
+{% endblock %}

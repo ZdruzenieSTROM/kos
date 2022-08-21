@@ -1,0 +1,37 @@
+.answer-alert {
+    padding: 5px;
+    background-color: #f44336;
+    color: white;
+    opacity: 1;
+    transition: opacity 0.6s;
+    margin-bottom: 5px;
+}
+
+.answer-alert.success {
+    background-color: #04AA6D;
+}
+
+.answer-alert.info {
+    background-color: #2196F3;
+}
+
+.answer-alert.warning {
+    background-color: #ff9800;
+}
+
+table {
+    font-family: arial, sans-serif;
+    border-collapse: collapse;
+    width: 100%;
+}
+
+td,
+th {
+    border: 1px solid #dddddd;
+    text-align: left;
+    padding: 8px;
+}
+
+tr:nth-child(even) {
+    background-color: #dddddd;
+}

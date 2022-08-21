@@ -1,11 +1,51 @@
-{% for puzzle in puzzles %}
-{{puzzle.level}}. {{puzzle.name}} - <a href="{% url '' %}">Stiahnuť</a>
-<form>
-    <input>
+{% extends "kos/base.html" %}
+
+{% block title %}{{game.name}}{% endblock %}
+
+{% block content %}
+
+{% for puzzle in visible_puzzles %}
+<div>
+    <h2>{{puzzle.level}}. {{puzzle.name}} - <a href="{% url 'kos:puzzle' pk=puzzle.pk %}" target="_blank">Stiahnuť</a>
+    </h2>
+</div>
+
+{% if not puzzle.correctly_submitted %}
+<form action="" method="post">
+    {% csrf_token %}
+    <input type="text" id="answer{{puzzle.id}}" name="answer">
+    <input type="hidden" name="puzzle" value="{{puzzle.id}}">
+    <input type="Submit" value="Odovzdať" />
 </form>
-{% for submission in puzzle.team_submission %}
-{{submission.competitor_answer}} - {{submission.competitor_answer}} - {% if submission.correct %} SPRÁVNE {% else %}
-NESPRÁVNE {% endif %}
+{% endif %}
+<h3>Hinty:</h3>
+{% for hint in puzzle.hint_set.all %}
+{% if hint in team.hints_taken.all %}
+<div>{{hint.text}}</div>
+{% else %}
+{% if not puzzle.correctly_submitted %}
+<form action="{% url 'kos:hint' pk=hint.pk %}" method="post">
+    {% csrf_token %}
+    <input type="Submit" value="Zobrať hint" />
+</form>
+{%endif%}
+{% endif %}
 {% endfor %}
 
+<h3>Pokusy:</h3>
+{% for submission in puzzle.current_submissions %}
+<div class="answer-alert {% if submission.correct %}success{% endif %}">
+    Zadané heslo: <strong>{{submission.competitor_answer}}</strong> - {% if submission.correct %} SPRÁVNE {% else %}
+    NESPRÁVNE {% endif %}
+</div>
 {% endfor %}
+
+{% if puzzle.correctly_submitted and not team.is_online %}
+<div class="answer-alert info">
+    <h3>Miesto ďalšej šifry:</h3>
+    {{puzzle.location}}
+</div>
+{% endif %}
+
+{% endfor %}
+{% endblock %}
