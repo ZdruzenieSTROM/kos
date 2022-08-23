@@ -1,3 +1,90 @@
 [
-    {}
+    {
+        "model": "auth.user",
+        "pk": 1,
+        "fields": {
+            "password": "pbkdf2_sha256$320000$AxKjtrcZyXt5QCPLH3uavk$QaBcHLxVvSpdqnlF5oag4ARqa66dHpna868yIXuT/Xw=",
+            "last_login": "2022-08-23T12:58:49.611Z",
+            "is_superuser": true,
+            "username": "admin",
+            "first_name": "",
+            "last_name": "",
+            "email": "admin@strom.sk",
+            "is_staff": true,
+            "is_active": true,
+            "date_joined": "2022-08-23T12:58:24.794Z",
+            "groups": [],
+            "user_permissions": []
+        }
+    },
+    {
+        "model": "auth.user",
+        "pk": 2,
+        "fields": {
+            "password": "pbkdf2_sha256$320000$LvUd0x1TNdzcu94oBVAQfN$HhGVafi+UBMnXGMJZRLIjtaxU9iuxL4qdLb0ANXTrmw=",
+            "last_login": "2022-08-23T13:37:25.976Z",
+            "is_superuser": false,
+            "username": "team1",
+            "first_name": "",
+            "last_name": "",
+            "email": "team1@strom.sk",
+            "is_staff": false,
+            "is_active": true,
+            "date_joined": "2022-08-23T13:09:15.083Z",
+            "groups": [],
+            "user_permissions": []
+        }
+    },
+    {
+        "model": "kos.team",
+        "pk": 1,
+        "fields": {
+            "name": "team1",
+            "user": 2,
+            "current_level": 1,
+            "game": 0,
+            "is_online": true,
+            "hints_taken": []
+        }
+    },
+    {
+        "model": "kos.teammember",
+        "pk": 1,
+        "fields": {
+            "team": 1,
+            "name": "Jožko"
+        }
+    },
+    {
+        "model": "kos.teammember",
+        "pk": 2,
+        "fields": {
+            "team": 1,
+            "name": "Ferko"
+        }
+    },
+    {
+        "model": "kos.teammember",
+        "pk": 3,
+        "fields": {
+            "team": 1,
+            "name": "Ďurko"
+        }
+    },
+    {
+        "model": "kos.teammember",
+        "pk": 4,
+        "fields": {
+            "team": 1,
+            "name": "Pišta"
+        }
+    },
+    {
+        "model": "kos.teammember",
+        "pk": 5,
+        "fields": {
+            "team": 1,
+            "name": ""
+        }
+    }
 ]
