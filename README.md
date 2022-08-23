@@ -7,6 +7,13 @@ Aplikácia beží na Pythone 3.8. Nainštaluj requirements:
 ```
 pip install -r requirements.txt
 ```
+
+## Inicializácia
+```
+python manage.py migrate
+python manage.py loaddata
+```
+
 ## Spustenie
 ```
 python manage.py runserver
