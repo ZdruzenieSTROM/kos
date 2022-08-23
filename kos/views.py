@@ -1,7 +1,5 @@
 
 
-from audioop import reverse
-
 from django.contrib.auth import logout
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.views import LoginView
