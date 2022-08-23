@@ -1,8 +1,6 @@
 from django import forms
 from django.contrib.auth.forms import AuthenticationForm
 
-from .models import Category
-
 
 class RegisterForm(forms.Form):
     """Kos team registration form"""
@@ -33,13 +31,8 @@ class RegisterForm(forms.Form):
         widget=forms.TextInput(attrs={'class': 'form-control'}),
         label='5. člen tímu', required=False
     )
-    category = forms.ModelChoiceField(
-        queryset=Category.objects.all(),
-        label='Kategória'
-    )
     is_online = forms.BooleanField(
-        widget=forms.HiddenInput(),
-        initial=True
+        label='Chcem riešiť online'
     )
 
     def clean_password2(self):
@@ -104,8 +97,4 @@ class EditTeamForm(forms.Form):
     team_member_5 = forms.CharField(
         widget=forms.TextInput(attrs={'class': 'form-control'}),
         label='5. člen tímu', required=False
-    )
-    category = forms.ModelChoiceField(
-        queryset=Category.objects.all(),
-        label='Kategória'
     )

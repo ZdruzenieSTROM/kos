@@ -11,7 +11,7 @@ pip install -r requirements.txt
 ## Inicializácia
 ```
 python manage.py migrate
-python manage.py loaddata categories base
+python manage.py loaddata test_game test_team
 ```
 
 ## Spustenie

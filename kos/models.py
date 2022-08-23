@@ -95,19 +95,6 @@ class Hint(models.Model):
         return minimum_elapsed_time - elapsed_time
 
 
-class Category(models.Model):
-    """Kategória"""
-    class Meta:
-        verbose_name = 'kategória'
-        verbose_name_plural = 'kategórie'
-    name = models.CharField(max_length=100)
-    is_active = models.BooleanField(default=True)
-    slug = models.SlugField()
-
-    def __str__(self):
-        return self.name
-
-
 class Team(models.Model):
     """Tím v hre"""
 
@@ -125,8 +112,6 @@ class Team(models.Model):
     current_level = models.PositiveSmallIntegerField(default=1)
     game = models.ForeignKey(Game, on_delete=models.CASCADE)
     is_online = models.BooleanField(default=False)
-    category = models.ForeignKey(
-        Category, on_delete=models.SET_NULL, null=True)
     hints_taken = models.ManyToManyField(
         Hint, verbose_name='Zobraté hinty', blank=True)
 

@@ -12,8 +12,8 @@ class TeamMemberInline(admin.TabularInline):
 
 @admin.register(models.Team)
 class TeamAdmin(admin.ModelAdmin):
-    list_display = ('name', 'game', 'is_online', 'category')
-    list_filter = ('game', 'is_online', 'category')
+    list_display = ('name', 'game', 'is_online')
+    list_filter = ('game', 'is_online')
     inlines = [TeamMemberInline]
 
 
@@ -26,12 +26,6 @@ class PuzzleAdmin(admin.ModelAdmin):
 @admin.register(models.Game)
 class GameAdmin(admin.ModelAdmin):
     list_display = ('name', 'start', 'end')
-
-
-@admin.register(models.Category)
-class CategoryAdmin(admin.ModelAdmin):
-    list_display = ('name', 'is_active', 'slug')
-    list_filter = ('is_active',)
 
 
 @admin.register(models.Submission)

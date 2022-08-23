@@ -44,8 +44,7 @@ class SignUpView(FormView):
             name=team_name,
             user=user,
             game=Game.objects.first(),
-            is_online=form.cleaned_data['is_online'],
-            category=form.cleaned_data['category']
+            is_online=form.cleaned_data['is_online']
         )
         for i in range(5):
             member_name = form.cleaned_data[f'team_member_{i+1}']
@@ -188,7 +187,6 @@ class TeamInfoView(FormView, GetTeamMixin):
     def get_initial(self):
         team = self.get_team()
         init_dict = {
-            'category': team.category,
             'is_online': team.is_online
         }
         for i, member in enumerate(team.members.all()):

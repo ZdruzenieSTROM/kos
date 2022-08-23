@@ -3,7 +3,7 @@
         "model": "kos.Game",
         "pk": 0,
         "fields": {
-            "name": "Testovanie 2022",
+            "name": "Testovanie 2022 - Začiatočníci",
             "start": "2022-06-01T00:00:00.000Z",
             "end": "2022-09-01T00:00:00.000Z"
         }
