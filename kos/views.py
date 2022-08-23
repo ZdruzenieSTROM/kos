@@ -33,6 +33,7 @@ class SignUpView(FormView):
     """Registračný formulár"""
     form_class = RegisterForm
     next_page = reverse_lazy("kos:login")
+    success_url = reverse_lazy("kos:game")
     template_name = "kos/registration.html"
 
     def form_valid(self, form):
