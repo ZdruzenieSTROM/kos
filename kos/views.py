@@ -1,5 +1,8 @@
 
 
+from audioop import reverse
+
+from django.contrib.auth import logout
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.views import LoginView
 from django.db.models import Count, Max, Q
@@ -11,6 +14,12 @@ from django.views.generic import DetailView, FormView, ListView
 
 from .forms import AuthForm, EditTeamForm, RegisterForm
 from .models import Game, Hint, Puzzle, Submission, Team, TeamMember, User
+
+
+def logout_view(request):
+    """Odhlásenie"""
+    logout(request)
+    return redirect('kos:game')
 
 
 class GetTeamMixin:
