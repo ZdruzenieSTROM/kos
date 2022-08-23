@@ -1,6 +1,8 @@
 from django import forms
 from django.contrib.auth.forms import AuthenticationForm
 
+from kos.models import Game
+
 
 class RegisterForm(forms.Form):
     """Kos team registration form"""
@@ -33,6 +35,10 @@ class RegisterForm(forms.Form):
     )
     is_online = forms.BooleanField(
         label='Chcem riešiť online'
+    )
+    game = forms.ModelChoiceField(
+        queryset=Game.objects.filter(is_active=True).all(),
+        label='Kategória'
     )
 
     def clean_password2(self):
