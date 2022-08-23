@@ -37,7 +37,7 @@ class RegisterForm(forms.Form):
         label='Chcem riešiť online'
     )
     game = forms.ModelChoiceField(
-        queryset=Game.objects.filter(is_active=True).all(),
+        queryset=Game.objects.filter(is_active=True, is_public=True).all(),
         label='Kategória'
     )
 
