@@ -143,8 +143,7 @@ class GameResultsView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        game = self.request.user.team.game
-        results = game.team_set.annotate(
+        results = self.object.team_set.annotate(
             solved_puzzles=Count('submissions', filter=Q(
                 submissions__correct=True)),
             last_correct_submission=Max(
@@ -152,6 +151,7 @@ class GameResultsView(DetailView):
         ).order_by('solved_puzzles', 'last_correct_submission')
         context['online_teams'] = results.filter(is_online=True)
         context['offline_teams'] = results.filter(is_online=False)
+        context['games'] = Game.object.filter(start__lte=now())
         return context
 
 
@@ -181,9 +181,19 @@ class GameResultsLatexExportView(GameResultsView):
     template_name = 'kos/results.tex'
 
 
+class GameResultsLatestView(DetailView):
+    template_name = 'kos/results.html'
+
+    def get_queryset(self, *args, **kwargs):
+        max_end = Game.objects.aggregate(Max('end'))['end__max']
+        queryset = Game.objects.filter(end=max_end, start__geq=now())
+        return queryset
+
+
 class HistoryGameView(ListView):
     """Archive of old games"""
-    queryset = Game.objects.filter(end__lte=now())
+    queryset = Game.objects.all()
+    template_name = 'kos/archive.html'
 
 
 class TeamInfoView(FormView, GetTeamMixin):

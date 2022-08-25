@@ -1,0 +1,25 @@
+[
+    {
+        "model": "sites.site",
+        "pk": 1,
+        "fields": {
+            "domain": "kos",
+            "name": "kos"
+        }
+    },
+    {
+        "model": "flatpages.flatpage",
+        "pk": 1,
+        "fields": {
+            "url": "/pravidla/",
+            "title": "Pravidlá",
+            "content": "Toto su pravidlá koša. Proste nepodvadzajte a riešte šifry a bude to fajn",
+            "enable_comments": false,
+            "template_name": "",
+            "registration_required": false,
+            "sites": [
+                1
+            ]
+        }
+    }
+]
