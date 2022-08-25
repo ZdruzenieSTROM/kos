@@ -23,9 +23,15 @@ class PuzzleAdmin(admin.ModelAdmin):
     list_filter = ('game',)
 
 
+@admin.register(models.Year)
+class YearAdmin(admin.ModelAdmin):
+    list_display = ('name', 'start', 'end', 'is_active', 'is_published')
+
+
 @admin.register(models.Game)
 class GameAdmin(admin.ModelAdmin):
-    list_display = ('name', 'start', 'end')
+    list_display = ('name', 'year')
+    list_filter = ('year',)
 
 
 @admin.register(models.Submission)

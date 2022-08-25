@@ -11,11 +11,12 @@ from unidecode import unidecode
 User = get_user_model()
 
 
-class Game(models.Model):
-    """Šifrovacia hra/ ročník šifrovačky"""
+class Year(models.Model):
+    """Rončník šiforvačky"""
+
     class Meta:
-        verbose_name = 'šifrovačka'
-        verbose_name_plural = 'šifrovačky'
+        verbose_name = 'Ročník'
+        verbose_name_plural = 'Ročníky'
 
     name = models.CharField(max_length=100)
     start = models.DateTimeField(verbose_name='Začiatok hry')
@@ -24,6 +25,17 @@ class Game(models.Model):
     is_active = models.BooleanField(
         'Hra je aktívna', default=False
     )
+
+
+class Game(models.Model):
+    """Šifrovacia hra/ ročník šifrovačky"""
+    class Meta:
+        verbose_name = 'šifrovačka'
+        verbose_name_plural = 'šifrovačky'
+
+    name = models.CharField(max_length=100)
+    year = models.ForeignKey(
+        Year, on_delete=models.SET_NULL, null=True, verbose_name='Ročník')
 
     def __str__(self):
         return self.name
@@ -90,7 +102,7 @@ class Hint(models.Model):
         """Zostávajúci čas do hintu"""
         last_submission = team.get_last_correct_submission_time()
         if last_submission is None:
-            last_submission = self.puzzle.game.start
+            last_submission = self.puzzle.game.year.start
         elapsed_time = last_submission - now()
         if set(team.hints_taken.all()).issuperset(set(self.prerequisites.all())):
             return None

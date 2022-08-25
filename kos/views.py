@@ -11,7 +11,8 @@ from django.utils.timezone import now
 from django.views.generic import DetailView, FormView, ListView
 
 from .forms import AuthForm, EditTeamForm, RegisterForm
-from .models import Game, Hint, Puzzle, Submission, Team, TeamMember, User
+from .models import (Game, Hint, Puzzle, Submission, Team, TeamMember, User,
+                     Year)
 
 
 def logout_view(request):
@@ -151,7 +152,7 @@ class GameResultsView(DetailView):
         ).order_by('solved_puzzles', 'last_correct_submission')
         context['online_teams'] = results.filter(is_online=True)
         context['offline_teams'] = results.filter(is_online=False)
-        context['games'] = Game.object.filter(start__lte=now())
+        context['games'] = Game.object.filter(year__start__lte=now())
         return context
 
 
@@ -182,11 +183,12 @@ class GameResultsLatexExportView(GameResultsView):
 
 
 class GameResultsLatestView(DetailView):
+    """Výsledky poslednej šiforvačky"""
     template_name = 'kos/results.html'
 
     def get_queryset(self, *args, **kwargs):
-        max_end = Game.objects.aggregate(Max('end'))['end__max']
-        queryset = Game.objects.filter(end=max_end, start__geq=now())
+        queryset = Year.objects.filter(
+            start__geq=now()).order_by('-end').first().game_set
         return queryset
 
 

@@ -1,13 +1,29 @@
 [
     {
-        "model": "kos.Game",
+        "model": "kos.Year",
         "pk": 0,
         "fields": {
-            "name": "Testovanie 2022 - Začiatočníci",
+            "name": "Testovanie 2022",
             "start": "2022-06-01T00:00:00.000Z",
             "end": "2022-09-01T00:00:00.000Z",
             "is_public": true,
             "is_active": true
+        }
+    },
+    {
+        "model": "kos.Game",
+        "pk": 0,
+        "fields": {
+            "name": "Začiatočníci",
+            "year": 0
+        }
+    },
+    {
+        "model": "kos.Game",
+        "pk": 1,
+        "fields": {
+            "name": "Pokročilí",
+            "year": 0
         }
     },
     {
