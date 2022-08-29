@@ -188,7 +188,7 @@ class GameResultsLatestView(DetailView):
 
     def get_queryset(self, *args, **kwargs):
         queryset = Year.objects.filter(
-            start__gte=now()).order_by('-end').first().games
+            start__lte=now()).order_by('-end').first().games
         return queryset
 
 
