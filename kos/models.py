@@ -12,7 +12,7 @@ User = get_user_model()
 
 
 class Year(models.Model):
-    """Rončník šiforvačky"""
+    """Ročník šiforvačky"""
 
     class Meta:
         verbose_name = 'Ročník'
@@ -23,8 +23,11 @@ class Year(models.Model):
     end = models.DateTimeField(verbose_name='Koniec hry')
     is_public = models.BooleanField(verbose_name='Verejná hra', default=True)
     is_active = models.BooleanField(
-        'Hra je aktívna', default=False
+        verbose_name='Hra je aktívna', default=False
     )
+
+    def __str__(self):
+        return self.name
 
 
 class Game(models.Model):
@@ -35,10 +38,10 @@ class Game(models.Model):
 
     name = models.CharField(max_length=100)
     year = models.ForeignKey(
-        Year, on_delete=models.SET_NULL, null=True, verbose_name='Ročník')
+        Year, on_delete=models.SET_NULL, null=True, verbose_name='Ročník', related_name='games')
 
     def __str__(self):
-        return self.name
+        return f'{self.year.name} - {self.name}'
 
 
 class Puzzle(models.Model):

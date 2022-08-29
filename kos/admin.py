@@ -25,7 +25,7 @@ class PuzzleAdmin(admin.ModelAdmin):
 
 @admin.register(models.Year)
 class YearAdmin(admin.ModelAdmin):
-    list_display = ('name', 'start', 'end', 'is_active', 'is_published')
+    list_display = ('name', 'start', 'end', 'is_active', 'is_public')
 
 
 @admin.register(models.Game)

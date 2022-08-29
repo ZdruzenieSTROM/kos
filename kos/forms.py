@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import AuthenticationForm
 
-from kos.models import Game
+from kos.models import Game, Year
 
 
 class RegisterForm(forms.Form):
@@ -36,8 +36,10 @@ class RegisterForm(forms.Form):
     is_online = forms.BooleanField(
         label='Chcem riešiť online'
     )
+    # FIXME: Add ordering
     game = forms.ModelChoiceField(
-        queryset=Game.objects.filter(is_active=True, is_public=True).all(),
+        queryset=Game.objects.filter(
+            year__in=Year.objects.filter(is_active=True, is_public=True)),
         label='Kategória'
     )
 
