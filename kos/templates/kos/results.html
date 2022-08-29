@@ -1,12 +1,15 @@
 {% extends "kos/base.html" %}
 
-{% block title %}{{game.name}}{% endblock %}
+{% block title %}Poradie - {{year.name}}{% endblock %}
 
 {% block content %}
 
 <h1>Výsledky</h1>
 
-{% if online_teams %}
+{%for game in games%}
+<h2>{{game.name}}</h2>
+
+{% if game.online_teams %}
 
 <h2>Online:</h2>
 
@@ -19,7 +22,7 @@
         <th>Počet vyriešených šifier</th>
         <th>Posledné správne odovzdanie</th>
     </tr>
-    {% for team in online_teams %}
+    {% for team in game.online_teams %}
     <tr>
         <td>{{ forloop.counter }}.</td>
         <td>{{ team.name }}</td>
@@ -30,7 +33,7 @@
 </table>
 {% endif %}
 
-{% if offilne_teams %}
+{% if game.offilne_teams %}
 <h2>Offline:</h2>
 
 <table>
@@ -40,7 +43,7 @@
         <th>Počet vyriešených šifier</th>
         <th>Posledné správne odovzdanie</th>
     </tr>
-    {% for team in offline_teams %}
+    {% for team in game.offline_teams %}
     <tr>
         <td>{{ forloop.counter }}.</td>
         <td>{{ team.name }}</td>
@@ -52,4 +55,5 @@
 {% endif %}
 
 
+{% endfor %}
 {% endblock %}

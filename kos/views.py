@@ -137,22 +137,27 @@ class GameView(LoginRequiredMixin, DetailView, GetTeamMixin):
         return super().get(request, *args, **kwargs)
 
 
-class GameResultsView(DetailView):
+class ResultsView(DetailView):
     """Výsledková listina"""
-    model = Game
+    model = Year
     template_name = 'kos/results.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        results = self.object.team_set.annotate(
-            solved_puzzles=Count('submissions', filter=Q(
-                submissions__correct=True)),
-            last_correct_submission=Max(
-                'submissions__submitted_at', filter=Q(submissions__correct=True))
-        ).order_by('solved_puzzles', 'last_correct_submission')
-        context['online_teams'] = results.filter(is_online=True)
-        context['offline_teams'] = results.filter(is_online=False)
-        context['games'] = Game.object.filter(year__start__lte=now())
+        context['games'] = []
+        for game in self.object.games.all():
+            game_results = {}
+            results = game.team_set.annotate(
+                solved_puzzles=Count('submissions', filter=Q(
+                    submissions__correct=True)),
+                last_correct_submission=Max(
+                    'submissions__submitted_at', filter=Q(submissions__correct=True))
+            ).order_by('solved_puzzles', 'last_correct_submission')
+            game_results['online_teams'] = results.filter(is_online=True)
+            game_results['offline_teams'] = results.filter(is_online=False)
+            game_results['name'] = str(game)
+            context['games'].append(game_results)
+        context['years'] = Year.objects.filter(start__lte=now())
         return context
 
 
@@ -177,19 +182,19 @@ class HintView(UserPassesTestMixin, DetailView, GetTeamMixin):
         return redirect('kos:game')
 
 
-class GameResultsLatexExportView(GameResultsView):
+class ResultsLatexExportView(ResultsView):
     """Results for pdf"""
     template_name = 'kos/results.tex'
 
 
-class GameResultsLatestView(DetailView):
+class ResultsLatestView(ResultsView):
     """Výsledky poslednej šiforvačky"""
     template_name = 'kos/results.html'
 
-    def get_queryset(self, *args, **kwargs):
-        queryset = Year.objects.filter(
-            start__lte=now()).order_by('-end').first().games
-        return queryset
+    def get_object(self, *args, **kwargs):
+        year = Year.objects.filter(
+            start__lte=now()).order_by('-end').first()
+        return year
 
 
 class HistoryGameView(ListView):
