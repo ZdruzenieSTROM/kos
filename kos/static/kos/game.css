@@ -1,3 +1,21 @@
+.content {
+    padding: 0 10% 10% 10%;
+}
+
+.main-link {
+    color: #555555;
+}
+
+.main-link:hover {
+    color: black;
+    text-decoration: underline;
+}
+
+.main-link:visited {
+    color: #555555;
+    text-decoration: none;
+}
+
 .answer-alert {
     padding: 5px;
     background-color: #f44336;
@@ -34,4 +52,31 @@ th {
 
 tr:nth-child(even) {
     background-color: #dddddd;
+}
+
+.main-button {
+    color: black;
+    background-color: white;
+    border: black 2px solid;
+    font-weight: bold;
+}
+
+.main-button:hover {
+    color: white;
+    background-color: black;
+}
+
+.main-input {
+    color: black;
+    background-color: white;
+    border: black 2px solid;
+    border-radius: 0;
+}
+
+.checkbox-input {
+    border: 2px solid black !important;
+}
+
+.checkbox-input:checked {
+    accent-color: black;
 }
