@@ -96,7 +96,7 @@ class GameView(LoginRequiredMixin, DetailView, GetTeamMixin):
         puzzles = Puzzle.objects.filter(
             game=self.get_object(), level__lte=team.current_level).annotate(
                 correctly_submitted=Max('submissions__correct')
-        )
+        ).order_by('-level')
         for puzzle in puzzles:
             puzzle.current_submissions = puzzle.team_submissions(team)
         context['visible_puzzles'] = puzzles
