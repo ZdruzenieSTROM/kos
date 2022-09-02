@@ -9,7 +9,7 @@ urlpatterns = [
     path('', flatpage, {'url': '/pravidla/'}, name='home'),
     path('register', views.SignUpView.as_view(), name='registration'),
     path('change-profile', views.TeamInfoView.as_view(), name='change-profile'),
-    path('change-password', views.GameIntroductionView.as_view(),
+    path('change-password', views.ChangePasswordView.as_view(),
          name='change-password'),
     path('login', views.LoginFormView.as_view(), name='login'),
     path('logout', views.logout_view, name='logout'),

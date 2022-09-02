@@ -1,5 +1,7 @@
+from ast import Pass
+
 from django import forms
-from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth.forms import AuthenticationForm, PasswordChangeForm
 
 from kos.models import Game, Year
 
@@ -57,6 +59,22 @@ class RegisterForm(forms.Form):
         return password2
 
 
+class ChangePasswordForm(PasswordChangeForm):
+    """Lokalizovaný formulár pre zmenu hesla"""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['old_password'].label = 'Staré heslo'
+        self.fields['old_password'].widget = forms.PasswordInput(
+            attrs={'autofocus': True, 'class': 'main-input'})
+        self.fields['new_password1'].label = 'Zadajte nové heslo'
+        self.fields['new_password1'].widget = forms.PasswordInput(
+            attrs={'autofocus': True, 'class': 'main-input'})
+        self.fields['new_password2'].label = 'Zadajte znova nové heslo'
+        self.fields['new_password2'].widget = forms.PasswordInput(
+            attrs={'autofocus': True, 'class': 'main-input'})
+
+
 class AuthForm(AuthenticationForm):
     """Lokalizovaný prihlasovací formulár"""
 
@@ -70,28 +88,29 @@ class AuthForm(AuthenticationForm):
             attrs={'autocomplete': 'current-password', 'class': 'main-input'})
 
 
-class ChangePasswordForm(forms.Form):
-    """Form na zmenu hesla"""
-    old_password = password = forms.CharField(
-        widget=forms.PasswordInput(attrs={'class': 'form-control main-input'}),
-        label='Staré heslo')
-    password = forms.CharField(
-        widget=forms.PasswordInput(attrs={'class': 'form-control main-input'}),
-        label='Heslo')
-    password2 = forms.CharField(
-        widget=forms.PasswordInput(attrs={'class': 'form-control main-input'}),
-        label='Zopakuj heslo',)
+# class ChangePasswordForm(forms.Form):
+#     """Form na zmenu hesla"""
+#     old_password = password = forms.CharField(
+#         widget=forms.PasswordInput(attrs={'class': 'form-control main-input'}),
+#         label='Staré heslo')
+#     password = forms.CharField(
+#         widget=forms.PasswordInput(attrs={'class': 'form-control main-input'}),
+#         label='Heslo')
+#     password2 = forms.CharField(
+#         widget=forms.PasswordInput(attrs={'class': 'form-control main-input'}),
+#         label='Zopakuj heslo',)
 
-    def clean_password2(self):
-        """Heslo a zopakované heslo sa rovnajú"""
-        password1 = self.cleaned_data.get('password')
-        password2 = self.cleaned_data.get('password2')
+#     def clean_password2(self):
+#         """Heslo a zopakované heslo sa rovnajú"""
+#         old_password = self.cleaned_data.get('old_password')
+#         password1 = self.cleaned_data.get('password')
+#         password2 = self.cleaned_data.get('password2')
 
-        if not password2:
-            raise forms.ValidationError("Musíte potvrdiť svoje heslo")
-        if password1 != password2:
-            raise forms.ValidationError("Heslá sa musia zhodovať")
-        return password2
+#         if not password2:
+#             raise forms.ValidationError("Musíte potvrdiť svoje heslo")
+#         if password1 != password2:
+#             raise forms.ValidationError("Heslá sa musia zhodovať")
+#         return password2
 
 
 class EditTeamForm(forms.Form):

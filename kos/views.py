@@ -10,7 +10,7 @@ from django.urls import reverse_lazy
 from django.utils.timezone import now
 from django.views.generic import DetailView, FormView, ListView
 
-from .forms import AuthForm, EditTeamForm, RegisterForm
+from .forms import AuthForm, ChangePasswordForm, EditTeamForm, RegisterForm
 from .models import (Game, Hint, Puzzle, Submission, Team, TeamMember, User,
                      Year)
 
@@ -35,6 +35,12 @@ class LoginFormView(LoginView):
     authentication_form = AuthForm
     next_page = reverse_lazy('kos:game')
     template_name = 'kos/login.html'
+
+
+class ChangePasswordView(FormView):
+    """Zmena hesla"""
+    form_class = ChangePasswordForm
+    template_name = 'kos/change_password.html'
 
 
 class SignUpView(FormView):
