@@ -49,6 +49,26 @@
         }
     },
     {
+        "model": "kos.Hint",
+        "pk": 1,
+        "fields": {
+            "puzzle": 0,
+            "text": "A má to takú šupu čo lúpeš",
+            "show_after": "50.000",
+            "count_as_penalty": true
+        }
+    },
+    {
+        "model": "kos.Hint",
+        "pk": 2,
+        "fields": {
+            "puzzle": 0,
+            "text": "Je to banan",
+            "show_after": "100.000",
+            "count_as_penalty": false
+        }
+    },
+    {
         "model": "kos.Puzzle",
         "pk": 1,
         "fields": {

@@ -36,6 +36,60 @@
         }
     },
     {
+        "model": "auth.user",
+        "pk": 3,
+        "fields": {
+            "password": "pbkdf2_sha256$320000$LvUd0x1TNdzcu94oBVAQfN$HhGVafi+UBMnXGMJZRLIjtaxU9iuxL4qdLb0ANXTrmw=",
+            "last_login": "2022-08-23T13:37:25.976Z",
+            "is_superuser": false,
+            "username": "team2",
+            "first_name": "",
+            "last_name": "",
+            "email": "team2@strom.sk",
+            "is_staff": false,
+            "is_active": true,
+            "date_joined": "2022-08-23T13:09:15.083Z",
+            "groups": [],
+            "user_permissions": []
+        }
+    },
+    {
+        "model": "auth.user",
+        "pk": 4,
+        "fields": {
+            "password": "pbkdf2_sha256$320000$LvUd0x1TNdzcu94oBVAQfN$HhGVafi+UBMnXGMJZRLIjtaxU9iuxL4qdLb0ANXTrmw=",
+            "last_login": "2022-08-23T13:37:25.976Z",
+            "is_superuser": false,
+            "username": "team3",
+            "first_name": "",
+            "last_name": "",
+            "email": "team3@strom.sk",
+            "is_staff": false,
+            "is_active": true,
+            "date_joined": "2022-08-23T13:09:15.083Z",
+            "groups": [],
+            "user_permissions": []
+        }
+    },
+    {
+        "model": "auth.user",
+        "pk": 5,
+        "fields": {
+            "password": "pbkdf2_sha256$320000$LvUd0x1TNdzcu94oBVAQfN$HhGVafi+UBMnXGMJZRLIjtaxU9iuxL4qdLb0ANXTrmw=",
+            "last_login": "2022-08-23T13:37:25.976Z",
+            "is_superuser": false,
+            "username": "team4",
+            "first_name": "",
+            "last_name": "",
+            "email": "team4@strom.sk",
+            "is_staff": false,
+            "is_active": true,
+            "date_joined": "2022-08-23T13:09:15.083Z",
+            "groups": [],
+            "user_permissions": []
+        }
+    },
+    {
         "model": "kos.team",
         "pk": 1,
         "fields": {
@@ -44,6 +98,42 @@
             "current_level": 1,
             "game": 0,
             "is_online": true,
+            "hints_taken": []
+        }
+    },
+    {
+        "model": "kos.team",
+        "pk": 2,
+        "fields": {
+            "name": "team2",
+            "user": 3,
+            "current_level": 1,
+            "game": 0,
+            "is_online": true,
+            "hints_taken": []
+        }
+    },
+    {
+        "model": "kos.team",
+        "pk": 3,
+        "fields": {
+            "name": "team3",
+            "user": 4,
+            "current_level": 1,
+            "game": 0,
+            "is_online": false,
+            "hints_taken": []
+        }
+    },
+    {
+        "model": "kos.team",
+        "pk": 4,
+        "fields": {
+            "name": "team4",
+            "user": 5,
+            "current_level": 1,
+            "game": 0,
+            "is_online": false,
             "hints_taken": []
         }
     },
@@ -85,6 +175,38 @@
         "fields": {
             "team": 1,
             "name": ""
+        }
+    },
+    {
+        "model": "kos.teammember",
+        "pk": 6,
+        "fields": {
+            "team": 2,
+            "name": "Jožindo"
+        }
+    },
+    {
+        "model": "kos.teammember",
+        "pk": 7,
+        "fields": {
+            "team": 3,
+            "name": "Báčik z Chochoľova"
+        }
+    },
+    {
+        "model": "kos.teammember",
+        "pk": 8,
+        "fields": {
+            "team": 4,
+            "name": "Osoba Ktorá Má Extrémne Dlhočizné Meno"
+        }
+    },
+    {
+        "model": "kos.teammember",
+        "pk": 9,
+        "fields": {
+            "team": 4,
+            "name": "Jožko (ale falošný)"
         }
     }
 ]
