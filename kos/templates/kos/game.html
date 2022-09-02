@@ -6,7 +6,8 @@
 
 {% for puzzle in visible_puzzles %}
 <div>
-    <h2>{{puzzle.level}}. {{puzzle.name}} - <a href="{% url 'kos:puzzle' pk=puzzle.pk %}" target="_blank" class="main-link">Stiahnuť</a>
+    <h2>{{puzzle.level}}. {{puzzle.name}} - <a href="{% url 'kos:puzzle' pk=puzzle.pk %}" target="_blank"
+            class="main-link">Stiahnuť</a>
     </h2>
 </div>
 
@@ -26,7 +27,8 @@
 {% if not puzzle.correctly_submitted %}
 <form action="{% url 'kos:hint' pk=hint.pk %}" method="post">
     {% csrf_token %}
-    <input type="Submit" value="Zobrať hint" class="main-button" />
+    <input type="Submit" value="Zobrať {% if hint.count_as_penalty %}nápovedu{%else%}riešenie{%endif%}"
+        class="main-button" />
 </form>
 {% endif %}
 {% endif %}
