@@ -1,11 +1,12 @@
 
 
-from django.contrib.auth import logout
+from django.contrib import messages
+from django.contrib.auth import logout, update_session_auth_hash
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.views import LoginView
 from django.db.models import Count, Max, Q
 from django.http import FileResponse, HttpResponseForbidden
-from django.shortcuts import redirect
+from django.shortcuts import redirect, render
 from django.urls import reverse_lazy
 from django.utils.timezone import now
 from django.views.generic import DetailView, FormView, ListView
@@ -37,10 +38,22 @@ class LoginFormView(LoginView):
     template_name = 'kos/login.html'
 
 
-class ChangePasswordView(FormView):
+def change_password(request):
     """Zmena hesla"""
-    form_class = ChangePasswordForm
-    template_name = 'kos/change_password.html'
+    if request.method == 'POST':
+        form = ChangePasswordForm(request.user, request.POST)
+        if form.is_valid():
+            user = form.save()
+            update_session_auth_hash(request, user)
+            messages.success(
+                request, 'Heslo bolo zmenené!')
+            return redirect('change_password')
+        messages.error(request, 'Chyba pri zmene hesla')
+    else:
+        form = ChangePasswordForm(request.user)
+    return render(request, 'kos/change_password.html', {
+        'form': form
+    })
 
 
 class SignUpView(FormView):
