@@ -107,7 +107,7 @@ class Hint(models.Model):
         if last_submission is None:
             last_submission = self.puzzle.game.year.start
         elapsed_time = last_submission - now()
-        if set(team.hints_taken.all()).issuperset(set(self.prerequisites.all())):
+        if not set(team.hints_taken.all()).issuperset(set(self.prerequisites.all())):
             return None
         minimum_elapsed_time = self.show_after + self.hint_penalty*team.get_penalties()
         return minimum_elapsed_time - elapsed_time
