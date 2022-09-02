@@ -27,7 +27,7 @@
         <td>{{ forloop.counter }}.</td>
         <td>{{ team.name }}</td>
         <td>{{ team.solved_puzzles }}</td>
-        <td>{{ team.last_correct_submission }}</td>
+        <td>{%if team.last_correct_submission %}{{ team.last_correct_submission }}{% else %}-{%endif%}</td>
     </tr>
     {% endfor %}
 </table>
