@@ -1,5 +1,7 @@
 {% extends "kos/base.html" %}
 
+{% load kos_extras %}
+
 {% block title %}{{game.name}}{% endblock %}
 
 {% block content %}
@@ -29,6 +31,7 @@
     {% csrf_token %}
     <input type="Submit" value="Zobrať {% if hint.count_as_penalty %}nápovedu{%else%}riešenie{%endif%}"
         class="main-button" />
+    Hint sa dá zobrať o {% get_hint_available_time hint team %}
 </form>
 {% endif %}
 {% endif %}

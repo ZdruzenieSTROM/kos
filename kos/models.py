@@ -112,6 +112,10 @@ class Hint(models.Model):
         minimum_elapsed_time = self.show_after + self.hint_penalty*team.get_penalties()
         return minimum_elapsed_time - elapsed_time
 
+    def time_when_will_be_unlocked(self, team):
+        time_to_take = self.get_time_to_take(team)
+        return now() + time_to_take if time_to_take is not None else None
+
 
 class Team(models.Model):
     """Tím v hre"""
