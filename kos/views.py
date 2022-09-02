@@ -37,6 +37,8 @@ class LoginFormView(LoginView):
     next_page = reverse_lazy('kos:game')
     template_name = 'kos/login.html'
 
+# TODO: LOgin required
+
 
 def change_password(request):
     """Zmena hesla"""
@@ -47,7 +49,7 @@ def change_password(request):
             update_session_auth_hash(request, user)
             messages.success(
                 request, 'Heslo bolo zmenené!')
-            return redirect('change_password')
+            return redirect('kos:change-password')
         messages.error(request, 'Chyba pri zmene hesla')
     else:
         form = ChangePasswordForm(request.user)
