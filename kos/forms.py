@@ -7,37 +7,39 @@ from kos.models import Game, Year
 class RegisterForm(forms.Form):
     """Kos team registration form"""
     team_name = forms.CharField(
-        widget=forms.TextInput(attrs={'class': 'form-control'}),
+        widget=forms.TextInput(attrs={'class': 'form-control main-input'}),
         label='Názov tímu')
     email = forms.EmailField(widget=forms.EmailInput(
-        attrs={'class': 'form-control'}))
+        attrs={'class': 'form-control main-input'}))
     password = forms.CharField(
-        widget=forms.PasswordInput(attrs={'class': 'form-control'}),
+        widget=forms.PasswordInput(attrs={'class': 'form-control main-input'}),
         label='Heslo')
     password2 = forms.CharField(
-        widget=forms.PasswordInput(attrs={'class': 'form-control'}),
+        widget=forms.PasswordInput(attrs={'class': 'form-control main-input'}),
         label='Zopakuj heslo',)
     team_member_1 = forms.CharField(
-        widget=forms.TextInput(attrs={'class': 'form-control'}),
+        widget=forms.TextInput(attrs={'class': 'form-control main-input'}),
         label='1. člen tímu')
     team_member_2 = forms.CharField(
-        widget=forms.TextInput(attrs={'class': 'form-control'}),
+        widget=forms.TextInput(attrs={'class': 'form-control main-input'}),
         label='2. člen tímu', required=False)
     team_member_3 = forms.CharField(
-        widget=forms.TextInput(attrs={'class': 'form-control'}),
+        widget=forms.TextInput(attrs={'class': 'form-control main-input'}),
         label='3. člen tímu', required=False)
     team_member_4 = forms.CharField(
-        widget=forms.TextInput(attrs={'class': 'form-control'}),
+        widget=forms.TextInput(attrs={'class': 'form-control main-input'}),
         label='4. člen tímu', required=False)
     team_member_5 = forms.CharField(
-        widget=forms.TextInput(attrs={'class': 'form-control'}),
+        widget=forms.TextInput(attrs={'class': 'form-control main-input'}),
         label='5. člen tímu', required=False
     )
     is_online = forms.BooleanField(
+        widget=forms.CheckboxInput(attrs={'class': 'checkbox-input'}),
         label='Chcem riešiť online'
     )
     # FIXME: Add ordering
     game = forms.ModelChoiceField(
+        widget=forms.Select(attrs={'class': 'main-input'}),
         queryset=Game.objects.filter(
             year__in=Year.objects.filter(is_active=True, is_public=True)),
         label='Kategória'
@@ -61,19 +63,23 @@ class AuthForm(AuthenticationForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['username'].label = 'Názov tímu'
+        self.fields['username'].widget = forms.TextInput(
+            attrs={'autofocus': True, 'class': 'main-input'})
         self.fields['password'].label = 'Heslo'
+        self.fields['password'].widget = forms.PasswordInput(
+            attrs={'autocomplete': 'current-password', 'class': 'main-input'})
 
 
 class ChangePasswordForm(forms.Form):
     """Form na zmenu hesla"""
     old_password = password = forms.CharField(
-        widget=forms.PasswordInput(attrs={'class': 'form-control'}),
+        widget=forms.PasswordInput(attrs={'class': 'form-control main-input'}),
         label='Staré heslo')
     password = forms.CharField(
-        widget=forms.PasswordInput(attrs={'class': 'form-control'}),
+        widget=forms.PasswordInput(attrs={'class': 'form-control main-input'}),
         label='Heslo')
     password2 = forms.CharField(
-        widget=forms.PasswordInput(attrs={'class': 'form-control'}),
+        widget=forms.PasswordInput(attrs={'class': 'form-control main-input'}),
         label='Zopakuj heslo',)
 
     def clean_password2(self):
@@ -91,18 +97,18 @@ class ChangePasswordForm(forms.Form):
 class EditTeamForm(forms.Form):
     """Form na úpravu tímových údajov"""
     team_member_1 = forms.CharField(
-        widget=forms.TextInput(attrs={'class': 'form-control'}),
+        widget=forms.TextInput(attrs={'class': 'form-control main-input'}),
         label='1. člen tímu')
     team_member_2 = forms.CharField(
-        widget=forms.TextInput(attrs={'class': 'form-control'}),
+        widget=forms.TextInput(attrs={'class': 'form-control main-input'}),
         label='2. člen tímu', required=False)
     team_member_3 = forms.CharField(
-        widget=forms.TextInput(attrs={'class': 'form-control'}),
+        widget=forms.TextInput(attrs={'class': 'form-control main-input'}),
         label='3. člen tímu', required=False)
     team_member_4 = forms.CharField(
-        widget=forms.TextInput(attrs={'class': 'form-control'}),
+        widget=forms.TextInput(attrs={'class': 'form-control main-input'}),
         label='4. člen tímu', required=False)
     team_member_5 = forms.CharField(
-        widget=forms.TextInput(attrs={'class': 'form-control'}),
+        widget=forms.TextInput(attrs={'class': 'form-control main-input'}),
         label='5. člen tímu', required=False
     )
