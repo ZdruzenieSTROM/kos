@@ -189,13 +189,7 @@ class HintView(UserPassesTestMixin, DetailView, GetTeamMixin):
     def test_func(self):
         hint = self.get_object()
         team = self.get_team()
-        time_to_take = hint.get_time_to_take(team)
-        return (
-            time_to_take is not None
-            and time_to_take > 0
-            and not team.hints_taken.filter(pk=hint.pk).exists()
-            and not team.submissions.filter(correct=True, puzzle=hint.puzzle).exists()
-        )
+        return hint.can_team_take(team)
 
     def post(self, request, *args, **kwargs):
         """Pridaj hint"""

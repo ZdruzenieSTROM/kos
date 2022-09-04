@@ -116,6 +116,15 @@ class Hint(models.Model):
         time_to_take = self.get_time_to_take(team)
         return now() + time_to_take if time_to_take is not None else None
 
+    def can_team_take(self, team):
+        time_to_take = self.get_time_to_take(team)
+        return (
+            time_to_take is not None
+            and time_to_take > 0
+            and not team.hints_taken.filter(pk=self.pk).exists()
+            and not team.submissions.filter(correct=True, puzzle=self.puzzle).exists()
+        )
+
 
 class Team(models.Model):
     """Tím v hre"""
