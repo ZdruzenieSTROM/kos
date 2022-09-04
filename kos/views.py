@@ -175,7 +175,7 @@ class ResultsView(DetailView):
                     submissions__correct=True)),
                 last_correct_submission=Max(
                     'submissions__submitted_at', filter=Q(submissions__correct=True))
-            ).order_by('solved_puzzles', 'last_correct_submission')
+            ).order_by('-solved_puzzles', 'last_correct_submission')
             game_results['online_teams'] = results.filter(is_online=True)
             game_results['offline_teams'] = results.filter(is_online=False)
             game_results['name'] = str(game)

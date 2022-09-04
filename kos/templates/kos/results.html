@@ -27,7 +27,8 @@
         <td>{{ forloop.counter }}.</td>
         <td>{{ team.name }}</td>
         <td>{{ team.solved_puzzles }}</td>
-        <td>{%if team.last_correct_submission %}{{ team.last_correct_submission }}{% else %}-{%endif%}</td>
+        <!-- This needs to be displayed in the client's timezone -->
+        <td>{%if team.last_correct_submission %}{{ team.last_correct_submission|date:'H:i:s' }}{% else %}-{%endif%}</td>
     </tr>
     {% endfor %}
 </table>
