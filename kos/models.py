@@ -115,11 +115,13 @@ class Hint(models.Model):
         time_to_take = self.get_time_to_take(team)
         return now() + time_to_take
 
+    def all_prerequisites_met(self, team):
+        return set(team.hints_taken.all()).issuperset(set(self.prerequisites.all()))
+
     def can_team_take(self, team):
         time_to_take = self.get_time_to_take(team)
         return (
-            set(team.hints_taken.all()).issuperset(
-                set(self.prerequisites.all()))
+            self.all_prerequisites_met(team)
             and not time_to_take > timedelta()
             and not team.hints_taken.filter(pk=self.pk).exists()
             and not team.submissions.filter(correct=True, puzzle=self.puzzle).exists()
