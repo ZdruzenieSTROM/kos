@@ -81,15 +81,151 @@
         }
     },
     {
+        "model": "kos.Hint",
+        "pk": 3,
+        "fields": {
+            "puzzle": 1,
+            "text": "Take zelene, cervene alebo zlte to je",
+            "show_after": "20.000",
+            "count_as_penalty": true
+        }
+    },
+    {
+        "model": "kos.Hint",
+        "pk": 4,
+        "fields": {
+            "puzzle": 1,
+            "text": "A má to takú šupu čo ješ",
+            "show_after": "50.000",
+            "count_as_penalty": true
+        }
+    },
+    {
+        "model": "kos.Hint",
+        "pk": 5,
+        "fields": {
+            "puzzle": 1,
+            "text": "Je to jablko",
+            "show_after": "80.000",
+            "count_as_penalty": false
+        }
+    },
+    {
         "model": "kos.Puzzle",
         "pk": 2,
         "fields": {
-            "name": "Posledná",
+            "name": "Tretia",
             "game": 0,
             "solution": "hruska",
             "unlock_code": "koloman",
             "level": 3,
             "location": "Košický hostinec (na bare)"
+        }
+    },
+    {
+        "model": "kos.Hint",
+        "pk": 6,
+        "fields": {
+            "puzzle": 2,
+            "text": "Take zelene to je a moze to byt aj palenka",
+            "show_after": "30.000",
+            "count_as_penalty": true
+        }
+    },
+    {
+        "model": "kos.Hint",
+        "pk": 7,
+        "fields": {
+            "puzzle": 2,
+            "text": "Je to hruska",
+            "show_after": "80.000",
+            "count_as_penalty": false
+        }
+    },
+    {
+        "model": "kos.Puzzle",
+        "pk": 3,
+        "fields": {
+            "name": "Stvrta",
+            "game": 0,
+            "solution": "slivka",
+            "unlock_code": "zlodej",
+            "level": 4,
+            "location": "Mestsky park"
+        }
+    },
+    {
+        "model": "kos.Hint",
+        "pk": 8,
+        "fields": {
+            "puzzle": 3,
+            "text": "Take fialove to je a moze to byt aj palenka",
+            "show_after": "30.000",
+            "count_as_penalty": true
+        }
+    },
+    {
+        "model": "kos.Hint",
+        "pk": 9,
+        "fields": {
+            "puzzle": 3,
+            "text": "Je to slivka",
+            "show_after": "80.000",
+            "count_as_penalty": false
+        }
+    },
+    {
+        "model": "kos.Puzzle",
+        "pk": 4,
+        "fields": {
+            "name": "Bezhintova",
+            "game": 0,
+            "solution": "pomaranc",
+            "unlock_code": "hladomor",
+            "level": 5,
+            "location": "Spievajuca fontana"
+        }
+    },
+    {
+        "model": "kos.Hint",
+        "pk": 10,
+        "fields": {
+            "puzzle": 4,
+            "text": "Je to pomaranc, duh",
+            "show_after": "30.000",
+            "count_as_penalty": false
+        }
+    },
+    {
+        "model": "kos.Puzzle",
+        "pk": 5,
+        "fields": {
+            "name": "Posledna",
+            "game": 0,
+            "solution": "mandarinka",
+            "unlock_code": "vinobranie",
+            "level": 6,
+            "location": "Morovy stlp"
+        }
+    },
+    {
+        "model": "kos.Hint",
+        "pk": 11,
+        "fields": {
+            "puzzle": 5,
+            "text": "Podobne jak riesenie predchadzajucej sifry iba sladke",
+            "show_after": "30.000",
+            "count_as_penalty": true
+        }
+    },
+    {
+        "model": "kos.Hint",
+        "pk": 12,
+        "fields": {
+            "puzzle": 5,
+            "text": "Je to mandarinka",
+            "show_after": "80.000",
+            "count_as_penalty": false
         }
     }
 ]
