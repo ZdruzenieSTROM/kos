@@ -106,15 +106,26 @@ class Hint(models.Model):
         last_submission = team.get_last_correct_submission_time()
         if last_submission is None:
             last_submission = self.puzzle.game.year.start
-        elapsed_time = last_submission - now()
-        if not set(team.hints_taken.all()).issuperset(set(self.prerequisites.all())):
-            return None
+        elapsed_time = now() - last_submission
         minimum_elapsed_time = self.show_after + self.hint_penalty*team.get_penalties()
         return minimum_elapsed_time - elapsed_time
 
     def time_when_will_be_unlocked(self, team):
+        """Čas, kedy si daný tým bude môcť zobrať tento hint"""
         time_to_take = self.get_time_to_take(team)
-        return now() + time_to_take if time_to_take is not None else None
+        return now() + time_to_take
+
+    def all_prerequisites_met(self, team):
+        return set(team.hints_taken.all()).issuperset(set(self.prerequisites.all()))
+
+    def can_team_take(self, team):
+        time_to_take = self.get_time_to_take(team)
+        return (
+            self.all_prerequisites_met(team)
+            and not time_to_take > timedelta()
+            and not team.hints_taken.filter(pk=self.pk).exists()
+            and not team.submissions.filter(correct=True, puzzle=self.puzzle).exists()
+        )
 
 
 class Team(models.Model):
