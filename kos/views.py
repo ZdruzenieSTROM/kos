@@ -120,7 +120,7 @@ class GameView(LoginRequiredMixin, DetailView, GetTeamMixin):
             # This probably can be done with annotate as a part of the first filter
             # but I couldn't make it work
             puzzle.correctly_submitted = puzzle.submissions.filter(
-                team=team, correct=True).count() > 0
+                team=team, correct=True).exists()
             puzzle.current_submissions = puzzle.team_submissions(team)
         context['visible_puzzles'] = puzzles
         context['team'] = team
