@@ -66,6 +66,16 @@ tr:nth-child(even) {
     background-color: black;
 }
 
+.main-button__disabled {
+    color: gray;
+    border-color: gray;
+}
+
+.main-button__disabled:hover {
+    color: gray;
+    background-color: white;
+}
+
 .main-input {
     color: black;
     background-color: white;
