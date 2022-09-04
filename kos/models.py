@@ -106,7 +106,7 @@ class Hint(models.Model):
         last_submission = team.get_last_correct_submission_time()
         if last_submission is None:
             last_submission = self.puzzle.game.year.start
-        elapsed_time = last_submission - now()
+        elapsed_time = now() - last_submission
         minimum_elapsed_time = self.show_after + self.hint_penalty*team.get_penalties()
         return minimum_elapsed_time - elapsed_time
 
