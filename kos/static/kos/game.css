@@ -90,3 +90,7 @@ tr:nth-child(even) {
 .checkbox-input:checked {
     accent-color: black;
 }
+
+.mb-2 {
+    margin-bottom: 0.5rem;
+}
