@@ -73,7 +73,7 @@ class SignUpView(FormView):
         team = Team.objects.create(
             name=team_name,
             user=user,
-            game=Game.objects.first(),
+            game=form.cleaned_data['game'],
             is_online=form.cleaned_data['is_online']
         )
         for i in range(5):
@@ -115,10 +115,12 @@ class GameView(LoginRequiredMixin, DetailView, GetTeamMixin):
         context = super().get_context_data(**kwargs)
         team = self.get_team()
         puzzles = Puzzle.objects.filter(
-            game=self.get_object(), level__lte=team.current_level).annotate(
-                correctly_submitted=Max('submissions__correct')
-        ).order_by('-level')
+            game=self.get_object(), level__lte=team.current_level).order_by('-level')
         for puzzle in puzzles:
+            # This probably can be done with annotate as a part of the first filter
+            # but I couldn't make it work
+            puzzle.correctly_submitted = puzzle.submissions.filter(
+                team=team, correct=True).exists()
             puzzle.current_submissions = puzzle.team_submissions(team)
         context['visible_puzzles'] = puzzles
         context['team'] = team
@@ -173,7 +175,7 @@ class ResultsView(DetailView):
                     submissions__correct=True)),
                 last_correct_submission=Max(
                     'submissions__submitted_at', filter=Q(submissions__correct=True))
-            ).order_by('solved_puzzles', 'last_correct_submission')
+            ).order_by('-solved_puzzles', 'last_correct_submission')
             game_results['online_teams'] = results.filter(is_online=True)
             game_results['offline_teams'] = results.filter(is_online=False)
             game_results['name'] = str(game)

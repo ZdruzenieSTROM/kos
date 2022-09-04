@@ -36,6 +36,7 @@ class RegisterForm(forms.Form):
         label='5. člen tímu', required=False
     )
     is_online = forms.BooleanField(
+        required=False,
         widget=forms.CheckboxInput(attrs={'class': 'checkbox-input'}),
         label='Chcem riešiť online'
     )
