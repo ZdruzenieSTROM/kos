@@ -73,7 +73,7 @@ class SignUpView(FormView):
         team = Team.objects.create(
             name=team_name,
             user=user,
-            game=Game.objects.first(),
+            game=form.cleaned_data['game'],
             is_online=form.cleaned_data['is_online']
         )
         for i in range(5):
