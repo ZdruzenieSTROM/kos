@@ -120,7 +120,7 @@ class Hint(models.Model):
         return (
             set(team.hints_taken.all()).issuperset(
                 set(self.prerequisites.all()))
-            and not time_to_take > 0
+            and not time_to_take > timedelta()
             and not team.hints_taken.filter(pk=self.pk).exists()
             and not team.submissions.filter(correct=True, puzzle=self.puzzle).exists()
         )
