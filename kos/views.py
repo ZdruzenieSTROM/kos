@@ -115,10 +115,12 @@ class GameView(LoginRequiredMixin, DetailView, GetTeamMixin):
         context = super().get_context_data(**kwargs)
         team = self.get_team()
         puzzles = Puzzle.objects.filter(
-            game=self.get_object(), level__lte=team.current_level).annotate(
-                correctly_submitted=Max('submissions__correct')
-        ).order_by('-level')
+            game=self.get_object(), level__lte=team.current_level).order_by('-level')
         for puzzle in puzzles:
+            # This probably can be done with annotate as a part of the first filter
+            # but I couldn't make it work
+            puzzle.correctly_submitted = puzzle.submissions.filter(
+                team=team, correct=True).exists()
             puzzle.current_submissions = puzzle.team_submissions(team)
         context['visible_puzzles'] = puzzles
         context['team'] = team
