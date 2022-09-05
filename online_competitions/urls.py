@@ -8,3 +8,4 @@ urlpatterns = [
     path('kos/', include('kos.urls', namespace='kos')),
     path('mas-problem/', include('mas_problem.urls', namespace='mas-problem'))
 ]
+handler404 = 'kos.views.view_404'

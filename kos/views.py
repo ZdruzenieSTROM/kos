@@ -16,6 +16,11 @@ from .models import (Game, Hint, Puzzle, Submission, Team, TeamMember, User,
                      Year)
 
 
+def view_404(request, exception=None):  # pylint: disable=unused-argument
+    """Presmerovanie 404 na homepage"""
+    return redirect('kos:home')
+
+
 def logout_view(request):
     """Odhlásenie"""
     logout(request)
