@@ -110,6 +110,26 @@ class PuzzleView(UserPassesTestMixin, LoginRequiredMixin, DetailView, GetTeamMix
         return FileResponse(puzzle.file)
 
 
+class BeforeGameView(LoginRequiredMixin, DetailView):
+    """Zobrazí sa tímu pred začiatkom hry"""
+    model = Game
+    template_name = 'kos/before_game.html'
+    login_url = reverse_lazy('kos:login')
+
+    def get_context_data(self, **kwargs):
+        if self.object.year.start <= now():
+            # After game start
+            redirect('kos:game')
+        return super().get_context_data(**kwargs)
+
+
+class AfterGameView(LoginRequiredMixin, DetailView):
+    """Zobrazí sa tímu pred začiatkom hry"""
+    model = Game
+    template_name = 'kos/after_game.html'
+    login_url = reverse_lazy('kos:login')
+
+
 class GameView(LoginRequiredMixin, DetailView, GetTeamMixin):
     """View current game state"""
     model = Game
@@ -119,10 +139,16 @@ class GameView(LoginRequiredMixin, DetailView, GetTeamMixin):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         team = self.get_team()
+        if self.object.year.start > now():
+            # Pred začatím hry
+            redirect('kos:before-game')
+        if self.object.year.end < now():
+            # Po konci hry
+            redirect('kos:after-game')
         puzzles = Puzzle.objects.filter(
-            game=self.get_object(), level__lte=team.current_level).order_by('-level')
+            game=self.object, level__lte=team.current_level).order_by('-level')
         for puzzle in puzzles:
-            # This probably can be done with annotate as a part of the first filter
+            # TODO: This probably can be done with annotate as a part of the first filter
             # but I couldn't make it work
             puzzle.correctly_submitted = puzzle.submissions.filter(
                 team=team, correct=True).exists()
