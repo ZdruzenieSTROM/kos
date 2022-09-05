@@ -13,12 +13,11 @@
 
 <h2>Online:</h2>
 
-
-
 <table>
     <tr>
         <th>Poradie</th>
         <th>Názov tímu</th>
+        <th>Členovia tímu</th>
         <th>Počet vyriešených šifier</th>
         <th>Posledné správne odovzdanie</th>
     </tr>
@@ -26,6 +25,7 @@
     <tr>
         <td>{{ forloop.counter }}.</td>
         <td>{{ team.name }}</td>
+        <td>{% for member in team.members.all %}{% if forloop.counter0 > 0 %}, {% endif %}{{ member.name }}{% endfor %}</td>
         <td>{{ team.solved_puzzles }}</td>
         <!-- This needs to be displayed in the client's timezone -->
         <td>{%if team.last_correct_submission %}{{ team.last_correct_submission|date:'H:i:s' }}{% else %}-{%endif%}</td>
@@ -34,13 +34,14 @@
 </table>
 {% endif %}
 
-{% if game.offilne_teams %}
+{% if game.offline_teams %}
 <h2>Terénna:</h2>
 
 <table>
     <tr>
         <th>Poradie</th>
         <th>Názov tímu</th>
+        <th>Členovia tímu</th>
         <th>Počet vyriešených šifier</th>
         <th>Posledné správne odovzdanie</th>
     </tr>
@@ -48,8 +49,10 @@
     <tr>
         <td>{{ forloop.counter }}.</td>
         <td>{{ team.name }}</td>
-        <td>{{ team.solved_puzzlesl }}</td>
-        <td>{{ team.last_correct_submission }}</td>
+        <td>{% for member in team.members.all %}{% if forloop.counter0 > 0 %}, {% endif %}{{ member.name }}{% endfor %}</td>
+        <td>{{ team.solved_puzzles }}</td>
+        <!-- This needs to be displayed in the client's timezone -->
+        <td>{%if team.last_correct_submission %}{{ team.last_correct_submission|date:'H:i:s' }}{% else %}-{%endif%}</td>
     </tr>
     {% endfor %}
 </table>
