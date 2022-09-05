@@ -85,6 +85,11 @@ tr:nth-child(even) {
     border-radius: 0;
 }
 
+.main-input__disabled {
+    color: gray;
+    border-color: gray;
+}
+
 .checkbox-input {
     border: 2px solid black !important;
 }
