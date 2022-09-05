@@ -49,7 +49,7 @@ th {
     text-align: left;
     padding: 8px;
     word-wrap: break-word;
-    max-width: 20vw;
+    max-width: 18vw;
 }
 
 tr:nth-child(even) {
@@ -95,4 +95,31 @@ tr:nth-child(even) {
 
 .mb-2 {
     margin-bottom: 0.5rem;
+}
+
+@media screen 
+and (max-width: 768px) {
+    .content {
+        padding: 0 5% 5% 5%;
+    }
+
+    table {
+        font-size: 0.85rem;
+    }
+
+    td, th {
+        padding: 3px;
+    }
+
+    h1 {
+        font-size: 30px;
+    }
+
+    h2 {
+        font-size: 24px;
+    }
+
+    h3 {
+        font-size: 20px
+    }
 }

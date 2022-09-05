@@ -161,6 +161,8 @@ class Team(models.Model):
             Max('submitted_at')
         )['submitted_at__max']
 
+    def members_joined(self):
+        return ','.join([member.name for member in self.members.all()])
 
 class TeamMember(models.Model):
     """Člen tímu"""
