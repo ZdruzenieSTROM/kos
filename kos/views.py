@@ -83,6 +83,8 @@ class SignUpView(FormView):
         )
         for i in range(5):
             member_name = form.cleaned_data[f'team_member_{i+1}']
+            if member_name is None or member_name == '':
+                continue
             TeamMember.objects.create(
                 name=member_name,
                 team=team
