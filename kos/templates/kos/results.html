@@ -25,7 +25,7 @@
     <tr>
         <td>{{ forloop.counter }}.</td>
         <td>{{ team.name }}</td>
-        <td>{% for member in team.members.all %}{% if forloop.counter0 > 0 %}, {% endif %}{{ member.name }}{% endfor %}</td>
+        <td>{{team.members_joined}}</td>
         <td>{{ team.solved_puzzles }}</td>
         <!-- This needs to be displayed in the client's timezone -->
         <td>{%if team.last_correct_submission %}{{ team.last_correct_submission|date:'H:i:s' }}{% else %}-{%endif%}</td>
@@ -49,7 +49,8 @@
     <tr>
         <td>{{ forloop.counter }}.</td>
         <td>{{ team.name }}</td>
-        <td>{% for member in team.members.all %}{% if forloop.counter0 > 0 %}, {% endif %}{{ member.name }}{% endfor %}</td>
+        <td>{{team.members_joined}}</td>
+        </td>
         <td>{{ team.solved_puzzles }}</td>
         <!-- This needs to be displayed in the client's timezone -->
         <td>{%if team.last_correct_submission %}{{ team.last_correct_submission|date:'H:i:s' }}{% else %}-{%endif%}</td>
