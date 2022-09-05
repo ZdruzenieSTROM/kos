@@ -35,7 +35,8 @@ class Game(models.Model):
     class Meta:
         verbose_name = 'šifrovačka'
         verbose_name_plural = 'šifrovačky'
-
+    final_message = models.TextField(
+        blank=True, null=True, verbose_name='Správa po ukončení')
     name = models.CharField(max_length=100)
     year = models.ForeignKey(
         Year, on_delete=models.SET_NULL, null=True, verbose_name='Ročník', related_name='games')

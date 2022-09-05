@@ -147,6 +147,8 @@ class GameView(LoginRequiredMixin, DetailView, GetTeamMixin):
             redirect('kos:after-game')
         puzzles = Puzzle.objects.filter(
             game=self.object, level__lte=team.current_level).order_by('-level')
+        if team.current_level>puzzles[0].level:
+            context['message'] = self.object.final_message
         for puzzle in puzzles:
             # TODO: This probably can be done with annotate as a part of the first filter
             # but I couldn't make it work
@@ -174,7 +176,7 @@ class GameView(LoginRequiredMixin, DetailView, GetTeamMixin):
             if is_correct:
                 team.current_level = max(puzzle.level+1, team.current_level)
                 team.save()
-            return super().get(request, *args, **kwargs)
+            return redirect('kos:game')
 
         # Check answer
         is_correct = puzzle.check_solution(answer)
@@ -188,7 +190,7 @@ class GameView(LoginRequiredMixin, DetailView, GetTeamMixin):
             team.current_level = max(puzzle.level+1, team.current_level)
             team.save()
 
-        return super().get(request, *args, **kwargs)
+        return redirect('kos:game')
 
 
 class ResultsView(DetailView):
