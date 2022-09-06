@@ -70,7 +70,7 @@ class Puzzle(models.Model):
 
     def has_team_passed(self, team):
         """Vráti bool či tím už šifru vyriešil"""
-        return self.submissions.filter(team=team).aggregate(Max('correct'))['correct__max']
+        return self.submissions.filter(team=team, is_submitted_as_unlock_code=False).aggregate(Max('correct'))['correct__max']
 
     @staticmethod
     def clean_text(string: str):
@@ -94,7 +94,8 @@ class Puzzle(models.Model):
         """Skontroluje, či tím môže vidieť zadanie šifry"""
         return team.is_online or self.submissions.filter(
             team=team,
-            competitor_answer=Puzzle.clean_text(self.unlock_code)
+            is_submitted_as_unlock_code=True,
+            correct=True
         ).exists()
 
 
@@ -137,7 +138,11 @@ class Hint(models.Model):
             self.all_prerequisites_met(team)
             and not time_to_take > timedelta()
             and not team.hints_taken.filter(pk=self.pk).exists()
-            and not team.submissions.filter(correct=True, puzzle=self.puzzle).exists()
+            and not team.submissions.filter(
+                correct=True,
+                is_submitted_as_unlock_code=False,
+                puzzle=self.puzzle
+            ).exists()
         )
 
 
@@ -170,7 +175,7 @@ class Team(models.Model):
 
     def get_last_correct_submission_time(self):
         """Vráti čas poslednej správne odovzdanej šifry"""
-        return self.submissions.filter(correct=True).aggregate(
+        return self.submissions.filter(correct=True, is_submitted_as_unlock_code=False).aggregate(
             Max('submitted_at')
         )['submitted_at__max']
 
@@ -204,3 +209,5 @@ class Submission(models.Model):
     competitor_answer = models.CharField(max_length=100)
     submitted_at = models.DateTimeField(auto_now=True, auto_created=True)
     correct = models.BooleanField()  # Neviem ci bude nutné nechám na zváženie
+    is_submitted_as_unlock_code = models.BooleanField(
+        verbose_name='Pokus odovzdaný ako vstupný kód', default=False)

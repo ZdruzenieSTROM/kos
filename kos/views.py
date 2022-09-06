@@ -127,7 +127,7 @@ class GameView(LoginRequiredMixin, DetailView, GetTeamMixin):
             # This probably can be done with annotate as a part of the first filter
             # but I couldn't make it work
             puzzle.correctly_submitted = puzzle.submissions.filter(
-                team=team, correct=True).exists()
+                team=team, correct=True, is_submitted_as_unlock_code=False).exists()
             puzzle.current_submissions = puzzle.team_submissions(
                 team).order_by('-submitted_at')
         context['visible_puzzles'] = puzzles
@@ -152,7 +152,8 @@ class GameView(LoginRequiredMixin, DetailView, GetTeamMixin):
                 puzzle=puzzle,
                 team=team,
                 competitor_answer=Puzzle.clean_text(answer),
-                correct=is_correct
+                correct=is_correct,
+                is_submitted_as_unlock_code=True
             )
             return super().get(request, *args, **kwargs)
 
@@ -183,7 +184,8 @@ class ResultsView(DetailView):
             game_results = {}
             results = game.team_set.annotate(
                 solved_puzzles=Count('submissions', filter=Q(
-                    submissions__correct=True)),
+                    submissions__correct=True, is_submitted_as_unlock_code=False)),
+                # TODO: Premyslieť ako funguje last correct pri terénnej verzii
                 last_correct_submission=Max(
                     'submissions__submitted_at', filter=Q(submissions__correct=True))
             ).order_by('-solved_puzzles', 'last_correct_submission')
