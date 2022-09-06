@@ -266,7 +266,7 @@ class ResultsLatestView(ResultsView):
         return year
 
 
-class HistoryGameView(ListView):
+class ArchiveView(ListView):
     """Archive of old games"""
     queryset = Game.objects.all()
     template_name = 'kos/archive.html'
