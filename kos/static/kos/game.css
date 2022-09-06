@@ -106,6 +106,15 @@ tr:nth-child(even) {
     border-radius: 0;
 }
 
+.main-input__disabled {
+    color: gray;
+    border-color: gray;
+}
+
+.checkbox-input {
+    border: 2px solid black !important;
+}
+
 .checkbox-input:checked {
     accent-color: black;
 }
@@ -114,8 +123,7 @@ tr:nth-child(even) {
     margin-bottom: 0.5rem;
 }
 
-@media screen 
-and (max-width: 768px) {
+@media screen and (max-width: 768px) {
     .content {
         padding: 0 5% 5% 5%;
     }
@@ -132,7 +140,8 @@ and (max-width: 768px) {
         font-size: 0.85rem;
     }
 
-    td, th {
+    td,
+    th {
         padding: 3px;
     }
 

@@ -1,6 +1,17 @@
 from django import template
+from django.utils.timezone import now
 
 register = template.Library()
+
+
+@register.simple_tag
+def can_team_submit(puzzle, team):
+    return puzzle.can_team_submit(team)
+
+
+@register.simple_tag
+def get_team_timeout(puzzle, team):
+    return puzzle.team_timeout(team) + now()
 
 
 @register.simple_tag

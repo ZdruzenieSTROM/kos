@@ -22,6 +22,8 @@ class Year(models.Model):
     start = models.DateTimeField(verbose_name='Začiatok hry')
     end = models.DateTimeField(verbose_name='Koniec hry')
     is_public = models.BooleanField(verbose_name='Verejná hra', default=True)
+    solutions_public = models.BooleanField(
+        verbose_name='Zverejnené riešenia', default=False)
     is_active = models.BooleanField(
         verbose_name='Hra je aktívna', default=False
     )
@@ -35,7 +37,8 @@ class Game(models.Model):
     class Meta:
         verbose_name = 'šifrovačka'
         verbose_name_plural = 'šifrovačky'
-
+    final_message = models.TextField(
+        blank=True, null=True, verbose_name='Správa po ukončení')
     name = models.CharField(max_length=100)
     year = models.ForeignKey(
         Year, on_delete=models.SET_NULL, null=True, verbose_name='Ročník', related_name='games')
@@ -77,6 +80,18 @@ class Puzzle(models.Model):
         """Normalizuje text pre správne porovnanie. 
         Odstráni diakritiku, krajné medzery a prevedie na malé písmená"""
         return unidecode(string).lower().strip()
+
+    def team_timeout(self, team):
+        """Vráti čas, o ktorý bude daný tím môcť znova odovzdať túto úlohu"""
+        submission = self.team_submissions(team)
+        if submission.count() < 3:
+            return timedelta(0)
+        time_of_last_submission = submission.order_by(
+            '-submitted_at')[0].submitted_at
+        return time_of_last_submission + timedelta(seconds=60) - now()
+
+    def can_team_submit(self, team):
+        return team.current_level >= self.level and not self.team_timeout(team) > timedelta(0)
 
     @staticmethod
     def __check_equal(string1: str, string2: str) -> bool:
@@ -136,7 +151,7 @@ class Hint(models.Model):
         time_to_take = self.get_time_to_take(team)
         return (
             self.all_prerequisites_met(team)
-            and not time_to_take > timedelta()
+            and not time_to_take > timedelta(0)
             and not team.hints_taken.filter(pk=self.pk).exists()
             and not team.submissions.filter(
                 correct=True,

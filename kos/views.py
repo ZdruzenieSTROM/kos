@@ -42,7 +42,7 @@ class LoginFormView(LoginView):
     next_page = reverse_lazy('kos:game')
     template_name = 'kos/login.html'
 
-# TODO: LOgin required
+# TODO: Login required
 
 
 def change_password(request):
@@ -112,19 +112,76 @@ class PuzzleView(UserPassesTestMixin, LoginRequiredMixin, DetailView, GetTeamMix
         return FileResponse(puzzle.file)
 
 
+class PuzzleSolutionView(UserPassesTestMixin, LoginRequiredMixin, DetailView, GetTeamMixin):
+    """Vráti PDF so šifrou"""
+    model = Puzzle
+
+    def test_func(self):
+        puzzle = self.get_object()
+        return puzzle.game.year.solutions_public
+
+    def get(self, request, *args, **kwargs):
+        puzzle = self.get_object()
+        return FileResponse(puzzle.solution)
+
+
+class BeforeGameView(LoginRequiredMixin, DetailView):
+    """Zobrazí sa tímu pred začiatkom hry"""
+    model = Game
+    template_name = 'kos/before_game.html'
+    login_url = reverse_lazy('kos:login')
+    context_object_name = 'game'
+
+    def get(self, request, *args, **kwargs):
+        response = super().get(request, *args, **kwargs)
+        if self.object.year.start <= now():
+            # After game start
+            return redirect('kos:game')
+        return response
+
+
+class AfterGameView(LoginRequiredMixin, DetailView):
+    """Zobrazí sa tímu po konci hry"""
+    model = Game
+    template_name = 'kos/after_game.html'
+    login_url = reverse_lazy('kos:login')
+    context_object_name = 'game'
+
+    def get(self, request, *args, **kwargs):
+        response = super().get(request, *args, **kwargs)
+        if self.object.year.end >= now():
+            # After game start
+            return redirect('kos:game')
+        return response
+
+
 class GameView(LoginRequiredMixin, DetailView, GetTeamMixin):
     """View current game state"""
     model = Game
     template_name = 'kos/game.html'
     login_url = reverse_lazy('kos:login')
+    context_object_name = 'game'
+
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        if self.object.year.start > now():
+            # Pred začatím hry
+            return redirect('kos:before-game', pk=self.object.pk)
+        if self.object.year.end < now():
+            # Po konci hry
+            return redirect('kos:after-game', pk=self.object.pk)
+        context = self.get_context_data(object=self.object)
+        return self.render_to_response(context)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         team = self.get_team()
         puzzles = Puzzle.objects.filter(
-            game=self.get_object(), level__lte=team.current_level).order_by('-level')
+            game=self.object, level__lte=team.current_level).order_by('-level')
+        if team.current_level > puzzles[0].level:
+            context['message'] = self.object.final_message
         for puzzle in puzzles:
-            # This probably can be done with annotate as a part of the first filter
+            # TODO: This probably can be done with annotate as a part of the first filter
             # but I couldn't make it work
             puzzle.correctly_submitted = puzzle.submissions.filter(
                 team=team, correct=True, is_submitted_as_unlock_code=False).exists()
@@ -144,7 +201,7 @@ class GameView(LoginRequiredMixin, DetailView, GetTeamMixin):
         answer = request.POST['answer']
         # Check if team can submit
         puzzle = Puzzle.objects.get(pk=puzzle_id)
-        if puzzle.level > team.current_level:
+        if not puzzle.can_team_submit(team):
             return HttpResponseForbidden()
         if not puzzle.can_team_see(team):
             is_correct = puzzle.check_unlock(answer)
@@ -155,7 +212,7 @@ class GameView(LoginRequiredMixin, DetailView, GetTeamMixin):
                 correct=is_correct,
                 is_submitted_as_unlock_code=True
             )
-            return super().get(request, *args, **kwargs)
+            return redirect('kos:game')
 
         # Check answer
         is_correct = puzzle.check_solution(answer)
@@ -169,7 +226,7 @@ class GameView(LoginRequiredMixin, DetailView, GetTeamMixin):
             team.current_level = max(puzzle.level+1, team.current_level)
             team.save()
 
-        return super().get(request, *args, **kwargs)
+        return redirect('kos:game')
 
 
 class ResultsView(DetailView):
@@ -223,14 +280,15 @@ class ResultsLatestView(ResultsView):
 
     def get_object(self, *args, **kwargs):
         year = Year.objects.filter(
-            start__lte=now()).order_by('-end').first()
+            is_public=True).order_by('-end').first()
         return year
 
 
-class HistoryGameView(ListView):
+class ArchiveView(ListView):
     """Archive of old games"""
-    queryset = Game.objects.all()
+    queryset = Year.objects.all()
     template_name = 'kos/archive.html'
+    context_object_name = 'years'
 
 
 class TeamInfoView(FormView, GetTeamMixin):
