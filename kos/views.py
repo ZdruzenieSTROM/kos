@@ -128,7 +128,8 @@ class GameView(LoginRequiredMixin, DetailView, GetTeamMixin):
             # but I couldn't make it work
             puzzle.correctly_submitted = puzzle.submissions.filter(
                 team=team, correct=True).exists()
-            puzzle.current_submissions = puzzle.team_submissions(team)
+            puzzle.current_submissions = puzzle.team_submissions(
+                team).order_by('-submitted_at')
         context['visible_puzzles'] = puzzles
         context['team'] = team
         return context
