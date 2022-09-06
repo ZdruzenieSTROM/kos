@@ -3,5 +3,5 @@
 {% block title %}{{game.name}}{% endblock %}
 
 {% block content %}
-Šifrovačka začne {{game.start}}.
+Šifrovačka začne {{game.year.start|date:'d.m.Y H:i:s'}}.
 {% endblock %}

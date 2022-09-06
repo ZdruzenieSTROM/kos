@@ -42,7 +42,7 @@ class LoginFormView(LoginView):
     next_page = reverse_lazy('kos:game')
     template_name = 'kos/login.html'
 
-# TODO: LOgin required
+# TODO: Login required
 
 
 def change_password(request):
@@ -115,12 +115,14 @@ class BeforeGameView(LoginRequiredMixin, DetailView):
     model = Game
     template_name = 'kos/before_game.html'
     login_url = reverse_lazy('kos:login')
+    context_object_name = 'game'
 
-    def get_context_data(self, **kwargs):
+    def get(self, request, *args, **kwargs):
+        response = super().get(request, *args, **kwargs)
         if self.object.year.start <= now():
             # After game start
-            redirect('kos:game')
-        return super().get_context_data(**kwargs)
+            return redirect('kos:game')
+        return response
 
 
 class AfterGameView(LoginRequiredMixin, DetailView):
@@ -128,6 +130,7 @@ class AfterGameView(LoginRequiredMixin, DetailView):
     model = Game
     template_name = 'kos/after_game.html'
     login_url = reverse_lazy('kos:login')
+    context_object_name = 'game'
 
 
 class GameView(LoginRequiredMixin, DetailView, GetTeamMixin):
@@ -135,19 +138,25 @@ class GameView(LoginRequiredMixin, DetailView, GetTeamMixin):
     model = Game
     template_name = 'kos/game.html'
     login_url = reverse_lazy('kos:login')
+    context_object_name = 'game'
+
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        if self.object.year.start > now():
+            # Pred začatím hry
+            return redirect('kos:before-game', pk=self.object.pk)
+        if self.object.year.end < now():
+            # Po konci hry
+            return redirect('kos:after-game', pk=self.object.pk)
+        context = self.get_context_data(object=self.object)
+        return self.render_to_response(context)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         team = self.get_team()
-        if self.object.year.start > now():
-            # Pred začatím hry
-            redirect('kos:before-game')
-        if self.object.year.end < now():
-            # Po konci hry
-            redirect('kos:after-game')
         puzzles = Puzzle.objects.filter(
             game=self.object, level__lte=team.current_level).order_by('-level')
-        if team.current_level>puzzles[0].level:
+        if team.current_level > puzzles[0].level:
             context['message'] = self.object.final_message
         for puzzle in puzzles:
             # TODO: This probably can be done with annotate as a part of the first filter
