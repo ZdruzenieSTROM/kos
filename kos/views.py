@@ -188,7 +188,7 @@ class GameView(LoginRequiredMixin, DetailView, GetTeamMixin):
         answer = request.POST['answer']
         # Check if team can submit
         puzzle = Puzzle.objects.get(pk=puzzle_id)
-        if puzzle.level > team.current_level:
+        if not puzzle.can_team_submit(team):
             return HttpResponseForbidden()
         if puzzle.has_team_passed(team):
             is_correct = puzzle.check_unlock(answer)
