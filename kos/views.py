@@ -132,6 +132,13 @@ class AfterGameView(LoginRequiredMixin, DetailView):
     login_url = reverse_lazy('kos:login')
     context_object_name = 'game'
 
+    def get(self, request, *args, **kwargs):
+        response = super().get(request, *args, **kwargs)
+        if self.object.year.end >= now():
+            # After game start
+            return redirect('kos:game')
+        return response
+
 
 class GameView(LoginRequiredMixin, DetailView, GetTeamMixin):
     """View current game state"""
