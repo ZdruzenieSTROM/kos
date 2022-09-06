@@ -14,7 +14,7 @@
         zobrazí po zadaní kódu zo stanovišťa {% endif %}
     </h2>
 </div>
-{% if not team.is_online %}
+{% if not team.is_online and not can_team_see%}
 <div class="answer-alert info">
     <b>Poloha šifry:</b>
     {{puzzle.location}}
