@@ -2,6 +2,27 @@
     padding: 0 10% 10% 10%;
 }
 
+.logo {
+    max-height: 50px;
+    margin-left: 2%;
+}
+
+.navbar {
+    background-color: black;
+    border-radius: 0;
+}
+
+.navbar-container {
+    display: flex;
+    flex-direction: row;
+}
+
+.navbar-inner-container {
+    margin-left: 0;
+    margin-right: 10%;
+    width: 100%;
+}
+
 .main-link {
     color: #555555;
 }
@@ -85,10 +106,6 @@ tr:nth-child(even) {
     border-radius: 0;
 }
 
-.checkbox-input {
-    border: 2px solid black !important;
-}
-
 .checkbox-input:checked {
     accent-color: black;
 }
@@ -101,6 +118,14 @@ tr:nth-child(even) {
 and (max-width: 768px) {
     .content {
         padding: 0 5% 5% 5%;
+    }
+
+    .logo {
+        display: none;
+    }
+
+    .navbar-container {
+        display: block;
     }
 
     table {
