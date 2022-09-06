@@ -143,6 +143,7 @@ class Hint(models.Model):
                 is_submitted_as_unlock_code=False,
                 puzzle=self.puzzle
             ).exists()
+            and self.puzzle.can_team_see(team)
         )
 
 
