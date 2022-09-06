@@ -241,10 +241,10 @@ class ResultsView(DetailView):
             game_results = {}
             results = game.team_set.annotate(
                 solved_puzzles=Count('submissions', filter=Q(
-                    submissions__correct=True, is_submitted_as_unlock_code=False)),
-                # TODO: Premyslieť ako funguje last correct pri terénnej verzii
+                    submissions__correct=True, submissions__is_submitted_as_unlock_code=False)),
+
                 last_correct_submission=Max(
-                    'submissions__submitted_at', filter=Q(submissions__correct=True))
+                    'submissions__submitted_at', filter=Q(submissions__correct=True, submissions__is_submitted_as_unlock_code=False))
             ).order_by('-solved_puzzles', 'last_correct_submission')
             game_results['online_teams'] = results.filter(is_online=True)
             game_results['offline_teams'] = results.filter(is_online=False)
