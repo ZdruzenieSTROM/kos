@@ -262,7 +262,7 @@ class ResultsLatestView(ResultsView):
 
     def get_object(self, *args, **kwargs):
         year = Year.objects.filter(
-            start__lte=now()).order_by('-end').first()
+            is_public=True).order_by('-end').first()
         return year
 
 
