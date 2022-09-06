@@ -23,7 +23,7 @@ class Year(models.Model):
     end = models.DateTimeField(verbose_name='Koniec hry')
     is_public = models.BooleanField(verbose_name='Verejná hra', default=True)
     solutions_public = models.BooleanField(
-        verbose_name='Zverejnené riešenia', default=True)
+        verbose_name='Zverejnené riešenia', default=False)
     is_active = models.BooleanField(
         verbose_name='Hra je aktívna', default=False
     )
