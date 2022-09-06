@@ -112,6 +112,19 @@ class PuzzleView(UserPassesTestMixin, LoginRequiredMixin, DetailView, GetTeamMix
         return FileResponse(puzzle.file)
 
 
+class PuzzleSolutionView(UserPassesTestMixin, LoginRequiredMixin, DetailView, GetTeamMixin):
+    """Vráti PDF so šifrou"""
+    model = Puzzle
+
+    def test_func(self):
+        puzzle = self.get_object()
+        return puzzle.game.year.solutions_public
+
+    def get(self, request, *args, **kwargs):
+        puzzle = self.get_object()
+        return FileResponse(puzzle.solution)
+
+
 class BeforeGameView(LoginRequiredMixin, DetailView):
     """Zobrazí sa tímu pred začiatkom hry"""
     model = Game
@@ -270,6 +283,7 @@ class ArchiveView(ListView):
     """Archive of old games"""
     queryset = Year.objects.all()
     template_name = 'kos/archive.html'
+    context_object_name = 'years'
 
 
 class TeamInfoView(FormView, GetTeamMixin):
