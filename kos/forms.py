@@ -75,6 +75,9 @@ class ChangePasswordForm(PasswordChangeForm):
         self.fields['new_password2'].widget = forms.PasswordInput(
             attrs={'autofocus': True, 'class': 'main-input'})
 
+        self.error_messages['password_incorrect'] = 'Staré heslo bolo zadané nesprávne. Zadajte heslo znovu.'
+        self.error_messages['password_mismatch'] = 'Heslá sa musia zhodovať'
+
 
 class AuthForm(AuthenticationForm):
     """Lokalizovaný prihlasovací formulár"""
@@ -87,6 +90,8 @@ class AuthForm(AuthenticationForm):
         self.fields['password'].label = 'Heslo'
         self.fields['password'].widget = forms.PasswordInput(
             attrs={'autocomplete': 'current-password', 'class': 'main-input'})
+
+        self.error_messages['invalid_login'] = 'Zadaný názov tímu alebo heslo bolo nesprávne.'
 
 
 # class ChangePasswordForm(forms.Form):
