@@ -8,10 +8,18 @@
 
 {% for puzzle in visible_puzzles %}
 <div>
-    <h2>{{puzzle.level}}. {{puzzle.name}} - <a href="{% url 'kos:puzzle' pk=puzzle.pk %}" target="_blank"
-            class="main-link">Stiahnuť</a>
+    {% can_team_see_puzzle puzzle team as can_team_see%}
+    <h2>{{puzzle.level}}. {{puzzle.name}} - {%if can_team_see %}<a href="{% url 'kos:puzzle' pk=puzzle.pk %}"
+            target="_blank" class="main-link">Stiahnuť</a>{% else %} Šifra sa
+        zobrazí po zadaní kódu zo stanovišťa {% endif %}
     </h2>
 </div>
+{% if not team.is_online %}
+<div class="answer-alert info">
+    <b>Miesto ďalšej šifry:</b>
+    {{puzzle.location}}
+</div>
+{% endif %}
 
 {% if not puzzle.correctly_submitted %}
 <form action="" method="post">
@@ -31,20 +39,20 @@
     {% csrf_token %}
     {% can_team_take_hint hint team as hint_available %}
     {% if hint_available %}
-        <input type="Submit" value="Zobrať {% if hint.count_as_penalty %}nápovedu{%else%}riešenie{%endif%}"
-            class="main-button mb-2" />
+    <input type="Submit" value="Zobrať {% if hint.count_as_penalty %}nápovedu{%else%}riešenie{%endif%}"
+        class="main-button mb-2" />
     {% else %}
-        <input type="Submit" value="Zobrať {% if hint.count_as_penalty %}nápovedu{%else%}riešenie{%endif%}"
-            class="main-button main-button__disabled mb-2" disabled />
-            {% all_prerequisites_met hint team as prerequisites_met %}
-            {% if not prerequisites_met %}
-                <!-- This should probably also say which hint is the unmet prerequisite -->
-                Pred {% if hint.count_as_penalty %}touto nápovedou{% else %}riešením{% endif %} je nutné zobrať predošlú nápovedu.
-            {% else %}
-                {% get_hint_available_time hint team as hint_availability_time %}
-                <!-- This needs to be displayed in the client's timezone -->
-                Nápoveda sa dá zobrať o {{ hint_availability_time|date:'H:i:s' }}
-            {% endif %}
+    <input type="Submit" value="Zobrať {% if hint.count_as_penalty %}nápovedu{%else%}riešenie{%endif%}"
+        class="main-button main-button__disabled mb-2" disabled />
+    {% all_prerequisites_met hint team as prerequisites_met %}
+    {% if not prerequisites_met %}
+    <!-- This should probably also say which hint is the unmet prerequisite -->
+    Pred {% if hint.count_as_penalty %}touto nápovedou{% else %}riešením{% endif %} je nutné zobrať predošlú nápovedu.
+    {% else %}
+    {% get_hint_available_time hint team as hint_availability_time %}
+    <!-- This needs to be displayed in the client's timezone -->
+    Nápoveda sa dá zobrať o {{ hint_availability_time|date:'H:i:s' }}
+    {% endif %}
     {% endif %}
 </form>
 {% endif %}
@@ -54,17 +62,17 @@
 <h3>Pokusy:</h3>
 {% for submission in puzzle.current_submissions %}
 <div class="answer-alert {% if submission.correct %}success{% endif %}">
-    Zadané heslo: <strong>{{submission.competitor_answer}}</strong> - {% if submission.correct %} SPRÁVNE {% else %}
+    {% if submission.is_submitted_as_unlock_code %}
+    Zadaný vstupný kód:
+    {% else %}
+    Zadané heslo:
+    {%endif%}
+    <strong>{{submission.competitor_answer}}</strong> - {% if submission.correct %} SPRÁVNE {% else %}
     NESPRÁVNE {% endif %}
 </div>
 {% endfor %}
 
-{% if puzzle.correctly_submitted and not team.is_online %}
-<div class="answer-alert info">
-    <h3>Miesto ďalšej šifry:</h3>
-    {{puzzle.location}}
-</div>
-{% endif %}
+
 
 {% endfor %}
 {% endblock %}
