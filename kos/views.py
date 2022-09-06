@@ -2,6 +2,7 @@
 
 from django.contrib import messages
 from django.contrib.auth import logout, update_session_auth_hash
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.views import LoginView
 from django.db.models import Count, Max, Q
@@ -21,14 +22,16 @@ def view_404(request, exception=None):  # pylint: disable=unused-argument
     return redirect('kos:home')
 
 
+@login_required
 def logout_view(request):
     """Odhlásenie"""
     logout(request)
     return redirect('kos:game')
 
 
-class GetTeamMixin:
+class GetTeamMixin(LoginRequiredMixin):
     """Support for resolving team"""
+    login_url = reverse_lazy('kos:login')
 
     def get_team(self):
         """Resolve team from game and user"""
@@ -42,9 +45,8 @@ class LoginFormView(LoginView):
     next_page = reverse_lazy('kos:game')
     template_name = 'kos/login.html'
 
-# TODO: Login required
 
-
+@login_required
 def change_password(request):
     """Zmena hesla"""
     if request.method == 'POST':
@@ -92,14 +94,7 @@ class SignUpView(FormView):
         return super().form_valid(form)
 
 
-class GameIntroductionView(DetailView):
-    """Informácie pred hrou. Zobrazia sa ak hra ešte nezačala"""
-    template_name = 'kos/game_intro.html'
-    model = Game
-    login_url = reverse_lazy('kos:login')
-
-
-class PuzzleView(UserPassesTestMixin, LoginRequiredMixin, DetailView, GetTeamMixin):
+class PuzzleView(GetTeamMixin, UserPassesTestMixin, DetailView):
     """Vráti PDF so šifrou"""
     model = Puzzle
 
@@ -112,7 +107,7 @@ class PuzzleView(UserPassesTestMixin, LoginRequiredMixin, DetailView, GetTeamMix
         return FileResponse(puzzle.file)
 
 
-class PuzzleSolutionView(UserPassesTestMixin, LoginRequiredMixin, DetailView, GetTeamMixin):
+class PuzzleSolutionView(GetTeamMixin, UserPassesTestMixin, DetailView):
     """Vráti PDF so šifrou"""
     model = Puzzle
 
@@ -155,11 +150,10 @@ class AfterGameView(LoginRequiredMixin, DetailView):
         return response
 
 
-class GameView(LoginRequiredMixin, DetailView, GetTeamMixin):
+class GameView(GetTeamMixin, DetailView):
     """View current game state"""
     model = Game
     template_name = 'kos/game.html'
-    login_url = reverse_lazy('kos:login')
     context_object_name = 'game'
 
     def get(self, request, *args, **kwargs):
@@ -254,7 +248,7 @@ class ResultsView(DetailView):
         return context
 
 
-class HintView(UserPassesTestMixin, DetailView, GetTeamMixin):
+class HintView(GetTeamMixin, UserPassesTestMixin,  DetailView):
     """Vezme hint"""
     model = Hint
 
@@ -291,7 +285,7 @@ class ArchiveView(ListView):
     context_object_name = 'years'
 
 
-class TeamInfoView(FormView, GetTeamMixin):
+class TeamInfoView(GetTeamMixin, FormView):
     """Team profile"""
     form_class = EditTeamForm
     success_url = reverse_lazy("kos:change-profile")
