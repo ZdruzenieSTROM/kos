@@ -18,7 +18,7 @@
 
 .answer-alert {
     padding: 5px;
-    background-color: #f44336;
+    background-color: #ff4423ff;
     color: white;
     opacity: 1;
     transition: opacity 0.6s;
@@ -26,11 +26,11 @@
 }
 
 .answer-alert.success {
-    background-color: #04AA6D;
+    background-color: #98e626ff;
 }
 
 .answer-alert.info {
-    background-color: #2196F3;
+    background-color: #2bc9ebff;
 }
 
 .answer-alert.warning {
