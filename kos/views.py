@@ -184,7 +184,7 @@ class GameView(LoginRequiredMixin, DetailView, GetTeamMixin):
             # TODO: This probably can be done with annotate as a part of the first filter
             # but I couldn't make it work
             puzzle.correctly_submitted = puzzle.submissions.filter(
-                team=team, correct=True).exists()
+                team=team, correct=True, is_submitted_as_unlock_code=False).exists()
             puzzle.current_submissions = puzzle.team_submissions(
                 team).order_by('-submitted_at')
         context['visible_puzzles'] = puzzles
@@ -203,11 +203,15 @@ class GameView(LoginRequiredMixin, DetailView, GetTeamMixin):
         puzzle = Puzzle.objects.get(pk=puzzle_id)
         if not puzzle.can_team_submit(team):
             return HttpResponseForbidden()
-        if puzzle.has_team_passed(team):
+        if not puzzle.can_team_see(team):
             is_correct = puzzle.check_unlock(answer)
-            if is_correct:
-                team.current_level = max(puzzle.level+1, team.current_level)
-                team.save()
+            Submission.objects.create(
+                puzzle=puzzle,
+                team=team,
+                competitor_answer=Puzzle.clean_text(answer),
+                correct=is_correct,
+                is_submitted_as_unlock_code=True
+            )
             return redirect('kos:game')
 
         # Check answer
@@ -215,10 +219,10 @@ class GameView(LoginRequiredMixin, DetailView, GetTeamMixin):
         Submission.objects.create(
             puzzle=puzzle,
             team=team,
-            competitor_answer=answer,
+            competitor_answer=Puzzle.clean_text(answer),
             correct=is_correct
         )
-        if is_correct and team.is_online:
+        if is_correct:
             team.current_level = max(puzzle.level+1, team.current_level)
             team.save()
 
@@ -237,9 +241,10 @@ class ResultsView(DetailView):
             game_results = {}
             results = game.team_set.annotate(
                 solved_puzzles=Count('submissions', filter=Q(
-                    submissions__correct=True)),
+                    submissions__correct=True, submissions__is_submitted_as_unlock_code=False)),
+
                 last_correct_submission=Max(
-                    'submissions__submitted_at', filter=Q(submissions__correct=True))
+                    'submissions__submitted_at', filter=Q(submissions__correct=True, submissions__is_submitted_as_unlock_code=False))
             ).order_by('-solved_puzzles', 'last_correct_submission')
             game_results['online_teams'] = results.filter(is_online=True)
             game_results['offline_teams'] = results.filter(is_online=False)

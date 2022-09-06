@@ -10,28 +10,37 @@
 {% endif %}
 {% for puzzle in visible_puzzles %}
 <div>
-    <h2>{{puzzle.level}}. {{puzzle.name}} - <a href="{% url 'kos:puzzle' pk=puzzle.pk %}" target="_blank"
-            class="main-link">Stiahnuť</a>
+    {% can_team_see_puzzle puzzle team as can_team_see%}
+    <h2>{{puzzle.level}}. {{puzzle.name}} - {%if can_team_see %}<a href="{% url 'kos:puzzle' pk=puzzle.pk %}"
+            target="_blank" class="main-link">Stiahnuť</a>{% else %} Šifra sa
+        zobrazí po zadaní kódu zo stanovišťa {% endif %}
     </h2>
 </div>
+{% if not team.is_online and not can_team_see%}
+<div class="answer-alert info">
+    <b>Poloha šifry:</b>
+    {{puzzle.location}}
+</div>
+{% endif %}
 
 {% if not puzzle.correctly_submitted %}
 <form action="" method="post">
     {% csrf_token %}
     {% can_team_submit puzzle team as can_submit %}
     {% if can_submit %}
-        <input type="text" id="answer{{puzzle.id}}" name="answer" class="main-input">
-        <input type="hidden" name="puzzle" value="{{puzzle.id}}">
-        <input type="Submit" value="Odovzdať" class="main-button" />
+    <input type="text" id="answer{{puzzle.id}}" name="answer" class="main-input">
+    <input type="hidden" name="puzzle" value="{{puzzle.id}}">
+    <input type="Submit" value="Odovzdať" class="main-button" />
     {% else %}
-        <input type="text" id="answer{{puzzle.id}}" name="answer" class="main-input main-input__disabled" disabled>
-        <input type="hidden" name="puzzle" value="{{puzzle.id}}">
-        <input type="Submit" value="Odovzdať" class="main-button main-button__disabled" disabled />
-        {% get_team_timeout puzzle team as timeout %}
-        Ďalšiu odpoveď je možné zadať o {{ timeout|date:'H:i:s' }}
+    <input type="text" id="answer{{puzzle.id}}" name="answer" class="main-input main-input__disabled" disabled>
+    <input type="hidden" name="puzzle" value="{{puzzle.id}}">
+    <input type="Submit" value="Odovzdať" class="main-button main-button__disabled" disabled />
+    {% get_team_timeout puzzle team as timeout %}
+    Ďalšiu odpoveď je možné zadať o {{ timeout|date:'H:i:s' }}
     {% endif %}
 </form>
 {% endif %}
+{%if can_team_see %}
 <h3>Hinty:</h3>
 {% for hint in puzzle.hint_set.all %}
 {% if hint in team.hints_taken.all %}
@@ -61,21 +70,21 @@
 {% endif %}
 {% endif %}
 {% endfor %}
-
+{% endif %}
 <h3>Pokusy:</h3>
 {% for submission in puzzle.current_submissions %}
 <div class="answer-alert {% if submission.correct %}success{% endif %}">
-    Zadané heslo: <strong>{{submission.competitor_answer}}</strong> - {% if submission.correct %} SPRÁVNE {% else %}
+    {% if submission.is_submitted_as_unlock_code %}
+    Zadaný vstupný kód:
+    {% else %}
+    Zadané heslo:
+    {%endif%}
+    <strong>{{submission.competitor_answer}}</strong> - {% if submission.correct %} SPRÁVNE {% else %}
     NESPRÁVNE {% endif %}
 </div>
 {% endfor %}
 
-{% if puzzle.correctly_submitted and not team.is_online %}
-<div class="answer-alert info">
-    <h3>Miesto ďalšej šifry:</h3>
-    {{puzzle.location}}
-</div>
-{% endif %}
+
 
 {% endfor %}
 {% endblock %}

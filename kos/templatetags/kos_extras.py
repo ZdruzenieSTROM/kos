@@ -27,3 +27,8 @@ def all_prerequisites_met(hint, team):
 @register.simple_tag
 def can_team_take_hint(hint, team):
     return hint.can_team_take(team)
+
+
+@register.simple_tag
+def can_team_see_puzzle(puzzle, team):
+    return puzzle.can_team_see(team)
