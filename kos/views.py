@@ -42,7 +42,7 @@ class LoginFormView(LoginView):
     next_page = reverse_lazy('kos:game')
     template_name = 'kos/login.html'
 
-# TODO: LOgin required
+# TODO: Login required
 
 
 def change_password(request):
@@ -112,19 +112,63 @@ class PuzzleView(UserPassesTestMixin, LoginRequiredMixin, DetailView, GetTeamMix
         return FileResponse(puzzle.file)
 
 
+class BeforeGameView(LoginRequiredMixin, DetailView):
+    """Zobrazí sa tímu pred začiatkom hry"""
+    model = Game
+    template_name = 'kos/before_game.html'
+    login_url = reverse_lazy('kos:login')
+    context_object_name = 'game'
+
+    def get(self, request, *args, **kwargs):
+        response = super().get(request, *args, **kwargs)
+        if self.object.year.start <= now():
+            # After game start
+            return redirect('kos:game')
+        return response
+
+
+class AfterGameView(LoginRequiredMixin, DetailView):
+    """Zobrazí sa tímu po konci hry"""
+    model = Game
+    template_name = 'kos/after_game.html'
+    login_url = reverse_lazy('kos:login')
+    context_object_name = 'game'
+
+    def get(self, request, *args, **kwargs):
+        response = super().get(request, *args, **kwargs)
+        if self.object.year.end >= now():
+            # After game start
+            return redirect('kos:game')
+        return response
+
+
 class GameView(LoginRequiredMixin, DetailView, GetTeamMixin):
     """View current game state"""
     model = Game
     template_name = 'kos/game.html'
     login_url = reverse_lazy('kos:login')
+    context_object_name = 'game'
+
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        if self.object.year.start > now():
+            # Pred začatím hry
+            return redirect('kos:before-game', pk=self.object.pk)
+        if self.object.year.end < now():
+            # Po konci hry
+            return redirect('kos:after-game', pk=self.object.pk)
+        context = self.get_context_data(object=self.object)
+        return self.render_to_response(context)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         team = self.get_team()
         puzzles = Puzzle.objects.filter(
-            game=self.get_object(), level__lte=team.current_level).order_by('-level')
+            game=self.object, level__lte=team.current_level).order_by('-level')
+        if team.current_level > puzzles[0].level:
+            context['message'] = self.object.final_message
         for puzzle in puzzles:
-            # This probably can be done with annotate as a part of the first filter
+            # TODO: This probably can be done with annotate as a part of the first filter
             # but I couldn't make it work
             puzzle.correctly_submitted = puzzle.submissions.filter(
                 team=team, correct=True).exists()
@@ -151,7 +195,7 @@ class GameView(LoginRequiredMixin, DetailView, GetTeamMixin):
             if is_correct:
                 team.current_level = max(puzzle.level+1, team.current_level)
                 team.save()
-            return super().get(request, *args, **kwargs)
+            return redirect('kos:game')
 
         # Check answer
         is_correct = puzzle.check_solution(answer)
@@ -165,7 +209,7 @@ class GameView(LoginRequiredMixin, DetailView, GetTeamMixin):
             team.current_level = max(puzzle.level+1, team.current_level)
             team.save()
 
-        return super().get(request, *args, **kwargs)
+        return redirect('kos:game')
 
 
 class ResultsView(DetailView):
