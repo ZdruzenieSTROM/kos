@@ -126,7 +126,7 @@ class BeforeGameView(LoginRequiredMixin, DetailView):
 
 
 class AfterGameView(LoginRequiredMixin, DetailView):
-    """Zobrazí sa tímu pred začiatkom hry"""
+    """Zobrazí sa tímu po konci hry"""
     model = Game
     template_name = 'kos/after_game.html'
     login_url = reverse_lazy('kos:login')
