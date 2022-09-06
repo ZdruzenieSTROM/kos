@@ -146,11 +146,14 @@ class GameView(LoginRequiredMixin, DetailView, GetTeamMixin):
         puzzle = Puzzle.objects.get(pk=puzzle_id)
         if puzzle.level > team.current_level:
             return HttpResponseForbidden()
-        if puzzle.has_team_passed(team):
+        if not puzzle.can_team_see(team):
             is_correct = puzzle.check_unlock(answer)
-            if is_correct:
-                team.current_level = max(puzzle.level+1, team.current_level)
-                team.save()
+            Submission.objects.create(
+                puzzle=puzzle,
+                team=team,
+                competitor_answer=Puzzle.clean_text(answer),
+                correct=is_correct
+            )
             return super().get(request, *args, **kwargs)
 
         # Check answer
@@ -161,7 +164,7 @@ class GameView(LoginRequiredMixin, DetailView, GetTeamMixin):
             competitor_answer=Puzzle.clean_text(answer),
             correct=is_correct
         )
-        if is_correct and team.is_online:
+        if is_correct:
             team.current_level = max(puzzle.level+1, team.current_level)
             team.save()
 
