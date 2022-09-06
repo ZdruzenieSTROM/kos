@@ -158,7 +158,7 @@ class GameView(LoginRequiredMixin, DetailView, GetTeamMixin):
         Submission.objects.create(
             puzzle=puzzle,
             team=team,
-            competitor_answer=answer,
+            competitor_answer=Puzzle.clean_text(answer),
             correct=is_correct
         )
         if is_correct and team.is_online:
