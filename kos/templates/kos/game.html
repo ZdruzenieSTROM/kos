@@ -29,6 +29,7 @@
     <input type="Submit" value="Odovzdať" class="main-button" />
 </form>
 {% endif %}
+{%if can_team_see %}
 <h3>Hinty:</h3>
 {% for hint in puzzle.hint_set.all %}
 {% if hint in team.hints_taken.all %}
@@ -58,7 +59,7 @@
 {% endif %}
 {% endif %}
 {% endfor %}
-
+{% endif %}
 <h3>Pokusy:</h3>
 {% for submission in puzzle.current_submissions %}
 <div class="answer-alert {% if submission.correct %}success{% endif %}">
