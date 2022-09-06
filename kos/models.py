@@ -73,8 +73,14 @@ class Puzzle(models.Model):
         return self.submissions.filter(team=team).aggregate(Max('correct'))['correct__max']
 
     @staticmethod
+    def clean_text(string: str):
+        """Normalizuje text pre správne porovnanie. 
+        Odstráni diakritiku, krajné medzery a prevedie na malé písmená"""
+        return unidecode(string).lower().strip()
+
+    @staticmethod
     def __check_equal(string1: str, string2: str) -> bool:
-        return unidecode(string1).lower().strip() == unidecode(string2).lower().strip()
+        return Puzzle.clean_text(string1) == Puzzle.clean_text(string2)
 
     def check_solution(self, team_solution: str) -> bool:
         """Skontroluje riešenie"""
@@ -83,6 +89,13 @@ class Puzzle(models.Model):
     def check_unlock(self, team_submission: str) -> bool:
         """Skontroluje odomykací kód na mieste"""
         return self.__check_equal(team_submission, self.unlock_code)
+
+    def can_team_see(self, team):
+        """Skontroluje, či tím môže vidieť zadanie šifry"""
+        return team.is_online or self.submissions.filter(
+            team=team,
+            competitor_answer=Puzzle.clean_text(self.unlock_code)
+        ).exists()
 
 
 class Hint(models.Model):
@@ -163,6 +176,7 @@ class Team(models.Model):
 
     def members_joined(self):
         return ','.join([member.name for member in self.members.all()])
+
 
 class TeamMember(models.Model):
     """Člen tímu"""
