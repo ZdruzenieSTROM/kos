@@ -27,8 +27,9 @@ def logout_view(request):
     return redirect('kos:game')
 
 
-class GetTeamMixin:
+class GetTeamMixin(LoginRequiredMixin):
     """Support for resolving team"""
+    login_url = reverse_lazy('kos:login')
 
     def get_team(self):
         """Resolve team from game and user"""
@@ -92,10 +93,9 @@ class SignUpView(FormView):
         return super().form_valid(form)
 
 
-class PuzzleView(UserPassesTestMixin, LoginRequiredMixin, DetailView, GetTeamMixin):
+class PuzzleView(GetTeamMixin, UserPassesTestMixin, DetailView):
     """Vráti PDF so šifrou"""
     model = Puzzle
-    login_url = reverse_lazy('kos:login')
 
     def test_func(self):
         puzzle = self.get_object()
@@ -106,10 +106,9 @@ class PuzzleView(UserPassesTestMixin, LoginRequiredMixin, DetailView, GetTeamMix
         return FileResponse(puzzle.file)
 
 
-class PuzzleSolutionView(UserPassesTestMixin, LoginRequiredMixin, DetailView, GetTeamMixin):
+class PuzzleSolutionView(GetTeamMixin, UserPassesTestMixin, DetailView):
     """Vráti PDF so šifrou"""
     model = Puzzle
-    login_url = reverse_lazy('kos:login')
 
     def test_func(self):
         puzzle = self.get_object()
@@ -150,11 +149,10 @@ class AfterGameView(LoginRequiredMixin, DetailView):
         return response
 
 
-class GameView(LoginRequiredMixin, DetailView, GetTeamMixin):
+class GameView(GetTeamMixin, DetailView):
     """View current game state"""
     model = Game
     template_name = 'kos/game.html'
-    login_url = reverse_lazy('kos:login')
     context_object_name = 'game'
 
     def get(self, request, *args, **kwargs):
@@ -244,7 +242,7 @@ class ResultsView(DetailView):
         return context
 
 
-class HintView(UserPassesTestMixin, DetailView, GetTeamMixin):
+class HintView(GetTeamMixin, UserPassesTestMixin,  DetailView):
     """Vezme hint"""
     model = Hint
 
@@ -281,7 +279,7 @@ class ArchiveView(ListView):
     context_object_name = 'years'
 
 
-class TeamInfoView(FormView, GetTeamMixin):
+class TeamInfoView(GetTeamMixin, FormView):
     """Team profile"""
     form_class = EditTeamForm
     success_url = reverse_lazy("kos:change-profile")
