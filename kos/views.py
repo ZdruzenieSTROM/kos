@@ -2,6 +2,7 @@
 
 from django.contrib import messages
 from django.contrib.auth import logout, update_session_auth_hash
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.views import LoginView
 from django.db.models import Count, Max, Q
@@ -21,6 +22,7 @@ def view_404(request, exception=None):  # pylint: disable=unused-argument
     return redirect('kos:home')
 
 
+@login_required
 def logout_view(request):
     """Odhlásenie"""
     logout(request)
@@ -43,9 +45,8 @@ class LoginFormView(LoginView):
     next_page = reverse_lazy('kos:game')
     template_name = 'kos/login.html'
 
-# TODO: Login required
 
-
+@login_required
 def change_password(request):
     """Zmena hesla"""
     if request.method == 'POST':
