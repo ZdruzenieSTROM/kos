@@ -121,7 +121,7 @@ and (max-width: 768px) {
     }
 
     .logo {
-        display: none;
+        position: absolute;
     }
 
     .navbar-container {
