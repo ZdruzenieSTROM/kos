@@ -92,16 +92,10 @@ class SignUpView(FormView):
         return super().form_valid(form)
 
 
-class GameIntroductionView(DetailView):
-    """Informácie pred hrou. Zobrazia sa ak hra ešte nezačala"""
-    template_name = 'kos/game_intro.html'
-    model = Game
-    login_url = reverse_lazy('kos:login')
-
-
 class PuzzleView(UserPassesTestMixin, LoginRequiredMixin, DetailView, GetTeamMixin):
     """Vráti PDF so šifrou"""
     model = Puzzle
+    login_url = reverse_lazy('kos:login')
 
     def test_func(self):
         puzzle = self.get_object()
@@ -115,6 +109,7 @@ class PuzzleView(UserPassesTestMixin, LoginRequiredMixin, DetailView, GetTeamMix
 class PuzzleSolutionView(UserPassesTestMixin, LoginRequiredMixin, DetailView, GetTeamMixin):
     """Vráti PDF so šifrou"""
     model = Puzzle
+    login_url = reverse_lazy('kos:login')
 
     def test_func(self):
         puzzle = self.get_object()
