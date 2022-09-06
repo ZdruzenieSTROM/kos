@@ -76,13 +76,13 @@ class Puzzle(models.Model):
         """Vráti čas, o ktorý bude daný tím môcť znova odovzdať túto úlohu"""
         submission = self.team_submissions(team)
         if submission.count() < 3:
-            return timedelta()
+            return timedelta(0)
         time_of_last_submission = submission.order_by(
             '-submitted_at')[0].submitted_at
         return time_of_last_submission + timedelta(seconds=60) - now()
 
     def can_team_submit(self, team):
-        return team.current_level >= self.level and not self.team_timeout(team) > timedelta()
+        return team.current_level >= self.level and not self.team_timeout(team) > timedelta(0)
 
     @staticmethod
     def __check_equal(string1: str, string2: str) -> bool:
@@ -134,7 +134,7 @@ class Hint(models.Model):
         time_to_take = self.get_time_to_take(team)
         return (
             self.all_prerequisites_met(team)
-            and not time_to_take > timedelta()
+            and not time_to_take > timedelta(0)
             and not team.hints_taken.filter(pk=self.pk).exists()
             and not team.submissions.filter(correct=True, puzzle=self.puzzle).exists()
         )
