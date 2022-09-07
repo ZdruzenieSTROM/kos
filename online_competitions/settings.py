@@ -25,8 +25,9 @@ SECRET_KEY = '^(txxj1p(@hfc)@u7u#d1h$i##m+g*=m!wzu^%zs3r+lw4mlh_'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ['kos.strom.sk']
+ALLOWED_HOSTS = ['kos.strom.sk', 'localhost']
 
+CSRF_TRUSTED_ORIGINS = ['https://kos.strom.sk', 'https://www.kos.strom.sk']
 
 # Application definition
 
