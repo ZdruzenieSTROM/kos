@@ -52,7 +52,7 @@
     {% can_team_take_hint hint team as hint_available %}
     {% if hint_available %}
     <input type="Submit" value="Zobrať {% if hint.count_as_penalty %}nápovedu{%else%}riešenie{%endif%}"
-        class="main-button mb-2" />
+        class="main-button mb-2" onclick="return confirm('Skutočne chcete zobrať {% if hint.count_as_penalty %}nápovedu{% else %}riešenie{% endif %}?');" />
     {% else %}
     <input type="Submit" value="Zobrať {% if hint.count_as_penalty %}nápovedu{%else%}riešenie{%endif%}"
         class="main-button main-button__disabled mb-2" disabled />
