@@ -1,13 +1,13 @@
 FROM python:3.8.2
 
 WORKDIR /app
-COPY . /app/
 
-
+COPY requirements.txt /app/
 
 RUN pip install -r requirements.txt
 RUN pip install daphne
-RUN python manage.py migrate
+
+COPY . /app/
 
 EXPOSE 8000
 
