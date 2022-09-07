@@ -5,7 +5,7 @@ services:
   django:
     build: .
     ports:
-      - "8000:8000"
+      - "8000:8420"
     # volumes:
     #   - /var/www/online-sutaze-data
 
