@@ -132,7 +132,8 @@ class Hint(models.Model):
 
     def get_time_to_take(self, team):
         """Zostávajúci čas do hintu"""
-        last_submission = team.get_last_correct_submission_time()
+        last_submission = team.get_last_correct_submission_time(
+            answers_only=False)
         if last_submission is None:
             last_submission = self.puzzle.game.year.start
         elapsed_time = now() - last_submission
@@ -189,9 +190,12 @@ class Team(models.Model):
         """Spočíta počet zobratých hintov, ktoré sa rátajú ako penalty"""
         return self.hints_taken.filter(count_as_penalty=True).count()
 
-    def get_last_correct_submission_time(self):
+    def get_last_correct_submission_time(self, answers_only=True):
         """Vráti čas poslednej správne odovzdanej šifry"""
-        return self.submissions.filter(correct=True, is_submitted_as_unlock_code=False).aggregate(
+        submissions = self.submissions.filter(correct=True)
+        if answers_only:
+            submissions = submissions.filter(is_submitted_as_unlock_code=False)
+        return submissions.aggregate(
             Max('submitted_at')
         )['submitted_at__max']
 
