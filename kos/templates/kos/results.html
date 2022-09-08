@@ -6,6 +6,10 @@
 
 <h1>Výsledky</h1>
 
+{% if not games%}
+Táto hra nemá zverejnené výsledky
+{% endif %}
+
 {%for game in games%}
 <h2>{{game.name}}</h2>
 
