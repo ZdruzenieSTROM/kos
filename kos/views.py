@@ -6,7 +6,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.views import LoginView
 from django.db.models import Count, Max, Q
-from django.http import FileResponse, HttpResponseForbidden
+from django.http import FileResponse
 from django.shortcuts import redirect, render
 from django.urls import reverse_lazy
 from django.utils.timezone import now
