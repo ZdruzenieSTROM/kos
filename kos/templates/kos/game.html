@@ -68,8 +68,8 @@
     <input type="Submit" value="Zobrať {% if hint.count_as_penalty %}nápovedu{%else%}riešenie{%endif%}"
         class="main-button mb-2"
         onclick="return confirm('Skutočne chcete zobrať {% if hint.count_as_penalty %}nápovedu{% else %}riešenie{% endif %}?');" />
-    {% if hint.count_as_penalty %}Nápoveda{% else %}Riešenie{% endif %} sa dá zobrať o {{
-    hint_availability_time|date:'H:i:s' }}
+    {% if hint.count_as_penalty %}Nápoveda{% else %}Riešenie{% endif %} sa dá zobrať o
+    {{hint_availability_time|date:'H:i:s' }}
     {% endif %}
     {% endif %}
 </form>
