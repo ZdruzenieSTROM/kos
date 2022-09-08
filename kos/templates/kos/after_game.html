@@ -4,6 +4,6 @@
 
 {% block content %}
 Šifrovačka skončila.
-<a href="{% url 'kos:results' pk=game.pk %}">Výsledky</a>
+<a href="{% url 'kos:results' pk=game.year.pk %}">Výsledky</a>
 Riešenia šifier budú zverejnené v <a href="{% url 'kos:archive' %}">Archíve</a>
 {% endblock %}
