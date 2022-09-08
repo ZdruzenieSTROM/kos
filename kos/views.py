@@ -322,7 +322,7 @@ class TeamInfoView(GetTeamMixin, FormView):
 
     def post(self, request, *args, **kwargs):
         team = self.get_team()
-        if team.game.year.start >= now():
+        if team.game.year.start <= now():
             messages.error(request, 'Tieto údaje nie je možné meniť počas hry')
             return redirect('kos:change-profile')
         return super().post(request, *args, **kwargs)
