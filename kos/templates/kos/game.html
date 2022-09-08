@@ -11,8 +11,8 @@
 {% for puzzle in visible_puzzles %}
 <div>
     {% can_team_see_puzzle puzzle team as can_team_see%}
-    <h2>{{puzzle.level}}. {{puzzle.name}} - {%if can_team_see %}<a href="{% url 'kos:puzzle' pk=puzzle.pk %}"
-            target="_blank" class="main-link">Stiahnuť</a>{% else %} Šifra sa
+    <h2>{{puzzle.level}}. {%if can_team_see %}{{puzzle.name}} - <a href="{% url 'kos:puzzle' pk=puzzle.pk %}"
+            target="_blank" class="main-link">Stiahnuť</a>{% else %} šifra sa
         zobrazí po zadaní kódu zo stanovišťa {% endif %}
     </h2>
 </div>
