@@ -83,7 +83,8 @@ class Puzzle(models.Model):
 
     def team_timeout(self, team):
         """Vráti čas, o ktorý bude daný tím môcť znova odovzdať túto úlohu"""
-        submission = self.team_submissions(team).filter(correct=False)
+        submission = self.team_submissions(team).filter(
+            correct=False, is_submitted_as_unlock_code=False)
         if submission.count() < 3:
             return timedelta(0)
         time_of_last_submission = submission.order_by(
