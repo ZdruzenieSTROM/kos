@@ -1,7 +1,6 @@
-from ast import Pass
-
 from django import forms
 from django.contrib.auth.forms import AuthenticationForm, PasswordChangeForm
+from django.utils.timezone import now
 
 from kos.models import Game, Year
 
@@ -44,7 +43,7 @@ class RegisterForm(forms.Form):
     game = forms.ModelChoiceField(
         widget=forms.Select(attrs={'class': 'main-input'}),
         queryset=Game.objects.filter(
-            year__in=Year.objects.filter(is_active=True, is_public=True)),
+            year__in=Year.objects.filter(is_active=True, is_public=True, start__gte=now())),
         label='Kategória'
     )
 
