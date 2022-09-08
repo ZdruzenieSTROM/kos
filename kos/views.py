@@ -231,6 +231,9 @@ class ResultsView(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['games'] = []
+        context['years'] = Year.objects.filter(start__lte=now())
+        if self.object is None:
+            return context
         for game in self.object.games.all():
             game_results = {}
             results = game.team_set.annotate(
@@ -244,7 +247,7 @@ class ResultsView(DetailView):
             game_results['offline_teams'] = results.filter(is_online=False)
             game_results['name'] = str(game)
             context['games'].append(game_results)
-        context['years'] = Year.objects.filter(start__lte=now())
+
         return context
 
 
@@ -273,16 +276,24 @@ class ResultsLatestView(ResultsView):
     template_name = 'kos/results.html'
 
     def get_object(self, *args, **kwargs):
-        year = Year.objects.filter(
+        if self.request.user.is_authenticated:
+            return self.request.user.team.game.year
+        return Year.objects.filter(
             is_public=True).order_by('-end').first()
-        return year
 
 
 class ArchiveView(ListView):
     """Archive of old games"""
-    queryset = Year.objects.all()
     template_name = 'kos/archive.html'
     context_object_name = 'years'
+
+    def get_queryset(self):
+        queryset = Year.objects.filter(
+            is_public=True).all()
+        if self.request.user.is_authenticated:
+            queryset |= Year.objects.filter(
+                pk=self.request.user.team.game.year.pk).all()
+        return queryset
 
 
 class TeamInfoView(GetTeamMixin, FormView):
