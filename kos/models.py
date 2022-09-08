@@ -159,6 +159,11 @@ class Hint(models.Model):
                 puzzle=self.puzzle
             ).exists()
             and self.puzzle.can_team_see(team)
+            and (team.is_online or team.submissions.filter(
+                correct=True,
+                is_submitted_as_unlock_code=True,
+                puzzle=self.puzzle
+            ).exists())
         )
 
 
