@@ -284,10 +284,16 @@ class ResultsLatestView(ResultsView):
 
 class ArchiveView(ListView):
     """Archive of old games"""
-    queryset = Year.objects.filter(
-        is_public=True).all()
     template_name = 'kos/archive.html'
     context_object_name = 'years'
+
+    def get_queryset(self):
+        queryset = Year.objects.filter(
+            is_public=True).all()
+        if self.request.user.is_authenticated:
+            queryset |= Year.objects.filter(
+                pk=self.request.user.team.game.year.pk).all()
+        return queryset
 
 
 class TeamInfoView(GetTeamMixin, FormView):
