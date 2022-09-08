@@ -42,5 +42,10 @@ class SubmissionAdmin(admin.ModelAdmin):
 
 @admin.register(models.Hint)
 class HintAdmin(admin.ModelAdmin):
-    list_display = ('puzzle', 'show_after', 'hint_penalty', 'count_as_penalty')
+    list_display = ('puzzle', 'show_after',
+                    'hint_penalty', 'count_as_penalty', 'get_game')
     list_filter = ('count_as_penalty', 'puzzle')
+
+    @admin.display(ordering='puzzle__game', description='Šifrovačka')
+    def get_game(self, obj):
+        return obj.puzzle.game
