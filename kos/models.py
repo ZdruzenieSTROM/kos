@@ -77,7 +77,7 @@ class Puzzle(models.Model):
 
     @staticmethod
     def clean_text(string: str):
-        """Normalizuje text pre správne porovnanie. 
+        """Normalizuje text pre správne porovnanie.
         Odstráni diakritiku, krajné medzery a prevedie na malé písmená"""
         return unidecode(string).lower().strip()
 
@@ -159,11 +159,6 @@ class Hint(models.Model):
                 puzzle=self.puzzle
             ).exists()
             and self.puzzle.can_team_see(team)
-            and (team.is_online or team.submissions.filter(
-                correct=True,
-                is_submitted_as_unlock_code=True,
-                puzzle=self.puzzle
-            ).exists())
         )
 
 

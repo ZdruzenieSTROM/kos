@@ -100,7 +100,8 @@ class PuzzleView(GetTeamMixin, UserPassesTestMixin, DetailView):
 
     def test_func(self):
         puzzle = self.get_object()
-        return self.get_team().current_level >= puzzle.level
+        team = self.get_team()
+        return team.current_level >= puzzle.level and puzzle.can_team_see(team)
 
     def get(self, request, *args, **kwargs):
         puzzle = self.get_object()
