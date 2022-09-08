@@ -199,7 +199,8 @@ class GameView(GetTeamMixin, DetailView):
         # Check if team can submit
         puzzle = Puzzle.objects.get(pk=puzzle_id)
         if not puzzle.can_team_submit(team):
-            return HttpResponseForbidden()
+            messages.error(request, 'Odpoveď nie je možné odovzdať')
+            return redirect('kos:game')
         if not puzzle.can_team_see(team):
             is_correct = puzzle.check_unlock(answer)
             Submission.objects.create(
@@ -266,6 +267,10 @@ class HintView(GetTeamMixin, UserPassesTestMixin,  DetailView):
     def post(self, request, *args, **kwargs):
         """Pridaj hint"""
         self.get_team().hints_taken.add(self.get_object())
+        return redirect('kos:game')
+
+    def handle_no_permission(self):
+        messages.error(self.request, 'Hint nie je možné zobrať')
         return redirect('kos:game')
 
 
