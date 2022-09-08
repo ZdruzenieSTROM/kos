@@ -83,14 +83,14 @@ class AuthForm(AuthenticationForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['username'].label = 'Názov tímu'
+        self.fields['username'].label = 'Login'
         self.fields['username'].widget = forms.TextInput(
             attrs={'autofocus': True, 'class': 'main-input'})
         self.fields['password'].label = 'Heslo'
         self.fields['password'].widget = forms.PasswordInput(
             attrs={'autocomplete': 'current-password', 'class': 'main-input'})
 
-        self.error_messages['invalid_login'] = 'Zadaný názov tímu alebo heslo bolo nesprávne.'
+        self.error_messages['invalid_login'] = 'Zadaný login alebo heslo bolo nesprávne.'
 
 
 # class ChangePasswordForm(forms.Form):
