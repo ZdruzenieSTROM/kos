@@ -200,7 +200,7 @@ class Team(models.Model):
         )['submitted_at__max']
 
     def members_joined(self):
-        return ','.join([member.name for member in self.members.all()])
+        return ', '.join([member.name for member in self.members.all()])
 
 
 class TeamMember(models.Model):
