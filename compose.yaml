@@ -10,6 +10,9 @@ services:
       - type: "bind"
         source: "./db.sqlite3"
         target: "/app/db.sqlite3"
+      - type: "bind"
+        source: "./media"
+        target: "/app/media"
 
   static:
     image: "nginx:1.23"
