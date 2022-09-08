@@ -199,7 +199,9 @@ class GameView(GetTeamMixin, DetailView):
         # Check if team can submit
         puzzle = Puzzle.objects.get(pk=puzzle_id)
         if not puzzle.can_team_submit(team):
-            return HttpResponseForbidden()
+            messages.error(request, 'Odpoveď nie je možné odovzdať')
+            return redirect('kos:game')
+            # return HttpResponseForbidden()
         if not puzzle.can_team_see(team):
             is_correct = puzzle.check_unlock(answer)
             Submission.objects.create(
