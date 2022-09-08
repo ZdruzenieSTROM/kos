@@ -129,5 +129,6 @@ dmypy.json
 # Pyre type checker
 .pyre/
 static
-*.pdf
+media/*
+!media/.gitkeep
 processed.csv
