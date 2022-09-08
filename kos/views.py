@@ -113,7 +113,10 @@ class PuzzleSolutionView(GetTeamMixin, UserPassesTestMixin, DetailView):
 
     def test_func(self):
         puzzle = self.get_object()
-        return puzzle.game.year.solutions_public
+        team_game = None
+        if self.request.user.is_authenticated:
+            team_game = self.request.user.team.game
+        return puzzle.game.year.solutions_public and (puzzle.geme.year.is_public or puzzle.game == team_game)
 
     def get(self, request, *args, **kwargs):
         puzzle = self.get_object()
