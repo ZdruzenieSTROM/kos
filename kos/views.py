@@ -320,6 +320,13 @@ class TeamInfoView(GetTeamMixin, FormView):
             init_dict[f'team_member_{i+1}'] = member.name
         return init_dict
 
+    def post(self, request, *args, **kwargs):
+        team = self.get_team()
+        if team.game.year.start >= now():
+            messages.error(request, 'Tieto údaje nie je možné meniť počas hry')
+            return redirect('kos:change-profile')
+        return super().post(request, *args, **kwargs)
+
     def form_valid(self, form):
         team = self.get_team()
         team.members.all().delete()
