@@ -21,5 +21,20 @@
                 1
             ]
         }
+    },
+    {
+        "model": "flatpages.flatpage",
+        "pk": 2,
+        "fields": {
+            "url": "/pokyny/",
+            "title": "Pokyny",
+            "content": "<h3>Všeobecné info k websystému</h3> <p>Všetky šifry nájdete v záložke websystém. Hinty a riešenie je možné si zobrať až v uvedený čas a po tom, čo si zoberiete všetky predchádzajúce hinty pre danú šifru. Po zadaní každého kódu sa zobrazí odpoveď. Kódy nie sú citlivé na diakritiku ani na veľké písmená. Po zadaní 5 nesprávnych kódov za sebou nasleduje po každom ďalšom 1 minúta, kedy nemôžete zadávať kódy.<br /><br />V prípade, ak niečo nefunguje, nás kontaktuje <a href=\"https://m.me/sifrovackakos\" target=\"_blank\">tu</a>.</p> <h3>Terénna verzia</h3> <p>Na štarte dostanete veľkú obálku so všetkými šiframi, každá je v samostatnej obálke s názvom šífry, vždy po 2 kópie. Prvá šífra je priamo vo veľkej obálke. Riešiť smiete vždy iba aktuálnu šifru. Po vyriešení šifry a zadaní kódu získate polohu nasledujúceho stanoviska. Na tomto mieste nájdete názov nasledujúcej šifry a kód do websystému, ktorý potvrdí váš príchod. Kód pre prvú šifru je štart. V poradí sa hodnotí čas poslednej vyriešenej šifry.</p> <h3>Online verzia</h3> <p>Prvá šifra sa vám automaticky sprístupní o 9:00, nasledujúca vždy po vyriešení predchádzajúcej.</p>",
+            "enable_comments": false,
+            "template_name": "",
+            "registration_required": false,
+            "sites": [
+                1
+            ]
+        }
     }
 ]
