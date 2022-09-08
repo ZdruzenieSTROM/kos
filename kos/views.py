@@ -271,7 +271,8 @@ class HintView(GetTeamMixin, UserPassesTestMixin,  DetailView):
         return redirect('kos:game')
 
     def handle_no_permission(self):
-        messages.error(self.request, 'Hint nie je možné zobrať')
+        object_name = 'Nápovedu' if self.get_object().count_as_penalty else 'Riešenie'
+        messages.error(self.request, f'{object_name} nie je možné zobrať')
         return redirect('kos:game')
 
 
