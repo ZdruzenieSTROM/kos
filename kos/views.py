@@ -93,6 +93,10 @@ class SignUpView(FormView):
             )
         return super().form_valid(form)
 
+    # Temporary removing registration for Kos 2022 only
+    def get(self, request, *args, **kwargs):
+        return redirect('kos:home')
+
 
 class PuzzleView(GetTeamMixin, UserPassesTestMixin, DetailView):
     """Vráti PDF so šifrou"""
