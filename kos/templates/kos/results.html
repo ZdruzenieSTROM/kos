@@ -30,7 +30,7 @@ Táto hra nemá zverejnené výsledky
         <td>{{ forloop.counter }}.</td>
         <td>{{ team.name }}</td>
         <td>{{team.members_joined}}</td>
-        <td>{{ team.solved_puzzles }}</td>
+        <td>{{ team.current_level|add:"-1" }}</td>
         <!-- This needs to be displayed in the client's timezone -->
         <td>{%if team.last_correct_submission %}{{ team.last_correct_submission|date:'H:i:s' }}{% else %}-{%endif%}</td>
     </tr>
@@ -55,7 +55,7 @@ Táto hra nemá zverejnené výsledky
         <td>{{ team.name }}</td>
         <td>{{team.members_joined}}</td>
         </td>
-        <td>{{ team.solved_puzzles }}</td>
+        <td>{{ team.current_level|add:"-1" }}</td>
         <!-- This needs to be displayed in the client's timezone -->
         <td>{%if team.last_correct_submission %}{{ team.last_correct_submission|date:'H:i:s' }}{% else %}-{%endif%}</td>
     </tr>
