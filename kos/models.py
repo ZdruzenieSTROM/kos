@@ -138,7 +138,8 @@ class Hint(models.Model):
         if last_submission is None:
             last_submission = self.puzzle.game.year.start
         elapsed_time = now() - last_submission
-        minimum_elapsed_time = self.show_after + self.hint_penalty*team.get_penalties()
+        minimum_elapsed_time = self.show_after + \
+            self.hint_penalty*team.get_penalties(self.puzzle.level)
         return minimum_elapsed_time - elapsed_time
 
     def time_when_will_be_unlocked(self, team):
@@ -187,9 +188,9 @@ class Team(models.Model):
     def __str__(self):
         return f'{self.name}'
 
-    def get_penalties(self) -> int:
+    def get_penalties(self, on_level) -> int:
         """Spočíta počet zobratých hintov, ktoré sa rátajú ako penalty"""
-        return self.hints_taken.filter(count_as_penalty=True).count()
+        return self.hints_taken.filter(count_as_penalty=True, puzzle__level__lt=on_level).count()
 
     def get_last_correct_submission_time(self, answers_only=True):
         """Vráti čas poslednej správne odovzdanej šifry"""
