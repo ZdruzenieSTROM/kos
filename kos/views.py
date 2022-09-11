@@ -98,7 +98,7 @@ class SignUpView(FormView):
         return redirect('kos:home')
 
 
-class PuzzleView(GetTeamMixin, UserPassesTestMixin, DetailView):
+class PuzzleView(UserPassesTestMixin, DetailView):
     """Vráti PDF so šifrou"""
     model = Puzzle
 
@@ -109,7 +109,7 @@ class PuzzleView(GetTeamMixin, UserPassesTestMixin, DetailView):
             team_year = self.request.user.team.game.year
         if puzzle.game.year.solutions_public and (puzzle.game.year.is_public or puzzle.game.year == team_year):
             return True
-        team = self.get_team()
+        team = self.request.user.team
         return team.current_level >= puzzle.level and puzzle.can_team_see(team)
 
     def get(self, request, *args, **kwargs):
@@ -117,7 +117,7 @@ class PuzzleView(GetTeamMixin, UserPassesTestMixin, DetailView):
         return FileResponse(puzzle.file)
 
 
-class PuzzleSolutionView(GetTeamMixin, UserPassesTestMixin, DetailView):
+class PuzzleSolutionView(UserPassesTestMixin, DetailView):
     """Vráti PDF so šifrou"""
     model = Puzzle
 
