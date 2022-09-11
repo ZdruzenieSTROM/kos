@@ -109,6 +109,8 @@ class PuzzleView(UserPassesTestMixin, DetailView):
             team_year = self.request.user.team.game.year
         if puzzle.game.year.solutions_public and (puzzle.game.year.is_public or puzzle.game.year == team_year):
             return True
+        if not self.request.user.is_authenticated:
+            return False
         team = self.request.user.team
         return team.current_level >= puzzle.level and puzzle.can_team_see(team)
 
