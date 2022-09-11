@@ -104,10 +104,10 @@ class PuzzleView(GetTeamMixin, UserPassesTestMixin, DetailView):
 
     def test_func(self):
         puzzle = self.get_object()
-        team_game = None
+        team_year = None
         if self.request.user.is_authenticated:
-            team_game = self.request.user.team.game
-        if puzzle.game.year.solutions_public and (puzzle.game.year.is_public or puzzle.game.year == team_game.year):
+            team_year = self.request.user.team.game.year
+        if puzzle.game.year.solutions_public and (puzzle.game.year.is_public or puzzle.game.year == team_year):
             return True
         team = self.get_team()
         return team.current_level >= puzzle.level and puzzle.can_team_see(team)
@@ -123,10 +123,10 @@ class PuzzleSolutionView(GetTeamMixin, UserPassesTestMixin, DetailView):
 
     def test_func(self):
         puzzle = self.get_object()
-        team_game = None
+        team_year = None
         if self.request.user.is_authenticated:
-            team_game = self.request.user.team.game
-        return puzzle.game.year.solutions_public and (puzzle.game.year.is_public or puzzle.game.year == team_game.year)
+            team_year = self.request.user.team.game.year
+        return puzzle.game.year.solutions_public and (puzzle.game.year.is_public or puzzle.game.year == team_year)
 
     def get(self, request, *args, **kwargs):
         puzzle = self.get_object()
