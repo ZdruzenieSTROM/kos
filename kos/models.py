@@ -92,7 +92,7 @@ class Puzzle(models.Model):
         return time_of_last_submission + timedelta(seconds=60) - now()
 
     def can_team_submit(self, team):
-        return team.current_level >= self.level and not self.team_timeout(team) > timedelta(0)
+        return team.current_level >= self.level and not self.team_timeout(team) > timedelta(0) and not self.has_team_passed(team)
 
     @staticmethod
     def __check_equal(string1: str, string2: str) -> bool:
