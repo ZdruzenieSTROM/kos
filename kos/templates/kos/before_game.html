@@ -4,4 +4,8 @@
 
 {% block content %}
 Šifrovačka začne {{game.year.start|date:'d.m.Y H:i:s'}}.
+{% if game.before_game_message %}
+Informácie pred hrou:
+{{game.before_game_message|safe}}
+{% endif %}
 {% endblock %}

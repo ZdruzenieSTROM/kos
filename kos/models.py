@@ -38,7 +38,11 @@ class Game(models.Model):
         verbose_name = 'šifrovačka'
         verbose_name_plural = 'šifrovačky'
     final_message = models.TextField(
-        blank=True, null=True, verbose_name='Správa po ukončení')
+        blank=True, null=True, verbose_name='Správa po vyriešení všetkých šifier')
+    before_game_message = models.TextField(
+        blank=True, null=True, verbose_name='Správa pred začatím hry')
+    after_game_message = models.TextField(
+        blank=True, null=True, verbose_name='Správa po ukončení hry')
     name = models.CharField(max_length=100)
     year = models.ForeignKey(
         Year, on_delete=models.SET_NULL, null=True, verbose_name='Ročník', related_name='games')
