@@ -337,6 +337,15 @@ class TeamInfoView(GetTeamMixin, FormView):
             init_dict[f'team_member_{i+1}'] = member.name
         return init_dict
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['payment'] = (
+            self.request.user.competitor.payment
+            if hasattr(self.request.user, 'team')
+            and hasattr(self.request.user.team, 'payment') else False
+        )
+        return context
+
     def post(self, request, *args, **kwargs):
         team = self.get_team()
         if team.game.year.start <= now():
