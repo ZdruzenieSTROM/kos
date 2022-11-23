@@ -83,6 +83,11 @@ class SignUpView(FormView):
             game=form.cleaned_data['game'],
             is_online=form.cleaned_data['is_online']
         )
+        if (team.is_online and team.game.price_online == 0) or (
+            not team.is_online and team.game.price_offline == 0
+        ):
+            team.paid = True
+            team.save()
         for i in range(5):
             member_name = form.cleaned_data[f'team_member_{i+1}']
             if member_name is None or member_name == '':
