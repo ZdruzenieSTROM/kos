@@ -1,10 +1,13 @@
 
 
+from allauth.account.models import EmailAddress
+from allauth.account.utils import send_email_confirmation
 from django.contrib import messages
 from django.contrib.auth import logout, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.views import LoginView
+from django.db import IntegrityError
 from django.db.models import Count, Max, Q
 from django.http import FileResponse
 from django.shortcuts import redirect, render
@@ -76,7 +79,16 @@ class SignUpView(FormView):
         team_name = form.cleaned_data['team_name']
         email = form.cleaned_data['email']
         password = form.cleaned_data['password']
-        user = User.objects.create_user(team_name, email, password)
+        try:
+            user = User.objects.create_user(email, email, password)
+            user.is_active = False
+            user.save()
+            EmailAddress.objects.create(
+                user=user, email=email, primary=True, verified=False)
+        except IntegrityError:
+            messages.error(
+                self.request, 'Užívateľ s týmto emailom už existuje')
+            return super().form_invalid(form)
         team = Team.objects.create(
             name=team_name,
             user=user,
@@ -91,6 +103,7 @@ class SignUpView(FormView):
                 name=member_name,
                 team=team
             )
+        send_email_confirmation(self.request, user, True)
         return super().form_valid(form)
 
     # Temporary removing registration for Kos 2022 only
