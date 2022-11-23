@@ -46,6 +46,10 @@ class Game(models.Model):
     name = models.CharField(max_length=100)
     year = models.ForeignKey(
         Year, on_delete=models.SET_NULL, null=True, verbose_name='Ročník', related_name='games')
+    price_offline = models.DecimalField(
+        verbose_name='Výška poplatku terénnej verzie', max_digits=5, decimal_places=2)
+    price_online = models.DecimalField(
+        verbose_name='Výška poplatku online verzie', max_digits=5, decimal_places=2)
 
     def __str__(self):
         return f'{self.year.name} - {self.name}'
@@ -188,6 +192,7 @@ class Team(models.Model):
     is_online = models.BooleanField(default=False)
     hints_taken = models.ManyToManyField(
         Hint, verbose_name='Zobraté hinty', blank=True)
+    paid = models.BooleanField(verbose_name='Poplatok uhradený')
 
     def __str__(self):
         return f'{self.name}'
