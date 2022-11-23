@@ -10,14 +10,20 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.1/ref/settings/
 """
 
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
+def read_secret(secret_name: str) -> str:
+    with open(os.path.join(BASE_DIR, '.secrets', secret_name)) as secret_file:
+        return secret_file.readline()
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
+
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = '^(txxj1p(@hfc)@u7u#d1h$i##m+g*=m!wzu^%zs3r+lw4mlh_'
@@ -90,6 +96,11 @@ DATABASES = {
     }
 }
 
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+    'allauth.account.auth_backends.AuthenticationBackend'
+]
+
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Password validation
@@ -120,3 +131,32 @@ STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'static'
 
 MEDIA_ROOT = BASE_DIR / 'media'
+
+####### Allauth #############
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
+ACCOUNT_CONFIRM_EMAIL_ON_GET = True
+ACCOUNT_USER_MODEL_USERNAME_FIELD = None
+ACCOUNT_USERNAME_REQUIRED = False
+ACCOUNT_PREVENT_ENUMERATION = False
+ACCOUNT_PASSWORD_MIN_LENGTH = 1
+ACCOUNT_AUTHENTICATION_METHOD = 'email'
+LOGIN_URL = 'competition:login'
+LOGIN_REDIRECT_URL = 'competition:login'
+ACCOUNT_EMAIL_CONFIRMATION_AUTHENTICATED_REDIRECT_URL = 'competition:login'
+ACCOUNT_FORMS = {
+    'reset_password': 'competition.forms.CustomResetPasswordForm',
+    'reset_password_from_key': 'competition.forms.CustomResetPasswordFromKey'
+}
+
+####### Email ################
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = '587'
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'noreply@strom.sk'
+SERVER_EMAIL = 'noreply@strom.sk'
+EMAIL_HOST_PASSWORD = read_secret('email_password.txt')
+DEFAULT_FROM_EMAIL = 'noreply@strom.sk'
+
+ADMINS = [('Kovacs', 'kovacs@strom.sk'), ('Masrna', 'michal.masrna@strom.sk')]
