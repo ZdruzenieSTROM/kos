@@ -1,0 +1,1 @@
+Email {{email}} bol potvrdený. Teraz sa môžeš prihlásiť. Na email sme ti poslali pokyny k uhradeniu účastníckeho poplatku.

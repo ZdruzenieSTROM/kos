@@ -1,0 +1,12 @@
+{% extends "account/email/base_message.txt" %}
+{% load account %}
+{% load i18n %}
+
+{% block content %}{% autoescape off %}{% user_display user as user_display %}{% blocktrans with
+site_name=current_site.name site_domain=current_site.domain %}Tento email ste dostali, pretože používateľ {{
+user_display }} zadal vašu emailovú adresu pri registrácií na stránke <a href="http://kos.strom.sk">kos.strom.sk</a> .
+Pokiaľ sa nejedná o Vašu akciu, tento email ignorujte.
+
+<br>
+Pre potvrdenie adresy kliknite na nasledujúci odkaz {{ activate_url }}{% endblocktrans %}{% endautoescape %}{% endblock
+%}
