@@ -23,7 +23,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = '^(txxj1p(@hfc)@u7u#d1h$i##m+g*=m!wzu^%zs3r+lw4mlh_'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['kos.strom.sk', 'localhost']
 
