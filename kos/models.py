@@ -27,6 +27,10 @@ class Year(models.Model):
     is_active = models.BooleanField(
         verbose_name='Hra je aktívna', default=False
     )
+    pdf_results = models.FileField(
+        verbose_name='PDF výsledková listina', blank=True, null=True)
+    photos_url = models.CharField(
+        max_length=512, verbose_name='Link na fotogalériu', null=True, blank=True)
 
     def __str__(self):
         return self.name
