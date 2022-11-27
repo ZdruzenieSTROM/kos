@@ -303,9 +303,9 @@ class ResultsLatestView(ResultsView):
             is_public=True).order_by('-end').first()
 
 
-class ArchiveView(ListView):
+class PuzzlesAndSolutionsView(ListView):
     """Archive of old games"""
-    template_name = 'kos/archive.html'
+    template_name = 'kos/puzzles_and_solutions.html'
     context_object_name = 'years'
 
     def get_queryset(self):
