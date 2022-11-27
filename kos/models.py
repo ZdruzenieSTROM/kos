@@ -135,6 +135,9 @@ class Hint(models.Model):
     prerequisites = models.ManyToManyField(
         'Hint', verbose_name='Nutné zobrať pred', blank=True)
 
+    def __str__(self):
+        return f'{self.puzzle} - {self.text[:30]}'
+
     def get_time_to_take(self, team):
         """Zostávajúci čas do hintu"""
         last_submission = team.get_last_correct_submission_time(
