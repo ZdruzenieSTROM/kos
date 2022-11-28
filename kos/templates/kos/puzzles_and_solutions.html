@@ -1,9 +1,8 @@
 {% extends "kos/base.html" %}
 
-{% block title %}Archív{% endblock %}
+{% block title %}Zadania a riešenia šifier{% endblock %}
 
 {% block content %}
-{%for year in years%}
 <h1>{{year.name}}</h1>
 {% if year.solutions_public %}
 {% for game in year.games.all %}
@@ -21,7 +20,6 @@
 {%else%}
 Zadania a riešenia šifier budú čoskoro zverejnené
 {%endif%}
-{%endfor%}
 
 
 {% endblock %}

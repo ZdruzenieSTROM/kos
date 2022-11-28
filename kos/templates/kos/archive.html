@@ -1,0 +1,38 @@
+{% extends "kos/base.html" %}
+
+{% block title %}Archív{% endblock %}
+
+{% block content %}
+<h1>Minulé ročníky</h1>
+<table>
+    <tr>
+        <th>Ročník</th>
+        <th>Šifry a riešenia</th>
+        <th>Výsledky</th>
+        <th>Štatistiky úloh</th>
+        <th>Fotky</th>
+    </tr>
+    {% for year in years %}
+    <tr>
+        <td>{{ year.name }}</td>
+        <td>{% if year.solutions_public %}
+            <a href="{% url 'kos:puzzles-and-solutions' %}">Šifry a riešenia</a>
+            {% else%}-{% endif %}
+        </td>
+        <td>
+            {% if year.pdf_results %}
+            <a href="{{year.pdf_results.url}}">Výsledky</a>
+            {% else %}
+            <a href="{% url 'kos:results' pk=year.pk %}">Výsledky</a>
+            {% endif %}
+        </td>
+        <td><a href="{% url 'kos:statistics' pk=year.pk %}">Štatistiky</a></td>
+        <td>{% if year.photos_url %}<a href="{{year.photos_url}}">Fotky</a>{% endif %}</td>
+
+    </tr>
+    {% endfor %}
+</table>
+
+
+
+{% endblock %}

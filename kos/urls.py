@@ -23,10 +23,15 @@ urlpatterns = [
          views.ResultsLatexExportView.as_view(), name='results-latex'),
     path('pravidla', flatpage, {'url': '/pravidla/'}, name='rules'),
     path('pokyny', flatpage, {'url': '/pokyny/'}, name='info'),
-    path('archiv', views.PuzzlesAndSolutionsView.as_view(), name='archive'),
+    path('sifry/<int:pk>', views.PuzzlesAndSolutionsView.as_view(),
+         name='puzzles-and-solutions'),
+    path('sifry/aktualne', views.PuzzlesAndSolutionsLatestView.as_view(),
+         name='puzzles-and-solutions-latest'),
+    path('archiv', views.ArchiveView.as_view(), name='archive'),
     path(r'hint/<int:pk>', views.HintView.as_view(), name='hint'),
     path(r'sifra/<int:pk>', views.PuzzleView.as_view(), name='puzzle'),
     path(r'riesenie-sifry/<int:pk>',
          views.PuzzleSolutionView.as_view(), name='puzzle-solution'),
+    path('statistiky/<int:pk>', views.StatisticsView.as_view(), name='statistics')
 
 ]

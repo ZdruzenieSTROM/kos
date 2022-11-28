@@ -297,24 +297,37 @@ class ResultsLatestView(ResultsView):
     template_name = 'kos/results.html'
 
     def get_object(self, *args, **kwargs):
-        if self.request.user.is_authenticated:
-            return self.request.user.team.game.year
         return Year.objects.filter(
             is_public=True).order_by('-end').first()
 
 
-class PuzzlesAndSolutionsView(ListView):
-    """Archive of old games"""
+class PuzzlesAndSolutionsView(DetailView):
+    """Šifry a riešenia šifier"""
     template_name = 'kos/puzzles_and_solutions.html'
+    context_object_name = 'year'
+    model = Year
+
+
+class PuzzlesAndSolutionsLatestView(PuzzlesAndSolutionsView):
+    """Šifry a riešenia šifier aktuálnej šiforvačky"""
+
+    def get_object(self, *args, **kwargs):
+        return Year.objects.filter(
+            is_public=True).order_by('-end').first()
+
+
+class ArchiveView(ListView):
+    """Archív ročníkov"""
+    model = Year
+    template_name = 'kos/archive.html'
     context_object_name = 'years'
 
-    def get_queryset(self):
-        queryset = Year.objects.filter(
-            is_public=True).all()
-        if self.request.user.is_authenticated:
-            queryset |= Year.objects.filter(
-                pk=self.request.user.team.game.year.pk).all()
-        return queryset
+
+class StatisticsView(DetailView):
+    """Štatistiky hry"""
+    model = Year
+    template_name = 'kos/statistics.html'
+    content_object_name = 'year'
 
 
 class TeamInfoView(GetTeamMixin, FormView):
