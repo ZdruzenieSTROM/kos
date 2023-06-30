@@ -160,7 +160,7 @@ class AfterGameView(LoginRequiredMixin, DetailView):
     def get(self, request, *args, **kwargs):
         response = super().get(request, *args, **kwargs)
         if self.object.year.end >= now():
-            # After game start
+            # Before game end
             return redirect('kos:game')
         return response
 
