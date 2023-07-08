@@ -111,11 +111,9 @@ tr:nth-child(even) {
     border-color: gray;
 }
 
-.checkbox-input {
-    border: 2px solid black !important;
-}
-
-.checkbox-input:checked {
+input[type=checkbox] {
+    position: absolute;
+    margin-left: 4px;
     accent-color: black;
 }
 
