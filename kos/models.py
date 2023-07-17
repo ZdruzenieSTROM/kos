@@ -186,6 +186,7 @@ class Team(models.Model):
         primary_key=False,
         related_name='team'
     )
+    email = models.EmailField(null=True,blank=True)
     current_level = models.PositiveSmallIntegerField(default=1)
     game = models.ForeignKey(Game, on_delete=models.CASCADE)
     is_online = models.BooleanField(default=False)

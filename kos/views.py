@@ -81,7 +81,8 @@ class SignUpView(FormView):
             name=team_name,
             user=user,
             game=form.cleaned_data['game'],
-            is_online=form.cleaned_data['is_online']
+            is_online=form.cleaned_data['is_online'],
+            email=email
         )
         for i in range(5):
             member_name = form.cleaned_data[f'team_member_{i+1}']
