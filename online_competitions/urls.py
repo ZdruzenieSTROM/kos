@@ -9,7 +9,6 @@ from kos.views import LoginFormView, SignUpView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('mas-problem/', include('mas_problem.urls', namespace='mas-problem')),
     # Allauth
     re_path(r'^accounts/confirm-email/(?P<key>[-:\w]+)/$',
             allauth_views.confirm_email, name='account_confirm_email'),
