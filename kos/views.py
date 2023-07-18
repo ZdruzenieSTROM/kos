@@ -245,6 +245,18 @@ class ResultsView(DetailView):
     model = Year
     template_name = 'kos/results.html'
 
+    def add_places(self, results):
+        current_place = 1
+        previous_last_correct_submission = None
+        results_list = []
+        for i, result_row in enumerate(results):
+            if previous_last_correct_submission != result_row.last_correct_submission:
+                current_place = i+1
+                previous_last_correct_submission = result_row.last_correct_submission
+            result_row.place = current_place
+            results_list.append(result_row)
+        return results_list
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['games'] = []
@@ -254,14 +266,13 @@ class ResultsView(DetailView):
         for game in self.object.games.all():
             game_results = {}
             results = game.team_set.annotate(
-                solved_puzzles=Count('submissions', filter=Q(
-                    submissions__correct=True, submissions__is_submitted_as_unlock_code=False)),
-
                 last_correct_submission=Max(
                     'submissions__submitted_at', filter=Q(submissions__correct=True, submissions__is_submitted_as_unlock_code=False))
             ).order_by('-current_level', 'last_correct_submission')
-            game_results['online_teams'] = results.filter(is_online=True)
-            game_results['offline_teams'] = results.filter(is_online=False)
+            game_results['online_teams'] = self.add_places(
+                results.filter(is_online=True))
+            game_results['offline_teams'] = self.add_places(
+                results.filter(is_online=False))
             game_results['name'] = str(game)
             context['games'].append(game_results)
 
