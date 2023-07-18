@@ -3,25 +3,25 @@
 {% block title %}Archív{% endblock %}
 
 {% block content %}
-{%for year in years%}
-<h1>{{year.name}}</h1>
-{% if year.solutions_public %}
-{% for game in year.games.all %}
-<h2>{{game.name}}</h2>
-<table>
-    {% for puzzle in game.puzzle_set.all %}
-    <tr>
-        <td>{{puzzle.name}}</td>
-        <td><a href="{% url 'kos:puzzle' pk=puzzle.pk %}">Zadanie</a></td>
-        <td><a href="{% url 'kos:puzzle-solution' pk=puzzle.pk %}">Riešenie</a></td>
-    </tr>
-    {% endfor %}
-</table>
+{% for year in years %}
+    <h1>{{year.name}}</h1>
+    {% if year.solutions_public %}
+        {% for game in year.games.all %}
+            <h2>{{game.name}}</h2>
+            <table>
+                {% for puzzle in game.puzzle_set.all %}
+                <tr>
+                    <td>{{puzzle.name}}</td>
+                    <td><a href="{% url 'kos:puzzle' pk=puzzle.pk %}">Zadanie</a></td>
+                    <td><a href="{% url 'kos:puzzle-solution' pk=puzzle.pk %}">Riešenie</a></td>
+                </tr>
+                {% endfor %}
+            </table>
+        {% endfor %}
+    {% else %}
+        Zadania a riešenia šifier budú čoskoro zverejnené.
+    {% endif %}
 {% endfor %}
-{%else%}
-Zadania a riešenia šifier budú čoskoro zverejnené
-{%endif%}
-{%endfor%}
 
 
 {% endblock %}

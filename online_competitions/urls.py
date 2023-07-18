@@ -8,9 +8,7 @@ from django.urls import include, path, re_path
 from kos.views import LoginFormView, SignUpView
 
 urlpatterns = [
-    path('/', flatpage, {'url': '/pravidla/'}, name='home'),
     path('admin/', admin.site.urls),
-    path('kos/', include('kos.urls', namespace='kos')),
     path('mas-problem/', include('mas_problem.urls', namespace='mas-problem')),
     # Allauth
     re_path(r'^accounts/confirm-email/(?P<key>[-:\w]+)/$',
@@ -33,6 +31,7 @@ urlpatterns = [
         name="account_reset_password_from_key_done",
     ),
     path('login', LoginFormView.as_view(), name='account_login'),
-    path('register', SignUpView.as_view(), name='account_signup')
+    path('register', SignUpView.as_view(), name='account_signup'),
+    path('', include('kos.urls', namespace='kos'))
 ]
 handler404 = 'kos.views.view_404'

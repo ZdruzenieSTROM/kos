@@ -3,9 +3,9 @@
 {% block title %}{{game.name}}{% endblock %}
 
 {% block content %}
-Šifrovačka začne {{game.year.start|date:'d.m.Y H:i:s'}}.
-{% if game.before_game_message %}
-Informácie pred hrou:
-{{game.before_game_message|safe}}
-{% endif %}
+    <p class="fs-x-large">Šifrovačka začne {{game.year.start|date:'d.m.Y H:i:s'}}.</p>
+    {% if game.before_game_message %}
+        <h1>Informácie pred hrou:</h1>
+        {{game.before_game_message|safe}}
+    {% endif %}
 {% endblock %}

@@ -13,6 +13,7 @@ services:
       - type: "bind"
         source: "./media"
         target: "/app/media"
+    restart: always
 
   static:
     image: "nginx:1.23"
@@ -22,6 +23,7 @@ services:
       - "8421:80"
     volumes:
       - "staticfiles:/usr/share/nginx/html:ro"
+    restart: always
 
 volumes:
   staticfiles:

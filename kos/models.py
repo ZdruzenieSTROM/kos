@@ -135,6 +135,9 @@ class Hint(models.Model):
     prerequisites = models.ManyToManyField(
         'Hint', verbose_name='Nutné zobrať pred', blank=True)
 
+    def __str__(self):
+        return f'{self.puzzle} - {self.text[:30]}'
+
     def get_time_to_take(self, team):
         """Zostávajúci čas do hintu"""
         last_submission = team.get_last_correct_submission_time(
@@ -180,9 +183,11 @@ class Team(models.Model):
     user = models.OneToOneField(
         User, on_delete=models.SET_NULL,
         null=True,
+        blank=True,
         primary_key=False,
         related_name='team'
     )
+    email = models.EmailField(null=True, blank=True)
     current_level = models.PositiveSmallIntegerField(default=1)
     game = models.ForeignKey(Game, on_delete=models.CASCADE)
     is_online = models.BooleanField(default=False)
