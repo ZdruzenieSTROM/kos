@@ -5,7 +5,7 @@ services:
     build:
       context: .
       args:
-        SETTINGS_MODULE: online_competitions.settings.prod_settings
+        SETTINGS_MODULE: online_competitions.settings.test_settings
     ports:
       - "8420:8000"
     volumes:

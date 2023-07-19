@@ -27,9 +27,9 @@ Táto hra nemá zverejnené výsledky.
     </tr>
     {% for team in game.online_teams %}
     <tr>
-        <td>{{ forloop.counter }}.</td>
+        <td>{{ team.place }}.</td>
         <td>{{ team.name }}</td>
-        <td>{{team.members_joined}}</td>
+        <td>{{ team.members_joined }}</td>
         <td>{{ team.current_level|add:"-1" }}</td>
         <!-- This needs to be displayed in the client's timezone -->
         <td>{%if team.last_correct_submission %}{{ team.last_correct_submission|date:'H:i:s' }}{% else %}-{%endif%}</td>
@@ -51,9 +51,9 @@ Táto hra nemá zverejnené výsledky.
     </tr>
     {% for team in game.offline_teams %}
     <tr>
-        <td>{{ forloop.counter }}.</td>
+        <td>{{ team.place }}.</td>
         <td>{{ team.name }}</td>
-        <td>{{team.members_joined}}</td>
+        <td>{{ team.members_joined }}</td>
         </td>
         <td>{{ team.current_level|add:"-1" }}</td>
         <!-- This needs to be displayed in the client's timezone -->

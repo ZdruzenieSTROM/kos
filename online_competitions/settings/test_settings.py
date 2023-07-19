@@ -34,9 +34,9 @@ DEBUG = True
 ALLOWED_HOSTS = ['kos.strom.sk', 'kostest.strom.sk', 'localhost']
 
 CSRF_TRUSTED_ORIGINS = [
-    'https://kos.strom.sk', 
+    'https://kos.strom.sk',
     'https://www.kos.strom.sk',
-    'http://kostest.strom.sk', 
+    'http://kostest.strom.sk',
     'http://www.kostest.strom.sk']
 
 # Application definition
