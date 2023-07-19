@@ -63,7 +63,6 @@ class RegisterForm(forms.Form):
         return password2
 
 
-
 class AuthForm(AuthenticationForm):
     """Lokalizovaný prihlasovací formulár"""
 
@@ -77,6 +76,7 @@ class AuthForm(AuthenticationForm):
             attrs={'autocomplete': 'current-password', 'class': 'main-input'})
 
         self.error_messages['invalid_login'] = 'Zadaný login alebo heslo bolo nesprávne.'
+
 
 class ChangePasswordForm(PasswordChangeForm):
     """Lokalizovaný formulár pre zmenu hesla"""
@@ -104,6 +104,7 @@ class CustomResetPasswordForm(ResetPasswordForm):
         super().__init__(*args, **kwargs)
         self.fields['email'].label = 'Email'
         self.fields['email'].widget.attrs['placeholder'] = 'Email'
+        self.fields['email'].widget.attrs['class'] = 'main-input'
 
     def clean_email(self):
         email = self.cleaned_data["email"]
