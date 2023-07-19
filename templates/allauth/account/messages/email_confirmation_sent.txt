@@ -1,0 +1,1 @@
+Verifikačný email bol poslaný na {{email}}. Prosím potvrď email kliknutím na odkaz v ňom.

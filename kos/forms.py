@@ -1,3 +1,7 @@
+from allauth.account import app_settings
+from allauth.account.adapter import get_adapter
+from allauth.account.forms import ResetPasswordForm, ResetPasswordKeyForm
+from allauth.account.utils import filter_users_by_email
 from django import forms
 from django.contrib.auth.forms import AuthenticationForm, PasswordChangeForm
 from django.utils.timezone import now
@@ -59,25 +63,6 @@ class RegisterForm(forms.Form):
         return password2
 
 
-class ChangePasswordForm(PasswordChangeForm):
-    """Lokalizovaný formulár pre zmenu hesla"""
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields['old_password'].label = 'Staré heslo'
-        self.fields['old_password'].widget = forms.PasswordInput(
-            attrs={'autofocus': True, 'class': 'main-input'})
-        self.fields['new_password1'].label = 'Zadajte nové heslo'
-        self.fields['new_password1'].widget = forms.PasswordInput(
-            attrs={'autofocus': True, 'class': 'main-input'})
-        self.fields['new_password2'].label = 'Zadajte znova nové heslo'
-        self.fields['new_password2'].widget = forms.PasswordInput(
-            attrs={'autofocus': True, 'class': 'main-input'})
-
-        self.error_messages['password_incorrect'] = 'Staré heslo bolo zadané nesprávne. Zadajte heslo znovu.'
-        self.error_messages['password_mismatch'] = 'Heslá sa musia zhodovať'
-
-
 class AuthForm(AuthenticationForm):
     """Lokalizovaný prihlasovací formulár"""
 
@@ -93,29 +78,54 @@ class AuthForm(AuthenticationForm):
         self.error_messages['invalid_login'] = 'Zadaný login alebo heslo bolo nesprávne.'
 
 
-# class ChangePasswordForm(forms.Form):
-#     """Form na zmenu hesla"""
-#     old_password = password = forms.CharField(
-#         widget=forms.PasswordInput(attrs={'class': 'form-control main-input'}),
-#         label='Staré heslo')
-#     password = forms.CharField(
-#         widget=forms.PasswordInput(attrs={'class': 'form-control main-input'}),
-#         label='Heslo')
-#     password2 = forms.CharField(
-#         widget=forms.PasswordInput(attrs={'class': 'form-control main-input'}),
-#         label='Zopakuj heslo',)
+class ChangePasswordForm(PasswordChangeForm):
+    """Lokalizovaný formulár pre zmenu hesla"""
 
-#     def clean_password2(self):
-#         """Heslo a zopakované heslo sa rovnajú"""
-#         old_password = self.cleaned_data.get('old_password')
-#         password1 = self.cleaned_data.get('password')
-#         password2 = self.cleaned_data.get('password2')
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['old_password'].label = 'Staré heslo'
+        self.fields['old_password'].widget = forms.PasswordInput(
+            attrs={'autofocus': True, 'class': 'main-input'})
+        self.fields['new_password1'].label = 'Nové heslo'
+        self.fields['new_password1'].widget = forms.PasswordInput(
+            attrs={'class': 'main-input'})
+        self.fields['new_password2'].label = 'Nové heslo (znova)'
+        self.fields['new_password2'].widget = forms.PasswordInput(
+            attrs={'class': 'main-input'})
 
-#         if not password2:
-#             raise forms.ValidationError("Musíte potvrdiť svoje heslo")
-#         if password1 != password2:
-#             raise forms.ValidationError("Heslá sa musia zhodovať")
-#         return password2
+        self.error_messages = {
+            "password_incorrect": "Zadané heslo bolo nesprávne",
+            "password_mismatch": "Heslá sa musia zhodovať"
+        }
+
+
+class CustomResetPasswordForm(ResetPasswordForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['email'].label = 'Email'
+        self.fields['email'].widget.attrs['placeholder'] = 'Email'
+        self.fields['email'].widget.attrs['class'] = 'main-input'
+
+    def clean_email(self):
+        email = self.cleaned_data["email"]
+        email = get_adapter().clean_email(email)
+        self.users = filter_users_by_email(email, is_active=True)
+        if not self.users and not app_settings.PREVENT_ENUMERATION:
+            raise forms.ValidationError(
+                ("Na tento email nie je registrovaný žiaden účet alebo tento email ešte nebol potvrdený.")
+            )
+        return self.cleaned_data["email"]
+
+
+class CustomResetPasswordFromKey(ResetPasswordKeyForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['password1'].label = 'Nové heslo'
+        self.fields['password2'].label = 'Nové heslo (znova)'
+        self.fields['password1'].widget.attrs['placeholder'] = 'Nové heslo'
+        self.fields['password1'].widget.attrs['class'] = 'main-input'
+        self.fields['password2'].widget.attrs['placeholder'] = 'Nové heslo (znova)'
+        self.fields['password2'].widget.attrs['class'] = 'main-input'
 
 
 class EditTeamForm(forms.Form):
