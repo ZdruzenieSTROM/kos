@@ -2,7 +2,6 @@
 
 import allauth.account.views as allauth_views
 from django.contrib import admin
-from django.contrib.flatpages.views import flatpage
 from django.urls import include, path, re_path
 
 from kos.views import LoginFormView, SignUpView

@@ -31,9 +31,13 @@ SECRET_KEY = '^(txxj1p(@hfc)@u7u#d1h$i##m+g*=m!wzu^%zs3r+lw4mlh_'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['kos.strom.sk', 'localhost']
+ALLOWED_HOSTS = ['kos.strom.sk', 'kostest.strom.sk', 'localhost']
 
-CSRF_TRUSTED_ORIGINS = ['https://kos.strom.sk', 'https://www.kos.strom.sk']
+CSRF_TRUSTED_ORIGINS = [
+    'https://kos.strom.sk', 
+    'https://www.kos.strom.sk',
+    'http://kostest.strom.sk', 
+    'http://www.kostest.strom.sk']
 
 # Application definition
 
@@ -69,7 +73,7 @@ ROOT_URLCONF = 'online_competitions.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'templates', 'allauth')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -140,12 +144,12 @@ ACCOUNT_USERNAME_REQUIRED = False
 ACCOUNT_PREVENT_ENUMERATION = False
 ACCOUNT_PASSWORD_MIN_LENGTH = 1
 ACCOUNT_AUTHENTICATION_METHOD = 'email'
-LOGIN_URL = 'competition:login'
-LOGIN_REDIRECT_URL = 'competition:login'
-ACCOUNT_EMAIL_CONFIRMATION_AUTHENTICATED_REDIRECT_URL = 'competition:login'
+LOGIN_URL = 'kos:login'
+LOGIN_REDIRECT_URL = 'kos:login'
+ACCOUNT_EMAIL_CONFIRMATION_AUTHENTICATED_REDIRECT_URL = 'kos:login'
 ACCOUNT_FORMS = {
-    'reset_password': 'competition.forms.CustomResetPasswordForm',
-    'reset_password_from_key': 'competition.forms.CustomResetPasswordFromKey'
+    'reset_password': 'kos.forms.CustomResetPasswordForm',
+    'reset_password_from_key': 'kos.forms.CustomResetPasswordFromKey'
 }
 
 ####### Email ################

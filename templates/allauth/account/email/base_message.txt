@@ -1,9 +1,9 @@
-{% load i18n %}{% autoescape off %}{% blocktrans with site_name=current_site.name %}Dobrý deň,{% endblocktrans %}
+{% load i18n %}{% load account %}{% autoescape off %}{% blocktrans with site_name=current_site.name %}Dobrý deň,{% endblocktrans %}
 <br>
 {% block content %}{% endblock %}
 <br>
 {% blocktrans with site_name=current_site.name site_domain=current_site.domain %}S pozdravom,
 <br>
-organizátori šifrovačky Kôš.
+organizátori šifrovačky Kôš
 {% endblocktrans %}
 {% endautoescape %}
