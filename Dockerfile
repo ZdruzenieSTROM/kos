@@ -11,6 +11,7 @@ RUN ["pip", "install", "daphne"]
 
 COPY . /app/
 
+RUN ["python", "manage.py", "migrate"]
 RUN ["python", "manage.py", "collectstatic", "--noinput"]
 
 CMD ["daphne", "-b", "0.0.0.0", "-p", "8000", "online_competitions.asgi:application"]

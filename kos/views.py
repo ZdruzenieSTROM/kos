@@ -81,7 +81,8 @@ class SignUpView(FormView):
             name=team_name,
             user=user,
             game=form.cleaned_data['game'],
-            is_online=form.cleaned_data['is_online']
+            is_online=form.cleaned_data['is_online'],
+            email=email
         )
         if (team.is_online and team.game.price_online == 0) or (
             not team.is_online and team.game.price_offline == 0
@@ -165,7 +166,7 @@ class AfterGameView(LoginRequiredMixin, DetailView):
     def get(self, request, *args, **kwargs):
         response = super().get(request, *args, **kwargs)
         if self.object.year.end >= now():
-            # After game start
+            # Before game end
             return redirect('kos:game')
         return response
 

@@ -3,11 +3,11 @@
 {% block title %}{{game.name}}{% endblock %}
 
 {% block content %}
-Šifrovačka skončila.
-<a href="{% url 'kos:results' pk=game.year.pk %}">Výsledky</a>
-Riešenia šifier budú zverejnené v <a href="{% url 'kos:archive' %}">Archíve</a>
-{% if game.after_game_message %}
-Informácie po hre:
-{{game.after_game_message|safe}}
-{% endif %}
+    <p class="fs-x-large">Šifrovačka skončila, ďakujeme za účasť.</p>
+    <p>Môžete si pozrieť <a href="{% url 'kos:results' pk=game.year.pk %}">výsledky</a>.</p>
+    <p>Zadania šifier spolu s riešeniami budú zverejnené v <a href="{% url 'kos:archive' %}">archíve</a>.</p>
+    {% if game.after_game_message %}
+        <h1>Informácie po hre:</h1>
+        {{game.after_game_message|safe}}
+    {% endif %}
 {% endblock %}
