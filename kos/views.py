@@ -108,6 +108,11 @@ class SignUpView(FormView):
             is_online=form.cleaned_data['is_online'],
             email=email
         )
+        if (team.is_online and team.game.price_online == 0) or (
+            not team.is_online and team.game.price_offline == 0
+        ):
+            team.paid = True
+            team.save()
         for i in range(5):
             member_name = form.cleaned_data[f'team_member_{i+1}']
             if member_name is None or member_name == '':
@@ -368,6 +373,15 @@ class TeamInfoView(GetTeamMixin, FormView):
         for i, member in enumerate(team.members.all()):
             init_dict[f'team_member_{i+1}'] = member.name
         return init_dict
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['paid'] = (
+            self.request.user.team.paid
+            if hasattr(self.request.user, 'team')
+            and hasattr(self.request.user.team, 'paid') else False
+        )
+        return context
 
     def post(self, request, *args, **kwargs):
         team = self.get_team()

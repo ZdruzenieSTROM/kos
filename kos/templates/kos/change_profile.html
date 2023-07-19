@@ -11,4 +11,10 @@
 </form>
 
 <a href="{% url 'kos:change-password' %}" class="main-link">Zmeniť heslo</a>
+
+{% if paid %}
+    <div class="answer-alert success">Platba prijatá.</div>
+{% else %}
+    <div class="answer-alert error">Platbu za súťaž zatiaľ neevidujeme.</div>
+{% endif %}
 {% endblock %}
