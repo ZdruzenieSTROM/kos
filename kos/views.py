@@ -340,10 +340,10 @@ class TeamInfoView(GetTeamMixin, FormView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['payment'] = (
-            self.request.user.competitor.payment
+        context['paid'] = (
+            self.request.user.team.paid
             if hasattr(self.request.user, 'team')
-            and hasattr(self.request.user.team, 'payment') else False
+            and hasattr(self.request.user.team, 'paid') else False
         )
         return context
 
