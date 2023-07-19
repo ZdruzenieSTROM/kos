@@ -248,11 +248,14 @@ class ResultsView(DetailView):
     def add_places(self, results):
         current_place = 1
         previous_last_correct_submission = None
+        previous_level = None
         results_list = []
         for i, result_row in enumerate(results):
-            if previous_last_correct_submission != result_row.last_correct_submission:
+            if previous_last_correct_submission != result_row.last_correct_submission \
+                    or previous_level != result_row.current_level:
                 current_place = i+1
                 previous_last_correct_submission = result_row.last_correct_submission
+                previous_level = result_row.current_level
             result_row.place = current_place
             results_list.append(result_row)
         return results_list
