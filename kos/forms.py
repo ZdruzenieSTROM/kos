@@ -123,7 +123,9 @@ class CustomResetPasswordFromKey(ResetPasswordKeyForm):
         self.fields['password1'].label = 'Nové heslo'
         self.fields['password2'].label = 'Nové heslo (znova)'
         self.fields['password1'].widget.attrs['placeholder'] = 'Nové heslo'
+        self.fields['password1'].widget.attrs['class'] = 'main-input'
         self.fields['password2'].widget.attrs['placeholder'] = 'Nové heslo (znova)'
+        self.fields['password2'].widget.attrs['class'] = 'main-input'
 
 
 class EditTeamForm(forms.Form):
