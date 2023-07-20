@@ -14,6 +14,7 @@ RUN ["pip", "install", "daphne"]
 COPY . /app/
 
 RUN chmod +x /app/entrypoint.sh
+ENV DJANGO_SETTINGS_MODULE=$SETTINGS_MODULE
 
 CMD ["/app/entrypoint.sh"]
 
