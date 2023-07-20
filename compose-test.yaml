@@ -7,7 +7,7 @@ services:
       args:
         SETTINGS_MODULE: online_competitions.settings.test_settings
     ports:
-      - "8420:8000"
+      - "8430:8000"
     volumes:
       - "staticfiles:/app/static:ro"
       - type: "bind"
@@ -23,7 +23,7 @@ services:
     depends_on:
       - "website"
     ports:
-      - "8421:80"
+      - "8431:80"
     volumes:
       - "staticfiles:/usr/share/nginx/html:ro"
     restart: always
