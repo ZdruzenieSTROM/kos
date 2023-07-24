@@ -7,62 +7,59 @@
 <h1>Výsledky</h1>
 
 {% if not games%}
-Táto hra nemá zverejnené výsledky.
+    Táto hra nemá zverejnené výsledky.
 {% endif %}
 
 {%for game in games%}
-<h2>{{game.name}}</h2>
+    <h2>{{game.name}}</h2>
 
-{% if game.online_teams %}
+    {% if game.online_teams %}
+        <h3>Online:</h3>
 
-<h3>Online:</h3>
+        <table>
+            <tr>
+                <th>Poradie</th>
+                <th>Názov tímu</th>
+                <th>Členovia tímu</th>
+                <th>Počet vyriešených šifier</th>
+                <th>Posledné správne odovzdanie</th>
+            </tr>
+            {% for team in game.online_teams %}
+            <tr>
+                <td>{{ team.place }}.</td>
+                <td>{{ team.name }}</td>
+                <td>{{ team.members_joined }}</td>
+                <td>{{ team.current_level|add:"-1" }}</td>
+                <!-- This needs to be displayed in the client's timezone -->
+                <td>{%if team.last_correct_submission %}{{ team.last_correct_submission|date:'H:i:s' }}{% else %}-{%endif%}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    {% endif %}
 
-<table>
-    <tr>
-        <th>Poradie</th>
-        <th>Názov tímu</th>
-        <th>Členovia tímu</th>
-        <th>Počet vyriešených šifier</th>
-        <th>Posledné správne odovzdanie</th>
-    </tr>
-    {% for team in game.online_teams %}
-    <tr>
-        <td>{{ team.place }}.</td>
-        <td>{{ team.name }}</td>
-        <td>{{ team.members_joined }}</td>
-        <td>{{ team.current_level|add:"-1" }}</td>
-        <!-- This needs to be displayed in the client's timezone -->
-        <td>{%if team.last_correct_submission %}{{ team.last_correct_submission|date:'H:i:s' }}{% else %}-{%endif%}</td>
-    </tr>
-    {% endfor %}
-</table>
-{% endif %}
+    {% if game.offline_teams %}
+        <h3>Terénna:</h3>
 
-{% if game.offline_teams %}
-<h3>Terénna:</h3>
-
-<table>
-    <tr>
-        <th>Poradie</th>
-        <th>Názov tímu</th>
-        <th>Členovia tímu</th>
-        <th>Počet vyriešených šifier</th>
-        <th>Posledné správne odovzdanie</th>
-    </tr>
-    {% for team in game.offline_teams %}
-    <tr>
-        <td>{{ team.place }}.</td>
-        <td>{{ team.name }}</td>
-        <td>{{ team.members_joined }}</td>
-        </td>
-        <td>{{ team.current_level|add:"-1" }}</td>
-        <!-- This needs to be displayed in the client's timezone -->
-        <td>{%if team.last_correct_submission %}{{ team.last_correct_submission|date:'H:i:s' }}{% else %}-{%endif%}</td>
-    </tr>
-    {% endfor %}
-</table>
-{% endif %}
-
-
+        <table>
+            <tr>
+                <th>Poradie</th>
+                <th>Názov tímu</th>
+                <th>Členovia tímu</th>
+                <th>Počet vyriešených šifier</th>
+                <th>Posledné správne odovzdanie</th>
+            </tr>
+            {% for team in game.offline_teams %}
+            <tr>
+                <td>{{ team.place }}.</td>
+                <td>{{ team.name }}</td>
+                <td>{{ team.members_joined }}</td>
+                </td>
+                <td>{{ team.current_level|add:"-1" }}</td>
+                <!-- This needs to be displayed in the client's timezone -->
+                <td>{%if team.last_correct_submission %}{{ team.last_correct_submission|date:'H:i:s' }}{% else %}-{%endif%}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    {% endif %}
 {% endfor %}
 {% endblock %}
