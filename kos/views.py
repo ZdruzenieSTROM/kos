@@ -26,6 +26,7 @@ def view_404(request, exception=None):  # pylint: disable=unused-argument
     """Presmerovanie 404 na homepage"""
     return redirect('kos:home')
 
+
 @receiver(email_confirmed)  # Signal sent to activate user upon confirmation
 def email_confirmed_(request, email_address, **kwargs):
     user = User.objects.get(email=email_address.email)
@@ -36,6 +37,7 @@ def email_confirmed_(request, email_address, **kwargs):
     #     # create_invoice(user,game)
     # except Game.DoesNotExist:
     #     pass
+
 
 @login_required
 def logout_view(request):
@@ -123,7 +125,6 @@ class SignUpView(FormView):
             )
         send_email_confirmation(self.request, user, True)
         return super().form_valid(form)
-
 
 
 class PuzzleView(UserPassesTestMixin, DetailView):
