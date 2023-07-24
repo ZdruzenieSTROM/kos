@@ -273,6 +273,14 @@ class ResultsView(DetailView):
     model = Year
     template_name = 'kos/results.html'
 
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        if self.object is None or not self.object.is_public:
+            # Will redirect forever if there are no public years
+            return redirect('kos:results-latest')
+        context = self.get_context_data(object=object)
+        return self.render_to_response(context)
+
     def add_places(self, results):
         current_place = 1
         previous_last_correct_submission = None
