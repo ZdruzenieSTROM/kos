@@ -6,11 +6,11 @@
 
 <h1>Výsledky</h1>
 
-{% if not games%}
+{% if not games %}
     Táto hra nemá zverejnené výsledky.
 {% endif %}
 
-{%for game in games%}
+{% for game in games %}
     <h2>{{game.name}}</h2>
 
     {% if game.online_teams %}
@@ -31,7 +31,7 @@
                 <td>{{ team.members_joined }}</td>
                 <td>{{ team.current_level|add:"-1" }}</td>
                 <!-- This needs to be displayed in the client's timezone -->
-                <td>{%if team.last_correct_submission %}{{ team.last_correct_submission|date:'H:i:s' }}{% else %}-{%endif%}</td>
+                <td>{% if team.last_correct_submission %}{{ team.last_correct_submission|date:'H:i:s' }}{% else %}-{% endif %}</td>
             </tr>
             {% endfor %}
         </table>
@@ -56,7 +56,7 @@
                 </td>
                 <td>{{ team.current_level|add:"-1" }}</td>
                 <!-- This needs to be displayed in the client's timezone -->
-                <td>{%if team.last_correct_submission %}{{ team.last_correct_submission|date:'H:i:s' }}{% else %}-{%endif%}</td>
+                <td>{% if team.last_correct_submission %}{{ team.last_correct_submission|date:'H:i:s' }}{% else %}-{% endif %}</td>
             </tr>
             {% endfor %}
         </table>
