@@ -134,3 +134,6 @@ static
 media/*
 !media/.gitkeep
 processed.csv
+
+# adding static files
+!kos/static
