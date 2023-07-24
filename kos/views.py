@@ -299,7 +299,7 @@ class ResultsView(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['games'] = []
-        context['years'] = Year.objects.filter(start__lte=now())
+        context['years'] = Year.objects.filter(is_public=True)
         if self.object is None:
             return context
         for game in self.object.games.all():
