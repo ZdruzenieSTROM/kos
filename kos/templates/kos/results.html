@@ -1,10 +1,29 @@
 {% extends "kos/base.html" %}
 
+{% block header %}
+    {% load static %}
+    <script src="{% static 'kos/results.js' %}"></script>
+    <link rel="stylesheet" type="text/css" href="{% static 'kos/results.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+{% endblock %}
+
 {% block title %}Poradie - {{year.name}}{% endblock %}
 
 {% block content %}
 
 <h1>Výsledky</h1>
+
+<div class="dropdown">
+    <button class="dropdown__button main-button" onclick="toggle()">
+        {{year.name}}
+        <i class="fa fa-caret-down"></i>
+    </button>
+    <div class="dropdown-content" id="dropdown-content">
+        {% for year in years %}
+            <a href="{% url 'kos:results' pk=year.pk %}">{{year.name}}</a>
+        {% endfor %}
+    </div>
+</div>
 
 {% if not games %}
     Táto hra nemá zverejnené výsledky.
