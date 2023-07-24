@@ -26,6 +26,7 @@ def view_404(request, exception=None):  # pylint: disable=unused-argument
     """Presmerovanie 404 na homepage"""
     return redirect('kos:home')
 
+
 @receiver(email_confirmed)  # Signal sent to activate user upon confirmation
 def email_confirmed_(request, email_address, **kwargs):
     user = User.objects.get(email=email_address.email)
@@ -36,6 +37,7 @@ def email_confirmed_(request, email_address, **kwargs):
     #     # create_invoice(user,game)
     # except Game.DoesNotExist:
     #     pass
+
 
 @login_required
 def logout_view(request):
@@ -123,7 +125,6 @@ class SignUpView(FormView):
             )
         send_email_confirmation(self.request, user, True)
         return super().form_valid(form)
-
 
 
 class PuzzleView(UserPassesTestMixin, DetailView):
@@ -272,6 +273,14 @@ class ResultsView(DetailView):
     model = Year
     template_name = 'kos/results.html'
 
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        if self.object is None or not self.object.is_public:
+            # Will redirect forever if there are no public years
+            return redirect('kos:results-latest')
+        context = self.get_context_data(object=object)
+        return self.render_to_response(context)
+
     def add_places(self, results):
         current_place = 1
         previous_last_correct_submission = None
@@ -290,7 +299,7 @@ class ResultsView(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['games'] = []
-        context['years'] = Year.objects.filter(start__lte=now())
+        context['years'] = Year.objects.filter(is_public=True)
         if self.object is None:
             return context
         for game in self.object.games.all():
