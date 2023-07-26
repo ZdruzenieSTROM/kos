@@ -7,7 +7,7 @@
 <form method="post">
     {% csrf_token %}
     {{ form.as_p }}
-    <button type="submit" class="main-button mb-2">Uložiť</button>
+    <button type="submit" class="{% if disabled %}main-button__disabled mb-2{% else %}main-button mb-2{% endif %}" {% if disabled %}disabled{% endif %}>Uložiť</button>
 </form>
 
 <a href="{% url 'kos:change-password' %}" class="main-link">Zmeniť heslo</a>

@@ -96,7 +96,7 @@ tr:nth-child(even) {
 
 .main-button__disabled:hover {
     color: gray;
-    background-color: white;
+    cursor: not-allowed;
 }
 
 .main-input {
