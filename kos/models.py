@@ -122,6 +122,29 @@ class Puzzle(models.Model):
             correct=True
         ).exists()
 
+    def earliest_hint_timeout(self, team):
+        """Vráti najskorší čas, kedy sa tímu odomkne nejaký hint
+        Vráti None ak tím na žiaden hint nečaká"""
+        earliest_hint_timeout = None
+        for hint in self.hint_set.all():
+            hint_timeout = hint.get_time_to_take(team)
+            if hint_timeout > timedelta(0) and (earliest_hint_timeout is None or hint_timeout < earliest_hint_timeout):
+                earliest_hint_timeout = hint_timeout
+        return earliest_hint_timeout
+
+    def earliest_timeout(self, team):
+        """Vráti najskorší čas, kedy sa tímu odomkne hint alebo odovzdávanie
+        Vráti None ak tím na nič nečaká"""
+        earliest_hint_timeout = self.earliest_hint_timeout(team)
+        submission_timeout = self.team_timeout(team)
+        if earliest_hint_timeout is None:
+            if submission_timeout <= timedelta(0):
+                return None
+            return submission_timeout
+        if submission_timeout <= timedelta(0):
+            return earliest_hint_timeout
+        return min(earliest_hint_timeout, submission_timeout)
+
 
 class Hint(models.Model):
     """Hint"""

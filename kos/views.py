@@ -227,6 +227,9 @@ class GameView(GetTeamMixin, DetailView):
                 team).order_by('-submitted_at')
         context['visible_puzzles'] = puzzles
         context['team'] = team
+        timeout = puzzles[0].earliest_timeout(team)
+        string = (now() + timeout).isoformat() if timeout is not None else None
+        context['timeout_string'] = string
         return context
 
     def get_object(self):

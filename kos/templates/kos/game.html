@@ -87,4 +87,11 @@
             </div>
         {% endfor %}
     {% endfor %}
+
+    <script>
+        console.log(new Date('{{timeout_string}}').getTime() - new Date().getTime());
+        if (new Date('{{timeout_string}}').getTime() - new Date().getTime() > 0) {
+            setTimeout(() => location.reload(), new Date('{{timeout_string}}').getTime() - new Date().getTime());
+        }
+    </script>
 {% endblock %}
