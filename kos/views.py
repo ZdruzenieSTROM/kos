@@ -243,6 +243,7 @@ class GameView(GetTeamMixin, DetailView):
             messages.error(request, 'Odpoveď nie je možné odovzdať')
             return redirect('kos:game')
         if not puzzle.can_team_see(team):
+            # The team can't see the puzzle, so it's an unlock code
             is_correct = puzzle.check_unlock(answer)
             Submission.objects.create(
                 puzzle=puzzle,
@@ -253,13 +254,14 @@ class GameView(GetTeamMixin, DetailView):
             )
             return redirect('kos:game')
 
-        # Check answer
+        # The team can see the puzzle, so it's not an unlock code
         is_correct = puzzle.check_solution(answer)
         Submission.objects.create(
             puzzle=puzzle,
             team=team,
             competitor_answer=Puzzle.clean_text(answer),
-            correct=is_correct
+            correct=is_correct,
+            is_submitted_as_unlock_code=False
         )
         if is_correct:
             team.current_level = max(puzzle.level+1, team.current_level)
