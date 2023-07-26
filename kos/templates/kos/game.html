@@ -66,8 +66,7 @@
                                     {% get_hint_available_time hint team as hint_availability_time %}
                                     <!-- This needs to be displayed in the client's timezone -->
                                     <input type="Submit" value="Zobrať {% if hint.count_as_penalty %}nápovedu{%else%}riešenie{%endif%}"
-                                        class="main-button mb-2"
-                                        onclick="return confirm('Skutočne chcete zobrať {% if hint.count_as_penalty %}nápovedu{% else %}riešenie{% endif %}?');" />
+                                        class="main-button main-button__disabled mb-2" disabled />
                                     {% if hint.count_as_penalty %}Nápoveda{% else %}Riešenie{% endif %} sa dá zobrať o {{hint_availability_time|date:'H:i:s' }}
                                 {% endif %}
                             {% endif %}
