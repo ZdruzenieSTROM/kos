@@ -390,14 +390,24 @@ class TeamInfoView(GetTeamMixin, FormView):
             if hasattr(self.request.user, 'team')
             and hasattr(self.request.user.team, 'paid') else False
         )
+        context['disabled'] = self.get_team().game.year.start <= now()
         return context
 
     def post(self, request, *args, **kwargs):
         team = self.get_team()
         if team.game.year.start <= now():
-            messages.error(request, 'Tieto údaje nie je možné meniť počas hry')
+            messages.error(
+                request, 'Tieto údaje nie je možné meniť po začiatku hry')
             return redirect('kos:change-profile')
         return super().post(request, *args, **kwargs)
+
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class)
+        team = self.get_team()
+        if team.game.year.start <= now():
+            for field in form.fields.values():
+                field.widget.attrs['disabled'] = True
+        return form
 
     def form_valid(self, form):
         team = self.get_team()
