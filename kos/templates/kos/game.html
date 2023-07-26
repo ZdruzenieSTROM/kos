@@ -28,14 +28,14 @@
             <form action="" method="post">
                 {% csrf_token %}
                 {% can_team_submit puzzle team as can_submit %}
-                <input type="text" id="answer{{puzzle.id}}" name="answer" class="main-input">
-                <input type="hidden" name="puzzle" value="{{puzzle.id}}">
-                <input type="Submit" value="Odovzdať" class="main-button" />
-
-                <!-- <input type="text" id="answer{{puzzle.id}}" name="answer" class="main-input main-input__disabled" disabled>
-                <input type="hidden" name="puzzle" value="{{puzzle.id}}">
-                <input type="Submit" value="Odovzdať" class="main-button main-button__disabled" disabled /> -->
-                {% if not can_submit %}
+                {% if can_submit %}
+                    <input type="text" id="answer{{puzzle.id}}" name="answer" class="main-input">
+                    <input type="hidden" name="puzzle" value="{{puzzle.id}}">
+                    <input type="Submit" value="Odovzdať" class="main-button" />
+                {% else %}
+                    <input type="text" id="answer{{puzzle.id}}" name="answer" class="main-input main-input__disabled" disabled>
+                    <input type="hidden" name="puzzle" value="{{puzzle.id}}">
+                    <input type="Submit" value="Odovzdať" class="main-button main-button__disabled" disabled />
                     {% get_team_timeout puzzle team as timeout %}
                     Ďalšiu odpoveď je možné zadať o {{ timeout|date:'H:i:s' }}
                 {% endif %}
