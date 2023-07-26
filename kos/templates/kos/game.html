@@ -5,92 +5,87 @@
 {% block title %}{{game.name}}{% endblock %}
 
 {% block content %}
-{% if message %}
-<h2>{{message|safe}}</h2>
-{% endif %}
-{% for puzzle in visible_puzzles %}
-<div>
-    {% can_team_see_puzzle puzzle team as can_team_see%}
-    <h2>{{puzzle.level}}. {%if can_team_see %}{{puzzle.name}} - <a href="{% url 'kos:puzzle' pk=puzzle.pk %}"
-            target="_blank" class="main-link">Stiahnuť</a>{% else %} šifra sa
-        zobrazí po zadaní kódu zo stanovišťa {% endif %}
-    </h2>
-</div>
-{% if not team.is_online and not can_team_see%}
-<div class="answer-alert info">
-    <b>Poloha šifry:</b>
-    {{puzzle.location}}
-</div>
-{% endif %}
-
-{% if not puzzle.correctly_submitted %}
-<form action="" method="post">
-    {% csrf_token %}
-    {% can_team_submit puzzle team as can_submit %}
-    <input type="text" id="answer{{puzzle.id}}" name="answer" class="main-input">
-    <input type="hidden" name="puzzle" value="{{puzzle.id}}">
-    <input type="Submit" value="Odovzdať" class="main-button" />
-
-    <!-- <input type="text" id="answer{{puzzle.id}}" name="answer" class="main-input main-input__disabled" disabled>
-    <input type="hidden" name="puzzle" value="{{puzzle.id}}">
-    <input type="Submit" value="Odovzdať" class="main-button main-button__disabled" disabled /> -->
-    {% if not can_submit %}
-    {% get_team_timeout puzzle team as timeout %}
-    Ďalšiu odpoveď je možné zadať o {{ timeout|date:'H:i:s' }}
+    {% if message %}
+        <h2>{{message|safe}}</h2>
     {% endif %}
-</form>
-{% endif %}
-{%if can_team_see %}
-<h3>Hinty:</h3>
-{% for hint in puzzle.hint_set.all %}
-{% if hint in team.hints_taken.all %}
-<div>{{hint.text|safe}}</div>
-{% else %}
-{% if not puzzle.correctly_submitted %}
-<form action="{% url 'kos:hint' pk=hint.pk %}" method="post">
-    {% csrf_token %}
-    {% can_team_take_hint hint team as hint_available %}
-    {% if hint_available %}
-    <input type="Submit" value="Zobrať {% if hint.count_as_penalty %}nápovedu{%else%}riešenie{%endif%}"
-        class="main-button mb-2"
-        onclick="return confirm('Skutočne chcete zobrať {% if hint.count_as_penalty %}nápovedu{% else %}riešenie{% endif %}?');" />
-    {% else %}
+    {% for puzzle in visible_puzzles %}
+        <div>
+            {% can_team_see_puzzle puzzle team as can_team_see%}
+            <h2>
+                {{puzzle.level}}. {%if can_team_see %}{{puzzle.name}} - <a href="{% url 'kos:puzzle' pk=puzzle.pk %}"
+                    target="_blank" class="main-link">Stiahnuť</a>{% else %} šifra sa
+                zobrazí po zadaní kódu zo stanovišťa {% endif %}
+            </h2>
+        </div>
+        {% if not team.is_online and not can_team_see%}
+            <div class="answer-alert info">
+                <b>Poloha šifry:</b>
+                {{puzzle.location}}
+            </div>
+        {% endif %}
 
-    {% all_prerequisites_met hint team as prerequisites_met %}
-    {% if not prerequisites_met %}
-    <!-- This should probably also say which hint is the unmet prerequisite -->
-    <input type="Submit" value="Zobrať {% if hint.count_as_penalty %}nápovedu{%else%}riešenie{%endif%}"
-        class="main-button main-button__disabled mb-2" disabled />
-    Pred {% if hint.count_as_penalty %}touto nápovedou{% else %}riešením{% endif %} je nutné zobrať predošlú nápovedu.
-    {% else %}
-    {% get_hint_available_time hint team as hint_availability_time %}
-    <!-- This needs to be displayed in the client's timezone -->
-    <input type="Submit" value="Zobrať {% if hint.count_as_penalty %}nápovedu{%else%}riešenie{%endif%}"
-        class="main-button mb-2"
-        onclick="return confirm('Skutočne chcete zobrať {% if hint.count_as_penalty %}nápovedu{% else %}riešenie{% endif %}?');" />
-    {% if hint.count_as_penalty %}Nápoveda{% else %}Riešenie{% endif %} sa dá zobrať o
-    {{hint_availability_time|date:'H:i:s' }}
-    {% endif %}
-    {% endif %}
-</form>
-{% endif %}
-{% endif %}
-{% endfor %}
-{% endif %}
-<h3>Pokusy:</h3>
-{% for submission in puzzle.current_submissions %}
-<div class="answer-alert {% if submission.correct %}success{% endif %}">
-    {% if submission.is_submitted_as_unlock_code %}
-    Zadaný vstupný kód:
-    {% else %}
-    Zadané heslo:
-    {%endif%}
-    <strong>{{submission.competitor_answer}}</strong> - {% if submission.correct %} SPRÁVNE {% else %}
-    NESPRÁVNE {% endif %}
-</div>
-{% endfor %}
+        {% if not puzzle.correctly_submitted %}
+            <form action="" method="post">
+                {% csrf_token %}
+                {% can_team_submit puzzle team as can_submit %}
+                <input type="text" id="answer{{puzzle.id}}" name="answer" class="main-input">
+                <input type="hidden" name="puzzle" value="{{puzzle.id}}">
+                <input type="Submit" value="Odovzdať" class="main-button" />
 
-
-
-{% endfor %}
+                <!-- <input type="text" id="answer{{puzzle.id}}" name="answer" class="main-input main-input__disabled" disabled>
+                <input type="hidden" name="puzzle" value="{{puzzle.id}}">
+                <input type="Submit" value="Odovzdať" class="main-button main-button__disabled" disabled /> -->
+                {% if not can_submit %}
+                    {% get_team_timeout puzzle team as timeout %}
+                    Ďalšiu odpoveď je možné zadať o {{ timeout|date:'H:i:s' }}
+                {% endif %}
+            </form>
+        {% endif %}
+        {% if can_team_see %}
+            <h3>Hinty:</h3>
+            {% for hint in puzzle.hint_set.all %}
+                {% if hint in team.hints_taken.all %}
+                    <div>{{hint.text|safe}}</div>
+                {% else %}
+                    {% if not puzzle.correctly_submitted %}
+                        <form action="{% url 'kos:hint' pk=hint.pk %}" method="post">
+                            {% csrf_token %}
+                            {% can_team_take_hint hint team as hint_available %}
+                            {% if hint_available %}
+                                <input type="Submit" value="Zobrať {% if hint.count_as_penalty %}nápovedu{%else%}riešenie{%endif%}"
+                                    class="main-button mb-2"
+                                    onclick="return confirm('Skutočne chcete zobrať {% if hint.count_as_penalty %}nápovedu{% else %}riešenie{% endif %}?');" />
+                            {% else %}
+                                {% all_prerequisites_met hint team as prerequisites_met %}
+                                {% if not prerequisites_met %}
+                                    <!-- This should probably also say which hint is the unmet prerequisite -->
+                                    <input type="Submit" value="Zobrať {% if hint.count_as_penalty %}nápovedu{%else%}riešenie{%endif%}"
+                                        class="main-button main-button__disabled mb-2" disabled />
+                                    Pred {% if hint.count_as_penalty %}touto nápovedou{% else %}riešením{% endif %} je nutné zobrať predošlú nápovedu.
+                                {% else %}
+                                    {% get_hint_available_time hint team as hint_availability_time %}
+                                    <!-- This needs to be displayed in the client's timezone -->
+                                    <input type="Submit" value="Zobrať {% if hint.count_as_penalty %}nápovedu{%else%}riešenie{%endif%}"
+                                        class="main-button mb-2"
+                                        onclick="return confirm('Skutočne chcete zobrať {% if hint.count_as_penalty %}nápovedu{% else %}riešenie{% endif %}?');" />
+                                    {% if hint.count_as_penalty %}Nápoveda{% else %}Riešenie{% endif %} sa dá zobrať o {{hint_availability_time|date:'H:i:s' }}
+                                {% endif %}
+                            {% endif %}
+                        </form>
+                    {% endif %}
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+        <h3>Pokusy:</h3>
+        {% for submission in puzzle.current_submissions %}
+            <div class="answer-alert {% if submission.correct %}success{% endif %}">
+                {% if submission.is_submitted_as_unlock_code %}
+                    Zadaný vstupný kód:
+                {% else %}
+                    Zadané heslo:
+                {% endif %}
+                <strong>{{submission.competitor_answer}}</strong> - {% if submission.correct %} SPRÁVNE {% else %} NESPRÁVNE {% endif %}
+            </div>
+        {% endfor %}
+    {% endfor %}
 {% endblock %}
