@@ -243,7 +243,7 @@ class GameView(GetTeamMixin, DetailView):
         return context
 
     def get_object(self):
-        team = self.get_team()
+        team = self.get_team()  # Should never be None
         return team.game if team is not None else None
 
     def post(self, request, *args, **kwargs):
