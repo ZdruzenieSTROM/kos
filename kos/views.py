@@ -208,6 +208,9 @@ class GameView(GetTeamMixin, DetailView):
     context_object_name = 'game'
 
     def get(self, request, *args, **kwargs):
+        team = self.get_team()
+        if team is None:
+            return redirect('kos:home')
         self.object = self.get_object()
         if self.object.year.start > now():
             # Pred začatím hry
@@ -240,7 +243,8 @@ class GameView(GetTeamMixin, DetailView):
         return context
 
     def get_object(self):
-        return self.get_team().game
+        team = self.get_team()
+        return team.game if team is not None else None
 
     def post(self, request, *args, **kwargs):
         """Submit answer for puzzle"""
