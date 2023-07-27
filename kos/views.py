@@ -355,13 +355,14 @@ class ResultsLatexExportView(ResultsView):
     template_name = 'kos/results.tex'
 
 
-class ResultsLatestView(ResultsView):
+class ResultsLatestView(ResultsView, GetTeamMixin):
     """Výsledky poslednej šiforvačky"""
     template_name = 'kos/results.html'
 
     def get_object(self, *args, **kwargs):
-        if self.request.user.is_authenticated:
-            return self.request.user.team.game.year
+        team = self.get_team()
+        if self.request.user.is_authenticated and team is not None:
+            return team.game.year
         return Year.objects.filter(
             is_public=True).order_by('-end').first()
 
