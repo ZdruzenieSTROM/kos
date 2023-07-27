@@ -366,7 +366,7 @@ class ResultsLatestView(ResultsView):
             is_public=True).order_by('-end').first()
 
 
-class ArchiveView(ListView):
+class ArchiveView(ListView, GetTeamMixin):
     """Archive of old games"""
     template_name = 'kos/archive.html'
     context_object_name = 'years'
@@ -374,9 +374,10 @@ class ArchiveView(ListView):
     def get_queryset(self):
         queryset = Year.objects.filter(
             is_public=True).all()
-        if self.request.user.is_authenticated:
+        team = self.get_team()
+        if self.request.user.is_authenticated and team is not None:
             queryset |= Year.objects.filter(
-                pk=self.request.user.team.game.year.pk).all()
+                pk=team.game.year.pk).all()
         return queryset
 
 
