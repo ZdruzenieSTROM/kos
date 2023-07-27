@@ -403,16 +403,19 @@ class TeamInfoView(GetTeamMixin, FormView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        team = self.get_team()  # Should never be None
+        if team is None:
+            return context
         context['paid'] = (
-            self.request.user.team.paid
-            if hasattr(self.request.user, 'team')
-            and hasattr(self.request.user.team, 'paid') else False
+            team.paid if hasattr(self.request.user.team, 'paid') else False
         )
-        context['disabled'] = self.get_team().game.year.start <= now()
+        context['disabled'] = team.game.year.start <= now()
         return context
 
     def post(self, request, *args, **kwargs):
         team = self.get_team()
+        if team is None:
+            return redirect('kos:game')
         if team.game.year.start <= now():
             messages.error(
                 request, 'Tieto údaje nie je možné meniť po začiatku hry')
