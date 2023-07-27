@@ -53,7 +53,7 @@ class GetTeamMixin(LoginRequiredMixin):
     def get_team(self):
         """Resolve team from game and user"""
         # TODO: Allow multiple teams for user maybe
-        return self.request.user.team
+        return self.request.user.team if hasattr(self.request.user, 'team') else None
 
 
 class LoginFormView(LoginView):
