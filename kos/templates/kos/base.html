@@ -48,18 +48,24 @@
                     </ul>
                     <ul class="nav navbar-nav navbar-right">
                         {% if user.is_active %}
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'kos:game' %}">Websystém</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'kos:change-profile' %}">Profil {{user.username}}</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'kos:logout' %}">Odhlásiť sa</a>
-                        </li>
+                            {% if user.is_staff %}
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{% url 'admin:index' %}">Administrácia</a>
+                                </li>
+                            {% else %}
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{% url 'kos:game' %}">Websystém</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{% url 'kos:change-profile' %}">Profil {{user.username}}</a>
+                                </li>
+                            {% endif %}
+                            <li class="nav-item">
+                                <a class="nav-link" href="{% url 'kos:logout' %}">Odhlásiť sa</a>
+                            </li>
                         {% else %}
-                        <li><a href="{% url 'kos:login' %}">Prihlásenie</a></li>
-                        <li><a href="{% url 'kos:registration' %}">Registrácia</a></li>
+                            <li><a href="{% url 'kos:login' %}">Prihlásenie</a></li>
+                            <li><a href="{% url 'kos:registration' %}">Registrácia</a></li>
                         {% endif %}
                     </ul>
                 </div>

@@ -53,7 +53,7 @@ class GetTeamMixin(LoginRequiredMixin):
     def get_team(self):
         """Resolve team from game and user"""
         # TODO: Allow multiple teams for user maybe
-        return self.request.user.team
+        return self.request.user.team if hasattr(self.request.user, 'team') else None
 
 
 class LoginFormView(LoginView):
@@ -127,20 +127,23 @@ class SignUpView(FormView):
         return super().form_valid(form)
 
 
-class PuzzleView(UserPassesTestMixin, DetailView):
+class PuzzleView(UserPassesTestMixin, GetTeamMixin, DetailView):
     """Vráti PDF so šifrou"""
     model = Puzzle
 
     def test_func(self):
         puzzle = self.get_object()
+        puzzle_year = puzzle.game.year
+        team = self.get_team()
         team_year = None
-        if self.request.user.is_authenticated:
-            team_year = self.request.user.team.game.year
-        if puzzle.game.year.solutions_public and (puzzle.game.year.is_public or puzzle.game.year == team_year):
+        if self.request.user.is_staff:
             return True
-        if not self.request.user.is_authenticated:
+        if self.request.user.is_authenticated and team is not None:
+            team_year = team.game.year
+        if puzzle_year.solutions_public and (puzzle_year.is_public or puzzle_year == team_year):
+            return True
+        if not self.request.user.is_authenticated or team is None:
             return False
-        team = self.request.user.team
         return team.current_level >= puzzle.level and puzzle.can_team_see(team)
 
     def get(self, request, *args, **kwargs):
@@ -148,16 +151,20 @@ class PuzzleView(UserPassesTestMixin, DetailView):
         return FileResponse(puzzle.file)
 
 
-class PuzzleSolutionView(UserPassesTestMixin, DetailView):
+class PuzzleSolutionView(UserPassesTestMixin, GetTeamMixin, DetailView):
     """Vráti PDF so šifrou"""
     model = Puzzle
 
     def test_func(self):
         puzzle = self.get_object()
+        puzzle_year = puzzle.game.year
+        team = self.get_team()
         team_year = None
-        if self.request.user.is_authenticated:
-            team_year = self.request.user.team.game.year
-        return puzzle.game.year.solutions_public and (puzzle.game.year.is_public or puzzle.game.year == team_year)
+        if self.request.user.is_staff:
+            return True
+        if self.request.user.is_authenticated and team is not None:
+            team_year = team.game.year
+        return puzzle_year.solutions_public and (puzzle_year.is_public or puzzle_year == team_year)
 
     def get(self, request, *args, **kwargs):
         puzzle = self.get_object()
@@ -201,6 +208,9 @@ class GameView(GetTeamMixin, DetailView):
     context_object_name = 'game'
 
     def get(self, request, *args, **kwargs):
+        team = self.get_team()
+        if team is None:
+            return redirect('kos:home')
         self.object = self.get_object()
         if self.object.year.start > now():
             # Pred začatím hry
@@ -233,7 +243,8 @@ class GameView(GetTeamMixin, DetailView):
         return context
 
     def get_object(self):
-        return self.get_team().game
+        team = self.get_team()  # Should never be None
+        return team.game if team is not None else None
 
     def post(self, request, *args, **kwargs):
         """Submit answer for puzzle"""
@@ -348,18 +359,19 @@ class ResultsLatexExportView(ResultsView):
     template_name = 'kos/results.tex'
 
 
-class ResultsLatestView(ResultsView):
+class ResultsLatestView(ResultsView, GetTeamMixin):
     """Výsledky poslednej šiforvačky"""
     template_name = 'kos/results.html'
 
     def get_object(self, *args, **kwargs):
-        if self.request.user.is_authenticated:
-            return self.request.user.team.game.year
+        team = self.get_team()
+        if self.request.user.is_authenticated and team is not None:
+            return team.game.year
         return Year.objects.filter(
             is_public=True).order_by('-end').first()
 
 
-class ArchiveView(ListView):
+class ArchiveView(ListView, GetTeamMixin):
     """Archive of old games"""
     template_name = 'kos/archive.html'
     context_object_name = 'years'
@@ -367,9 +379,10 @@ class ArchiveView(ListView):
     def get_queryset(self):
         queryset = Year.objects.filter(
             is_public=True).all()
-        if self.request.user.is_authenticated:
+        team = self.get_team()
+        if self.request.user.is_authenticated and team is not None:
             queryset |= Year.objects.filter(
-                pk=self.request.user.team.game.year.pk).all()
+                pk=team.game.year.pk).all()
         return queryset
 
 
@@ -378,6 +391,12 @@ class TeamInfoView(GetTeamMixin, FormView):
     form_class = EditTeamForm
     success_url = reverse_lazy("kos:change-profile")
     template_name = "kos/change_profile.html"
+
+    def get(self, request, *args, **kwargs):
+        team = self.get_team()
+        if team is None:
+            return redirect('kos:game')
+        return super().get(request, *args, **kwargs)
 
     def get_initial(self):
         team = self.get_team()
@@ -390,16 +409,19 @@ class TeamInfoView(GetTeamMixin, FormView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        team = self.get_team()  # Should never be None
+        if team is None:
+            return context
         context['paid'] = (
-            self.request.user.team.paid
-            if hasattr(self.request.user, 'team')
-            and hasattr(self.request.user.team, 'paid') else False
+            team.paid if hasattr(team, 'paid') else False
         )
-        context['disabled'] = self.get_team().game.year.start <= now()
+        context['disabled'] = team.game.year.start <= now()
         return context
 
     def post(self, request, *args, **kwargs):
         team = self.get_team()
+        if team is None:
+            return redirect('kos:game')
         if team.game.year.start <= now():
             messages.error(
                 request, 'Tieto údaje nie je možné meniť po začiatku hry')
