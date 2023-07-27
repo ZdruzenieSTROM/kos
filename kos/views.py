@@ -408,7 +408,7 @@ class TeamInfoView(GetTeamMixin, FormView):
         if team is None:
             return context
         context['paid'] = (
-            team.paid if hasattr(self.request.user.team, 'paid') else False
+            team.paid if hasattr(team, 'paid') else False
         )
         context['disabled'] = team.game.year.start <= now()
         return context
