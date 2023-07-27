@@ -386,6 +386,12 @@ class TeamInfoView(GetTeamMixin, FormView):
     success_url = reverse_lazy("kos:change-profile")
     template_name = "kos/change_profile.html"
 
+    def get(self, request, *args, **kwargs):
+        team = self.get_team()
+        if team is None:
+            return redirect('kos:game')
+        return super().get(request, *args, **kwargs)
+
     def get_initial(self):
         team = self.get_team()
         init_dict = {
