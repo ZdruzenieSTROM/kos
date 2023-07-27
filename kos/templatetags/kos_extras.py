@@ -32,3 +32,8 @@ def can_team_take_hint(hint, team):
 @register.simple_tag
 def can_team_see_puzzle(puzzle, team):
     return puzzle.can_team_see(team)
+
+
+@register.simple_tag
+def did_year_end(year):
+    return year.end < now()
