@@ -27,6 +27,7 @@ class Year(models.Model):
     is_active = models.BooleanField(
         verbose_name='Hra je aktívna', default=False
     )
+    registration_deadline = models.DateTimeField(verbose_name='Registrácia do')
 
     def __str__(self):
         return self.name
