@@ -27,6 +27,8 @@ class Year(models.Model):
     is_active = models.BooleanField(
         verbose_name='Hra je aktívna', default=False
     )
+    photo_url = models.TextField(
+        verbose_name='Link na fotogalériu', null=True, blank=True)
 
     def __str__(self):
         return self.name
