@@ -47,7 +47,7 @@ class RegisterForm(forms.Form):
     game = forms.ModelChoiceField(
         widget=forms.Select(attrs={'class': 'main-input'}),
         queryset=Game.objects.filter(
-            year__in=Year.objects.filter(is_active=True, is_public=True, start__gte=now())),
+            year__in=Year.objects.filter(is_active=True, is_public=True, registration_deadline__gte=now())),
         label='Kategória'
     )
 
