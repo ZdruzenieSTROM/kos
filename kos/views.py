@@ -9,7 +9,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.views import LoginView
 from django.db import IntegrityError
-from django.db.models import Count, Max, Q
+from django.db.models import Max, Q
 from django.dispatch import receiver
 from django.http import FileResponse
 from django.shortcuts import redirect, render
