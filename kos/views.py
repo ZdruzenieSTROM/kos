@@ -450,4 +450,8 @@ class TeamInfoView(GetTeamMixin, FormView):
                 member_id += 1
         except KeyError:
             pass
+
+        team.is_online = form.cleaned_data['is_online']
+        team.save()
+
         return super().form_valid(form)
