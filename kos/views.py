@@ -320,7 +320,7 @@ class ResultsView(DetailView):
             return context
         for game in self.object.games.all():
             game_results = {}
-            results = game.team_set.annotate(
+            results = game.team_set.filter(is_public=True).annotate(
                 last_correct_submission=Max(
                     'submissions__submitted_at', filter=Q(submissions__correct=True, submissions__is_submitted_as_unlock_code=False))
             ).order_by('-current_level', 'last_correct_submission')

@@ -222,6 +222,8 @@ class Team(models.Model):
     hints_taken = models.ManyToManyField(
         Hint, verbose_name='Zobraté hinty', blank=True)
     paid = models.BooleanField(verbose_name='Poplatok uhradený', default=False)
+    is_public = models.BooleanField(
+        verbose_name='Tím je verejný', default=True)
 
     def __str__(self):
         return f'{self.name}'
