@@ -114,6 +114,8 @@ class Puzzle(models.Model):
         verbose_name='Riešenie v PDF', null=True, blank=True)
     level = models.PositiveIntegerField(verbose_name='Úroveň/Poradie')
     location = models.TextField(null=True)
+    skip_allowed_after = models.DurationField(
+        verbose_name='Skip', help_text='Čas po ktorom je možné preskočiť šifru')
 
     def __str__(self):
         return self.name
@@ -124,7 +126,8 @@ class Puzzle(models.Model):
 
     def has_team_passed(self, team):
         """Vráti bool či tím už šifru vyriešil"""
-        return self.submissions.filter(team=team, is_submitted_as_unlock_code=False).aggregate(Max('correct'))['correct__max']
+        state = PuzzleTeamState.objects.get(team=team, puzzle=self)
+        return state is not None and not state.is_open
 
     @staticmethod
     def clean_text(string: str):
@@ -144,6 +147,9 @@ class Puzzle(models.Model):
 
     def can_team_submit(self, team):
         return team.current_level >= self.level and not self.team_timeout(team) > timedelta(0) and not self.has_team_passed(team)
+
+    def can_team_skip(self, team):
+        return team.current_level >= self.level and not self.has_team_passed(team) and self.earliest_hint_timeout(team)
 
     @staticmethod
     def __check_equal(string1: str, string2: str) -> bool:
@@ -277,14 +283,13 @@ class Team(models.Model):
         """Spočíta počet zobratých hintov, ktoré sa rátajú ako penalty"""
         return self.hints_taken.filter(count_as_penalty=True, puzzle__level__lt=on_level).count()
 
-    def get_last_correct_submission_time(self, answers_only=True):
+    def current_puzzle_start_time(self):
         """Vráti čas poslednej správne odovzdanej šifry"""
-        submissions = self.submissions.filter(correct=True)
-        if answers_only:
-            submissions = submissions.filter(is_submitted_as_unlock_code=False)
-        return submissions.aggregate(
-            Max('submitted_at')
-        )['submitted_at__max']
+        state = self.states.filter(
+            skipped=False, solved=False).order_by('-started_at').first()
+        if not state:
+            return now()
+        return state.started_at
 
     def members_joined(self):
         return ', '.join([member.name for member in self.members.all()])
@@ -303,18 +308,34 @@ class TeamMember(models.Model):
         return f'{self.name} ({self.team})'
 
 
+class PuzzleTeamState(models.Model):
+    class Meta:
+        verbose_name = 'Stav tímu na šifre'
+        verbose_name_plural = 'Stavy tímov na šifrách'
+    puzzle = models.ForeignKey(
+        Puzzle, on_delete=models.CASCADE, related_name='states')
+    team = models.ForeignKey(
+        Team, on_delete=models.CASCADE, related_name='states')
+    skipped = models.BooleanField(
+        verbose_name='Tím preskočil šifru', default=False)
+    solved = models.BooleanField(verbose_name='Tím vyriešil šifru')
+    started_at = models.DateTimeField(
+        verbose_name='Začiatok riešenia', null=True, blank=True)
+    ended_at = models.DateTimeField(
+        verbose_name='Koniec riešenia', null=True, blank=True, default=None)
+
+    @property
+    def is_open(self):
+        return not self.solved and not self.skipped
+
+
 class Submission(models.Model):
     """Pokus o odovzdanie odpovede na šifru"""
 
     class Meta:
         verbose_name = 'odovzdanie šifry'
         verbose_name_plural = 'odovzdania šifier'
-    puzzle = models.ForeignKey(
-        Puzzle, on_delete=models.CASCADE, related_name='submissions')
-    team = models.ForeignKey(
-        Team, on_delete=models.CASCADE, related_name='submissions')
     competitor_answer = models.CharField(max_length=100)
     submitted_at = models.DateTimeField(auto_now=True, auto_created=True)
-    correct = models.BooleanField()  # Neviem ci bude nutné nechám na zváženie
     is_submitted_as_unlock_code = models.BooleanField(
         verbose_name='Pokus odovzdaný ako vstupný kód', default=False)

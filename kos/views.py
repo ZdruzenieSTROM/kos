@@ -21,8 +21,8 @@ from django.utils.timezone import now
 from django.views.generic import DetailView, FormView, ListView
 
 from .forms import AuthForm, ChangePasswordForm, EditTeamForm, RegisterForm
-from .models import (Game, Hint, Puzzle, Submission, Team, TeamMember, User,
-                     Year)
+from .models import (Game, Hint, Puzzle, PuzzleTeamState, Submission, Team,
+                     TeamMember, User, Year)
 
 
 def view_404(request, exception=None):  # pylint: disable=unused-argument
@@ -269,6 +269,12 @@ class GameView(GetTeamMixin, DetailView):
                 correct=is_correct,
                 is_submitted_as_unlock_code=True
             )
+            if is_correct:
+                PuzzleTeamState.objects.create(
+                    puzzle=puzzle,
+                    team=team,
+                    started_at=now()
+                )
             return redirect('kos:game')
 
         # The team can see the puzzle, so it's not an unlock code
