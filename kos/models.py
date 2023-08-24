@@ -28,6 +28,7 @@ class Year(models.Model):
     is_active = models.BooleanField(
         verbose_name='Hra je aktívna', default=False
     )
+    registration_deadline = models.DateTimeField(verbose_name='Registrácia do')
 
     def __str__(self):
         return self.name
@@ -225,6 +226,8 @@ class Team(models.Model):
     hints_taken = models.ManyToManyField(
         Hint, verbose_name='Zobraté hinty', blank=True)
     paid = models.BooleanField(verbose_name='Poplatok uhradený', default=False)
+    is_public = models.BooleanField(
+        verbose_name='Tím je verejný', default=True)
 
     def __str__(self):
         return f'{self.name}'

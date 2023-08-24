@@ -16,11 +16,6 @@ from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
-
-def read_secret(secret_name: str) -> str:
-    with open(os.path.join(BASE_DIR, '.secrets', secret_name)) as secret_file:
-        return secret_file.readline()
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
@@ -153,15 +148,8 @@ ACCOUNT_FORMS = {
 }
 
 ####### Email ################
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = '587'
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'noreply@strom.sk'
-SERVER_EMAIL = 'noreply@strom.sk'
-EMAIL_HOST_PASSWORD = read_secret('email_password.txt')
-DEFAULT_FROM_EMAIL = 'noreply@strom.sk'
+EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
+EMAIL_FILE_PATH = BASE_DIR / 'emails'
 
-ADMINS = [('Kovacs', 'kovacs@strom.sk'), ('Masrna', 'michal.masrna@strom.sk')]
 
 SOLUTION_DELIMITER = ','
