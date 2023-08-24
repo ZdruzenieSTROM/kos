@@ -4,7 +4,7 @@ from datetime import timedelta
 
 from django.contrib.auth import get_user_model
 from django.db import models
-from django.db.models import Max
+from django.db.models import Max, Q
 from django.utils.timezone import now
 from unidecode import unidecode
 
@@ -56,6 +56,34 @@ class Game(models.Model):
 
     def __str__(self):
         return f'{self.year.name} - {self.name}'
+
+    def add_places(self, results):
+        current_place = 1
+        previous_last_correct_submission = None
+        previous_level = None
+        results_list = []
+        for i, result_row in enumerate(results):
+            if previous_last_correct_submission != result_row.last_correct_submission \
+                    or previous_level != result_row.current_level:
+                current_place = i+1
+                previous_last_correct_submission = result_row.last_correct_submission
+                previous_level = result_row.current_level
+            result_row.place = current_place
+            results_list.append(result_row)
+        return results_list
+
+    def generate_results(self):
+        game_results = {}
+        results = self.team_set.annotate(
+            last_correct_submission=Max(
+                'submissions__submitted_at', filter=Q(submissions__correct=True, submissions__is_submitted_as_unlock_code=False))
+        ).order_by('-current_level', 'last_correct_submission')
+        game_results['online_teams'] = self.add_places(
+            results.filter(is_online=True))
+        game_results['offline_teams'] = self.add_places(
+            results.filter(is_online=False))
+        game_results['name'] = str(self)
+        return game_results
 
 
 class Puzzle(models.Model):

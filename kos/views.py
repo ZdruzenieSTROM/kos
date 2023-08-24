@@ -297,21 +297,6 @@ class ResultsView(DetailView):
         context = self.get_context_data(object=object)
         return self.render_to_response(context)
 
-    def add_places(self, results):
-        current_place = 1
-        previous_last_correct_submission = None
-        previous_level = None
-        results_list = []
-        for i, result_row in enumerate(results):
-            if previous_last_correct_submission != result_row.last_correct_submission \
-                    or previous_level != result_row.current_level:
-                current_place = i+1
-                previous_last_correct_submission = result_row.last_correct_submission
-                previous_level = result_row.current_level
-            result_row.place = current_place
-            results_list.append(result_row)
-        return results_list
-
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['games'] = []
@@ -322,16 +307,7 @@ class ResultsView(DetailView):
             if game.frozen_results_json:
                 game_results = game.frozen_results_json
             else:
-                game_results = {}
-                results = game.team_set.annotate(
-                    last_correct_submission=Max(
-                        'submissions__submitted_at', filter=Q(submissions__correct=True, submissions__is_submitted_as_unlock_code=False))
-                ).order_by('-current_level', 'last_correct_submission')
-                game_results['online_teams'] = self.add_places(
-                    results.filter(is_online=True))
-                game_results['offline_teams'] = self.add_places(
-                    results.filter(is_online=False))
-                game_results['name'] = str(game)
+                game_results = game.generate_results()
             context['games'].append(game_results)
 
         return context
