@@ -1,5 +1,7 @@
 
 
+from typing import Any, Optional
+
 from allauth.account.models import EmailAddress
 from allauth.account.signals import email_confirmed
 from allauth.account.utils import send_email_confirmation
@@ -8,8 +10,8 @@ from django.contrib.auth import logout, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.views import LoginView
-from django.db import IntegrityError
-from django.db.models import Count, Max, Q
+from django.db import IntegrityError, models
+from django.db.models import Max, Q
 from django.dispatch import receiver
 from django.http import FileResponse
 from django.shortcuts import redirect, render
@@ -384,6 +386,25 @@ class ArchiveView(ListView, GetTeamMixin):
             queryset |= Year.objects.filter(
                 pk=team.game.year.pk).all()
         return queryset
+
+
+class PuzzleArchiveView(DetailView):
+    """Archive of ol puzzles"""
+    template_name = 'kos/puzzle_archive.html'
+    context_object_name = 'year'
+    model = Year
+    queryset = Year.objects.filter(
+        is_public=True)
+
+
+class PuzzleArchiveLatest(PuzzleArchiveView, GetTeamMixin):
+
+    def get_object(self, *args, **kwargs):
+        team = self.get_team()
+        if self.request.user.is_authenticated and team is not None:
+            return team.game.year
+        return Year.objects.filter(
+            is_public=True).order_by('-end').first()
 
 
 class TeamInfoView(GetTeamMixin, FormView):

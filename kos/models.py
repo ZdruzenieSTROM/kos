@@ -28,6 +28,8 @@ class Year(models.Model):
     is_active = models.BooleanField(
         verbose_name='Hra je aktívna', default=False
     )
+    photo_url = models.TextField(
+        verbose_name='Link na fotogalériu', null=True, blank=True)
     registration_deadline = models.DateTimeField(verbose_name='Registrácia do')
 
     def __str__(self):

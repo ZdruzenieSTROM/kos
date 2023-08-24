@@ -1,0 +1,32 @@
+{% extends "kos/base.html" %}
+
+{% load kos_extras %}
+
+{% block title %}Archív{% endblock %}
+
+{% block content %}
+
+{% did_year_end year as year_ended %}
+<h1>{{year.name}}</h1>
+{% if year.solutions_public %}
+{% for game in year.games.all %}
+<h2>{{game.name}}</h2>
+<table>
+    {% for puzzle in game.puzzle_set.all %}
+    <tr>
+        <td>{{puzzle.name}}</td>
+        <td><a href="{% url 'kos:puzzle' pk=puzzle.pk %}">Zadanie</a></td>
+        <td><a href="{% url 'kos:puzzle-solution' pk=puzzle.pk %}">Riešenie</a></td>
+    </tr>
+    {% endfor %}
+</table>
+{% endfor %}
+{% elif year_ended %}
+Zadania a riešenia šifier budú čoskoro zverejnené.
+{% else %}
+Zadania a riešenia šifier budú zverejnené po skončení hry.
+{% endif %}
+
+
+
+{% endblock %}
