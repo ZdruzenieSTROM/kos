@@ -41,7 +41,8 @@ class GameAdmin(admin.ModelAdmin):
     def freeze_results(self, request, queryset):
         """Zmrazit výsledky"""
         for game in queryset.all():
-            game.frozen_results = json.dumps(game.generate_results())
+            game.frozen_results_json = json.dumps(
+                game.generate_results(), default=str)
             game.save()
 
 

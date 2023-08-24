@@ -55,7 +55,7 @@ class Game(models.Model):
     price_online = models.DecimalField(
         verbose_name='Výška poplatku online verzie', max_digits=5, decimal_places=2, default=0.0)
     frozen_results_json = models.TextField(
-        verbose_name='Serializované výsledky')
+        verbose_name='Serializované výsledky', null=True, blank=True)
 
     def __str__(self):
         return f'{self.year.name} - {self.name}'
@@ -72,7 +72,16 @@ class Game(models.Model):
                 previous_last_correct_submission = result_row.last_correct_submission
                 previous_level = result_row.current_level
             result_row.place = current_place
-            results_list.append(result_row)
+            results_list.append(
+                {
+                    'place': current_place,
+                    'name': result_row.name,
+                    'members_joined': result_row.members_joined(),
+                    'current_level': result_row.current_level,
+                    'last_correct_submission': result_row.last_correct_submission
+
+                }
+            )
         return results_list
 
     def generate_results(self):
@@ -86,6 +95,7 @@ class Game(models.Model):
         game_results['offline_teams'] = self.add_places(
             results.filter(is_online=False))
         game_results['name'] = str(self)
+        print(game_results)
         return game_results
 
 
