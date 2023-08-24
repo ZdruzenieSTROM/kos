@@ -2,6 +2,7 @@
 
 from datetime import timedelta
 
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db import models
 from django.db.models import Max
@@ -29,6 +30,7 @@ class Year(models.Model):
     )
     photo_url = models.TextField(
         verbose_name='Link na fotogalériu', null=True, blank=True)
+    registration_deadline = models.DateTimeField(verbose_name='Registrácia do')
 
     def __str__(self):
         return self.name
@@ -110,7 +112,10 @@ class Puzzle(models.Model):
 
     def check_solution(self, team_solution: str) -> bool:
         """Skontroluje riešenie"""
-        return self.__check_equal(team_solution, self.solution)
+
+        return any(
+            self.__check_equal(team_solution, solution)
+            for solution in self.solution.split(settings.SOLUTION_DELIMITER))
 
     def check_unlock(self, team_submission: str) -> bool:
         """Skontroluje odomykací kód na mieste"""
@@ -223,6 +228,8 @@ class Team(models.Model):
     hints_taken = models.ManyToManyField(
         Hint, verbose_name='Zobraté hinty', blank=True)
     paid = models.BooleanField(verbose_name='Poplatok uhradený', default=False)
+    is_public = models.BooleanField(
+        verbose_name='Tím je verejný', default=True)
 
     def __str__(self):
         return f'{self.name}'
