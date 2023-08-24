@@ -77,7 +77,7 @@ class Game(models.Model):
 
     def generate_results(self):
         game_results = {}
-        results = self.team_set.annotate(
+        results = self.team_set.filter(is_public=True).annotate(
             last_correct_submission=Max(
                 'submissions__submitted_at', filter=Q(submissions__correct=True, submissions__is_submitted_as_unlock_code=False))
         ).order_by('-current_level', 'last_correct_submission')
