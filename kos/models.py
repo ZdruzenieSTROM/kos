@@ -51,6 +51,8 @@ class Game(models.Model):
         verbose_name='Výška poplatku terénnej verzie', max_digits=5, decimal_places=2, default=0.0)
     price_online = models.DecimalField(
         verbose_name='Výška poplatku online verzie', max_digits=5, decimal_places=2, default=0.0)
+    frozen_results_json = models.TextField(
+        verbose_name='Serializované výsledky')
 
     def __str__(self):
         return f'{self.year.name} - {self.name}'
