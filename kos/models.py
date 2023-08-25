@@ -95,7 +95,6 @@ class Game(models.Model):
         game_results['offline_teams'] = self.add_places(
             results.filter(is_online=False))
         game_results['name'] = str(self)
-        print(game_results)
         return game_results
 
 
