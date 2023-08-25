@@ -1,5 +1,6 @@
 
 
+import json
 from typing import Any, Optional
 
 from allauth.account.models import EmailAddress
@@ -307,7 +308,7 @@ class ResultsView(DetailView):
             return context
         for game in self.object.games.all():
             if game.frozen_results_json:
-                game_results = game.frozen_results_json
+                game_results = json.loads(game.frozen_results_json)
             else:
                 game_results = game.generate_results()
             context['games'].append(game_results)
