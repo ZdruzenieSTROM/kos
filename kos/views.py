@@ -52,7 +52,7 @@ class GetTeamMixin(LoginRequiredMixin):
     """Support for resolving team"""
     login_url = reverse_lazy('kos:login')
 
-    def get_team(self):
+    def get_team(self) -> Optional[Team]:
         """Resolve team from game and user"""
         # TODO: Allow multiple teams for user maybe
         return self.request.user.team if hasattr(self.request.user, 'team') else None
@@ -290,6 +290,23 @@ class GameView(GetTeamMixin, DetailView):
             team.save()
 
         return redirect('kos:game')
+
+
+class SkipPuzzleView(GetTeamMixin, UserPassesTestMixin, DetailView):
+    model = Puzzle
+    http_method_names = ['post']
+
+    def post(self, request, *args, **kwargs):
+        state = PuzzleTeamState.objects.get(team=self.team, puzzle=self.puzzle)
+        state.skip_puzzle()
+        self.team.current_level = max(
+            self.puzzle.level+1, self.team.current_level)
+        return redirect('kos:game')
+
+    def test_func(self):
+        self.puzzle: Puzzle = self.get_object()
+        self.team = self.get_team()
+        return puzzle.can_team_skip(team)
 
 
 class ResultsView(DetailView):
