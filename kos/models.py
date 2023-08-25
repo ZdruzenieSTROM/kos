@@ -328,6 +328,11 @@ class PuzzleTeamState(models.Model):
     def is_open(self):
         return not self.solved and not self.skipped
 
+    def skip_puzzle(self):
+        self.skipped = True
+        self.ended_at = now()
+        self.save()
+
 
 class Submission(models.Model):
     """Pokus o odovzdanie odpovede na šifru"""
