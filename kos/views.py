@@ -412,7 +412,7 @@ class ArchiveView(ListView, GetTeamMixin):
 
 
 class PuzzleArchiveView(DetailView):
-    """Archive of ol puzzles"""
+    """Archive of puzzles"""
     template_name = 'kos/puzzle_archive.html'
     context_object_name = 'year'
     model = Year
