@@ -1,9 +1,11 @@
 """Admin for Kos app"""
+import json
+
 from django.contrib import admin
 
 from kos import models
 
-#pylint: disable=missing-docstring
+# pylint: disable=missing-docstring
 
 
 class TeamMemberInline(admin.TabularInline):
@@ -32,6 +34,16 @@ class YearAdmin(admin.ModelAdmin):
 class GameAdmin(admin.ModelAdmin):
     list_display = ('name', 'year')
     list_filter = ('year',)
+
+    actions = ["freeze_results"]
+
+    @admin.action(description="Zmraz výsledky")
+    def freeze_results(self, request, queryset):
+        """Zmrazit výsledky"""
+        for game in queryset.all():
+            game.frozen_results_json = json.dumps(
+                game.generate_results(), default=str)
+            game.save()
 
 
 @admin.register(models.Submission)
