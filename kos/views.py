@@ -259,37 +259,14 @@ class GameView(GetTeamMixin, DetailView):
         if not puzzle.can_team_submit(team):
             messages.error(request, 'Odpoveď nie je možné odovzdať')
             return redirect('kos:game')
+        state = PuzzleTeamState.get_or_create_state(team, puzzle)
         if not puzzle.can_team_see(team):
             # The team can't see the puzzle, so it's an unlock code
-            is_correct = puzzle.check_unlock(answer)
-            Submission.objects.create(
-                puzzle=puzzle,
-                team=team,
-                competitor_answer=Puzzle.clean_text(answer),
-                correct=is_correct,
-                is_submitted_as_unlock_code=True
-            )
-            if is_correct:
-                PuzzleTeamState.objects.create(
-                    puzzle=puzzle,
-                    team=team,
-                    started_at=now()
-                )
+            state.submit_unlock_code(answer)
             return redirect('kos:game')
 
         # The team can see the puzzle, so it's not an unlock code
-        is_correct = puzzle.check_solution(answer)
-        Submission.objects.create(
-            puzzle=puzzle,
-            team=team,
-            competitor_answer=Puzzle.clean_text(answer),
-            correct=is_correct,
-            is_submitted_as_unlock_code=False
-        )
-        if is_correct:
-            team.current_level = max(puzzle.level+1, team.current_level)
-            team.save()
-
+        state.submit_solution(answer)
         return redirect('kos:game')
 
 
@@ -300,14 +277,12 @@ class SkipPuzzleView(GetTeamMixin, UserPassesTestMixin, DetailView):
     def post(self, request, *args, **kwargs):
         state = PuzzleTeamState.objects.get(team=self.team, puzzle=self.puzzle)
         state.skip_puzzle()
-        self.team.current_level = max(
-            self.puzzle.level+1, self.team.current_level)
         return redirect('kos:game')
 
     def test_func(self):
         self.puzzle: Puzzle = self.get_object()
         self.team = self.get_team()
-        return puzzle.can_team_skip(team)
+        return self.puzzle.can_team_skip(self.team)
 
 
 class ResultsView(DetailView):
