@@ -48,8 +48,7 @@ class GameAdmin(admin.ModelAdmin):
 
 @admin.register(models.Submission)
 class SubmissionAdmin(admin.ModelAdmin):
-    list_display = ('team', 'puzzle', 'submitted_at', 'competitor_answer')
-    list_filter = ('team', 'puzzle')
+    list_display = ('submitted_at', 'competitor_answer')
 
 
 @admin.register(models.Hint)
