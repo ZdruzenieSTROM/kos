@@ -83,7 +83,7 @@ class Puzzle(models.Model):
 
     def team_submissions(self, team):
         """Vráti pokusy o odovzdanie pre daný tím"""
-        return self.submissions.filter(team=team)
+        return PuzzleTeamState.objects.get(team=team, puzzle=self).submissions
 
     def has_team_passed(self, team):
         """Vráti bool či tím už šifru vyriešil"""
@@ -98,11 +98,11 @@ class Puzzle(models.Model):
 
     def team_timeout(self, team):
         """Vráti čas, o ktorý bude daný tím môcť znova odovzdať túto úlohu"""
-        submission = self.team_submissions(team).filter(
+        submissions = self.team_submissions(team).filter(
             correct=False, is_submitted_as_unlock_code=False)
-        if submission.count() < 3:
+        if submissions.count() < 3:
             return timedelta(0)
-        time_of_last_submission = submission.order_by(
+        time_of_last_submission = submissions.order_by(
             '-submitted_at')[0].submitted_at
         return time_of_last_submission + timedelta(seconds=60) - now()
 
@@ -131,11 +131,10 @@ class Puzzle(models.Model):
 
     def can_team_see(self, team):
         """Skontroluje, či tím môže vidieť zadanie šifry"""
-        return team.is_online or self.submissions.filter(
-            team=team,
+        return team.is_online or self.team_submissions(team).filter(
             is_submitted_as_unlock_code=True,
             correct=True
-        ).exists()
+        ).exists()  # TODO: this logic should probably be moved to PuzzleTeamState
 
     def earliest_hint_timeout(self, team):
         """Vráti najskorší čas, kedy sa tímu odomkne nejaký hint
