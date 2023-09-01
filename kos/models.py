@@ -248,8 +248,7 @@ class Team(models.Model):
         return state.started_at
 
     def pass_level(self, level: int):
-        self.current_level = max(
-            level+1, self.current_level)
+        self.current_level = max(level + 1, self.current_level)
         self.save()
 
     def members_joined(self):
@@ -308,7 +307,7 @@ class PuzzleTeamState(models.Model):
             correct=is_correct,
             is_submitted_as_unlock_code=True
         )
-        if is_correct:
+        if is_correct and self.started_at is None:
             self.started_at = now()
 
     def submit_solution(self, team_solution: str):
@@ -321,7 +320,7 @@ class PuzzleTeamState(models.Model):
             is_submitted_as_unlock_code=False
         )
         if is_correct:
-            self.team.pass_level(self.puzzle.level+1)
+            self.team.pass_level(self.puzzle.level + 1)
 
     def pass_puzzle(self, puzzle: Puzzle, skipped):
         """"""
