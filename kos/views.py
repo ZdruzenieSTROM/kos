@@ -237,7 +237,7 @@ class GameView(GetTeamMixin, DetailView):
             # It feels like new States should not be created here, but I didn't find a good place
             # for creating states for the first puzzle
             state = PuzzleTeamState.get_or_create_state(team, puzzle)
-            puzzle.correctly_submitted = state.solved
+            puzzle.passed = not state.is_open
             puzzle.current_submissions = puzzle.team_submissions(
                 team).order_by('-submitted_at')
         context['visible_puzzles'] = puzzles
