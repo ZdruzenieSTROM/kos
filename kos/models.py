@@ -278,7 +278,8 @@ class PuzzleTeamState(models.Model):
         Team, on_delete=models.CASCADE, related_name='states')
     skipped = models.BooleanField(
         verbose_name='Tím preskočil šifru', default=False)
-    solved = models.BooleanField(verbose_name='Tím vyriešil šifru')
+    solved = models.BooleanField(
+        verbose_name='Tím vyriešil šifru', default=False)
     started_at = models.DateTimeField(
         verbose_name='Začiatok riešenia', null=True, blank=True)
     ended_at = models.DateTimeField(
@@ -343,7 +344,10 @@ class Submission(models.Model):
     class Meta:
         verbose_name = 'odovzdanie šifry'
         verbose_name_plural = 'odovzdania šifier'
+    puzzle_team_state = models.ForeignKey(
+        PuzzleTeamState, on_delete=models.SET_NULL, null=True, related_name='submissions')
     competitor_answer = models.CharField(max_length=100)
     submitted_at = models.DateTimeField(auto_now=True, auto_created=True)
+    correct = models.BooleanField()  # Neviem ci bude nutné nechám na zváženie
     is_submitted_as_unlock_code = models.BooleanField(
         verbose_name='Pokus odovzdaný ako vstupný kód', default=False)
