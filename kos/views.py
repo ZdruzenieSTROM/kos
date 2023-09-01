@@ -234,8 +234,10 @@ class GameView(GetTeamMixin, DetailView):
         for puzzle in puzzles:
             # TODO: This probably can be done with annotate as a part of the first filter
             # but I couldn't make it work
-            puzzle.correctly_submitted = puzzle.submissions.filter(
-                team=team, correct=True, is_submitted_as_unlock_code=False).exists()
+            # It feels like new States should not be created here, but I didn't find a good place
+            # for creating states for the first puzzle
+            state = PuzzleTeamState.get_or_create_state(team, puzzle)
+            puzzle.correctly_submitted = state.solved
             puzzle.current_submissions = puzzle.team_submissions(
                 team).order_by('-submitted_at')
         context['visible_puzzles'] = puzzles
