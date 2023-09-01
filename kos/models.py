@@ -304,26 +304,28 @@ class PuzzleTeamState(models.Model):
     def submit_unlock_code(self, unlock_code: str):
         is_correct = self.puzzle.check_unlock(unlock_code)
         Submission.objects.create(
-            puzzle=self.puzzle,
-            team=self.team,
+            puzzle_team_state=self,
             competitor_answer=Puzzle.clean_text(unlock_code),
             correct=is_correct,
             is_submitted_as_unlock_code=True
         )
         if is_correct and self.started_at is None:
             self.started_at = now()
+            self.save()
 
     def submit_solution(self, team_solution: str):
         is_correct = self.puzzle.check_solution(team_solution)
         Submission.objects.create(
-            puzzle=self.puzzle,
-            team=self.team,
+            puzzle_team_state=self,
             competitor_answer=Puzzle.clean_text(team_solution),
             correct=is_correct,
             is_submitted_as_unlock_code=False
         )
         if is_correct:
             self.team.pass_level(self.puzzle.level + 1)
+            self.solved = True
+            self.ended_at = now()
+            self.save()
 
     def pass_puzzle(self, puzzle: Puzzle, skipped):
         """"""
