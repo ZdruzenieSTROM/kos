@@ -74,6 +74,19 @@
                     {% endif %}
                 {% endif %}
             {% endfor %}
+                {% if not puzzle.passed %}
+                    <form action="{% url 'kos:skip' pk=puzzle.pk %}" method="post">
+                        {% csrf_token %}
+                        {% can_team_skip puzzle team as can_skip %}
+                        {% if can_skip %}
+                            <input type="Submit" value="Preskočiť" class="main-button" />
+                        {% else %}
+                            <input type="Submit" value="Preskočiť" class="main-button main-button__disabled" disabled />
+                            {% get_team_skip_time puzzle team as skip_availability_time %}
+                            Preskočiť je možné o {{skip_availability_time|date:'H:i:s' }}
+                        {% endif %}
+                    </form>
+                {% endif %}
         {% endif %}
         <h3>Pokusy:</h3>
         {% for submission in puzzle.current_submissions %}
