@@ -327,18 +327,19 @@ class PuzzleTeamState(models.Model):
             self.ended_at = now()
             self.save()
 
-    def pass_puzzle(self, puzzle: Puzzle, skipped):
-        """"""
-        puzzles = Puzzle.objects.filter(game=puzzle.game, level=puzzle.level)
-        # TODO: DOkoncit
-
+    # Shouldn't we use this https://docs.djangoproject.com/en/4.2/ref/models/querysets/#get-or-create ?
     @classmethod
     def get_or_create_state(cls, team, puzzle):
         try:
             return cls.objects.get(team=team, puzzle=puzzle)
         except PuzzleTeamState.DoesNotExist:
-            cls.objects.create(
-                # TODO: Create new
+            return cls.objects.create(
+                puzzle=puzzle,
+                team=team,
+                skipped=False,
+                solved=False,
+                started_at=None,
+                ended_at=None
             )
 
 
