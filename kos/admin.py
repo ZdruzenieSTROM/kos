@@ -51,6 +51,12 @@ class SubmissionAdmin(admin.ModelAdmin):
     list_display = ('submitted_at', 'competitor_answer')
 
 
+@admin.register(models.PuzzleTeamState)
+class TeamPuzzleStateAdmin(admin.ModelAdmin):
+    list_display = ('puzzle', 'team', 'skipped',
+                    'solved', 'started_at', 'ended_at')
+
+
 @admin.register(models.Hint)
 class HintAdmin(admin.ModelAdmin):
     list_display = ('puzzle', 'show_after',
