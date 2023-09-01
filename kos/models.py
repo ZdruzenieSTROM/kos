@@ -221,12 +221,8 @@ class Hint(models.Model):
 
     def get_time_to_take(self, team):
         """Zostávajúci čas do hintu"""
-        # TODO: get_last_correct_submission_time no longer exists, this needs to take skips into account
-        last_submission = team.get_last_correct_submission_time(
-            answers_only=False)
-        if last_submission is None:
-            last_submission = self.puzzle.game.year.start
-        elapsed_time = now() - last_submission
+        last_submission_time = team.current_puzzle_start_time()
+        elapsed_time = now() - last_submission_time
         minimum_elapsed_time = self.show_after + \
             self.hint_penalty*team.get_penalties(self.puzzle.level)
         return minimum_elapsed_time - elapsed_time
@@ -283,11 +279,11 @@ class Team(models.Model):
         return self.hints_taken.filter(count_as_penalty=True, puzzle__level__lt=on_level).count()
 
     def current_puzzle_start_time(self):
-        """Vráti čas poslednej správne odovzdanej šifry"""
+        """Vráti čas začiatku riešenia aktuálnej šifry alebo začiatok hry ak tím ešte nezačal riešiť žiadnu šifru"""
         state = self.states.filter(
             skipped=False, solved=False).order_by('-started_at').first()
         if not state:
-            return now()
+            return self.game.year.start
         return state.started_at
 
     def pass_level(self, level: int):
