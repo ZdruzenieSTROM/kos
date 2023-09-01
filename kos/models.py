@@ -114,6 +114,13 @@ class Puzzle(models.Model):
             PuzzleTeamState.objects.get(
                 team=team, puzzle=self).started_at + self.skip_allowed_after <= now()
 
+    def team_skip_time(self, team):
+        started_at = PuzzleTeamState.objects.get(
+            team=team, puzzle=self).started_at
+        if started_at is None:
+            return None
+        return started_at + self.skip_allowed_after
+
     @staticmethod
     def __check_equal(string1: str, string2: str) -> bool:
         return Puzzle.clean_text(string1) == Puzzle.clean_text(string2)
@@ -147,17 +154,25 @@ class Puzzle(models.Model):
         return earliest_hint_timeout
 
     def earliest_timeout(self, team):
-        """Vráti najskorší čas, kedy sa tímu odomkne hint alebo odovzdávanie
+        """Vráti najskorší čas, kedy sa tímu odomkne hint, odovzdávanie alebo skip
         Vráti None ak tím na nič nečaká"""
         earliest_hint_timeout = self.earliest_hint_timeout(team)
         submission_timeout = self.team_timeout(team)
-        if earliest_hint_timeout is None:
-            if submission_timeout <= timedelta(0):
-                return None
-            return submission_timeout
-        if submission_timeout <= timedelta(0):
-            return earliest_hint_timeout
-        return min(earliest_hint_timeout, submission_timeout)
+        skip_time = self.team_skip_time(team)
+
+        relevant_timeouts = []
+        if earliest_hint_timeout is not None:
+            relevant_timeouts.append(earliest_hint_timeout)
+        if submission_timeout > timedelta(0):
+            relevant_timeouts.append(submission_timeout)
+        if skip_time is not None:
+            skip_timeout = skip_time - now()
+            if skip_timeout > timedelta(0):
+                relevant_timeouts.append(skip_timeout)
+
+        if not relevant_timeouts:
+            return None
+        return min(relevant_timeouts)
 
 
 class Hint(models.Model):
