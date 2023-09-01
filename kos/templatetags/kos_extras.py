@@ -30,6 +30,16 @@ def can_team_take_hint(hint, team):
 
 
 @register.simple_tag
+def can_team_skip(puzzle, team):
+    return puzzle.can_team_skip(team)
+
+
+@register.simple_tag
+def get_team_skip_time(puzzle, team):
+    return puzzle.team_skip_time(team)
+
+
+@register.simple_tag
 def can_team_see_puzzle(puzzle, team):
     return puzzle.can_team_see(team)
 
