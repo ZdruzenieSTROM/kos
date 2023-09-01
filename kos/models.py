@@ -239,7 +239,10 @@ class Team(models.Model):
         return self.hints_taken.filter(count_as_penalty=True, puzzle__level__lt=on_level).count()
 
     def current_puzzle_state(self):
-        current_puzzle = self.game.puzzle_set.get(level=self.current_level)
+        try:
+            current_puzzle = self.game.puzzle_set.get(level=self.current_level)
+        except Puzzle.DoesNotExist:
+            return None
         return self.states.get(team=self, puzzle=current_puzzle)
 
     def current_puzzle_start_time(self):
