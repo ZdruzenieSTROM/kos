@@ -289,7 +289,7 @@ class Team(models.Model):
         return state.started_at
 
     def pass_level(self, level: int):
-        self.current_level = max(level, self.current_level)
+        self.current_level = max(level + 1, self.current_level)
         self.save()
 
     def members_joined(self):
@@ -340,6 +340,12 @@ class PuzzleTeamState(models.Model):
         self.team.pass_level(self.puzzle.level)
         self.save()
 
+    def solve_puzzle(self):
+        self.solved = True
+        self.ended_at = now()
+        self.team.pass_level(self.puzzle.level)
+        self.save()
+
     def submit_unlock_code(self, unlock_code: str):
         is_correct = self.puzzle.check_unlock(unlock_code)
         Submission.objects.create(
@@ -361,10 +367,7 @@ class PuzzleTeamState(models.Model):
             is_submitted_as_unlock_code=False
         )
         if is_correct:
-            self.team.pass_level(self.puzzle.level + 1)
-            self.solved = True
-            self.ended_at = now()
-            self.save()
+            self.solve_puzzle()
 
     # Shouldn't we use this https://docs.djangoproject.com/en/4.2/ref/models/querysets/#get-or-create ?
     @classmethod
