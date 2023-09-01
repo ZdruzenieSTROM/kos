@@ -110,9 +110,12 @@ class Puzzle(models.Model):
         return team.current_level >= self.level and not self.team_timeout(team) > timedelta(0) and not self.has_team_passed(team)
 
     def can_team_skip(self, team):
+        started_at = PuzzleTeamState.objects.get(
+            team=team, puzzle=self).started_at
+        if started_at is None:
+            return False
         return team.current_level >= self.level and not self.has_team_passed(team) and \
-            PuzzleTeamState.objects.get(
-                team=team, puzzle=self).started_at + self.skip_allowed_after <= now()
+            started_at + self.skip_allowed_after <= now()
 
     def team_skip_time(self, team):
         started_at = PuzzleTeamState.objects.get(
