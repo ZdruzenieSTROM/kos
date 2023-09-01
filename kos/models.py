@@ -203,11 +203,7 @@ class Hint(models.Model):
             self.all_prerequisites_met(team)
             and not time_to_take > timedelta(0)
             and not team.hints_taken.filter(pk=self.pk).exists()
-            and not team.submissions.filter(
-                correct=True,
-                is_submitted_as_unlock_code=False,
-                puzzle=self.puzzle
-            ).exists()
+            and not self.puzzle.has_team_passed(team)
             and self.puzzle.can_team_see(team)
         )
 
