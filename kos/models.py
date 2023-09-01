@@ -238,16 +238,19 @@ class Team(models.Model):
         """Spočíta počet zobratých hintov, ktoré sa rátajú ako penalty"""
         return self.hints_taken.filter(count_as_penalty=True, puzzle__level__lt=on_level).count()
 
+    def current_puzzle_state(self):
+        current_puzzle = self.game.puzzle_set.get(level=self.current_level)
+        return self.states.get(team=self, puzzle=current_puzzle)
+
     def current_puzzle_start_time(self):
         """Vráti čas začiatku riešenia aktuálnej šifry alebo začiatok hry ak tím ešte nezačal riešiť žiadnu šifru"""
-        state = self.states.filter(
-            skipped=False, solved=False).order_by('-started_at').first()
-        if not state:
+        state = self.current_puzzle_state()
+        if not state or not state.started_at:
             return self.game.year.start
         return state.started_at
 
     def pass_level(self, level: int):
-        self.current_level = max(level + 1, self.current_level)
+        self.current_level = max(level, self.current_level)
         self.save()
 
     def members_joined(self):
