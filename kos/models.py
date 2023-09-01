@@ -149,7 +149,9 @@ class Puzzle(models.Model):
         return team.current_level >= self.level and not self.team_timeout(team) > timedelta(0) and not self.has_team_passed(team)
 
     def can_team_skip(self, team):
-        return team.current_level >= self.level and not self.has_team_passed(team) and self.earliest_hint_timeout(team)
+        return team.current_level >= self.level and not self.has_team_passed(team) and \
+            PuzzleTeamState.objects.get(
+                team=team, puzzle=self).started_at + self.skip_allowed_after <= now()
 
     @staticmethod
     def __check_equal(string1: str, string2: str) -> bool:
@@ -219,6 +221,7 @@ class Hint(models.Model):
 
     def get_time_to_take(self, team):
         """Zostávajúci čas do hintu"""
+        # TODO: get_last_correct_submission_time no longer exists, this needs to take skips into account
         last_submission = team.get_last_correct_submission_time(
             answers_only=False)
         if last_submission is None:
