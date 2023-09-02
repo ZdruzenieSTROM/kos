@@ -357,12 +357,13 @@ class PuzzleTeamState(models.Model):
         try:
             return cls.objects.get(team=team, puzzle=puzzle)
         except PuzzleTeamState.DoesNotExist:
+            started_at = now() if team.is_online else None
             return cls.objects.create(
                 puzzle=puzzle,
                 team=team,
                 skipped=False,
                 solved=False,
-                started_at=None,
+                started_at=started_at,
                 ended_at=None
             )
 
