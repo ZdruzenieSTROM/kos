@@ -11,7 +11,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.views import LoginView
 from django.db import IntegrityError, models
-from django.db.models import Max, Q
+from django.db.models import Max, Q, Count
 from django.dispatch import receiver
 from django.http import FileResponse
 from django.shortcuts import redirect, render
@@ -324,8 +324,9 @@ class ResultsView(DetailView):
             game_results = {}
             results = game.team_set.filter(is_public=True).annotate(
                 last_correct_submission=Max(
-                    'submissions__submitted_at', filter=Q(submissions__correct=True, submissions__is_submitted_as_unlock_code=False))
-            ).order_by('-current_level', 'last_correct_submission')
+                    'states__ended_at', filter=Q(states__solved=True)),
+                solved_puzzles=Count('states', filter=Q(states__solved=True)),
+            ).order_by('-solved_puzzles', 'last_correct_submission')
             game_results['online_teams'] = self.add_places(
                 results.filter(is_online=True))
             game_results['offline_teams'] = self.add_places(
