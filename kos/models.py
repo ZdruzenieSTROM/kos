@@ -162,7 +162,8 @@ class Puzzle(models.Model):
             team=team, puzzle=self).started_at
         if started_at is None:
             return None
-        return started_at + self.skip_allowed_after
+        # TODO: temporary solution for 2023 testing, 15 should be stored on the puzzle
+        return started_at + self.skip_allowed_after + timedelta(minutes=15) * team.get_penalties(self.level)
 
     @staticmethod
     def __check_equal(string1: str, string2: str) -> bool:
