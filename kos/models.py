@@ -232,6 +232,8 @@ class Hint(models.Model):
         verbose_name='Penalta za predošlé hinty', default=timedelta(0))
     count_as_penalty = models.BooleanField(
         verbose_name='Počíta sa do penalty')
+    is_dead = models.BooleanField(
+        verbose_name='Hint je riešenie', default=False)
     prerequisites = models.ManyToManyField(
         'Hint', verbose_name='Nutné zobrať pred', blank=True)
 

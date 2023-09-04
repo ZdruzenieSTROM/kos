@@ -52,22 +52,22 @@
                             {% csrf_token %}
                             {% can_team_take_hint hint team as hint_available %}
                             {% if hint_available %}
-                                <input type="Submit" value="Zobrať {% if hint.count_as_penalty %}nápovedu{%else%}riešenie{%endif%}"
+                                <input type="Submit" value="Zobrať {% if not hint.is_dead %}nápovedu{%else%}riešenie{%endif%}"
                                     class="main-button mb-2"
-                                    onclick="return confirm('Skutočne chcete zobrať {% if hint.count_as_penalty %}nápovedu{% else %}riešenie{% endif %}?');" />
+                                    onclick="return confirm('Skutočne chcete zobrať {% if not hint.is_dead %}nápovedu{% else %}riešenie{% endif %}?');" />
                             {% else %}
                                 {% all_prerequisites_met hint team as prerequisites_met %}
                                 {% if not prerequisites_met %}
                                     <!-- This should probably also say which hint is the unmet prerequisite -->
-                                    <input type="Submit" value="Zobrať {% if hint.count_as_penalty %}nápovedu{%else%}riešenie{%endif%}"
+                                    <input type="Submit" value="Zobrať {% if not hint.is_dead %}nápovedu{%else%}riešenie{%endif%}"
                                         class="main-button main-button__disabled mb-2" disabled />
-                                    Pred {% if hint.count_as_penalty %}touto nápovedou{% else %}riešením{% endif %} je nutné zobrať predošlú nápovedu.
+                                    Pred {% if not hint.is_dead %}touto nápovedou{% else %}riešením{% endif %} je nutné zobrať predošlú nápovedu.
                                 {% else %}
                                     {% get_hint_available_time hint team as hint_availability_time %}
                                     <!-- This needs to be displayed in the client's timezone -->
-                                    <input type="Submit" value="Zobrať {% if hint.count_as_penalty %}nápovedu{%else%}riešenie{%endif%}"
+                                    <input type="Submit" value="Zobrať {% if not hint.is_dead %}nápovedu{%else%}riešenie{%endif%}"
                                         class="main-button main-button__disabled mb-2" disabled />
-                                    {% if hint.count_as_penalty %}Nápoveda{% else %}Riešenie{% endif %} sa dá zobrať o {{hint_availability_time|date:'H:i:s' }}
+                                    {% if not hint.is_dead %}Nápoveda{% else %}Riešenie{% endif %} sa dá zobrať o {{hint_availability_time|date:'H:i:s' }}
                                 {% endif %}
                             {% endif %}
                         </form>
