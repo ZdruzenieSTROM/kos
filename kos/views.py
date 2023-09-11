@@ -12,7 +12,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.views import LoginView
 from django.db import IntegrityError, models
-from django.db.models import Max, Q, Count
+from django.db.models import Count, Max, Q
 from django.dispatch import receiver
 from django.http import FileResponse
 from django.shortcuts import redirect, render
@@ -236,7 +236,11 @@ class GameView(GetTeamMixin, DetailView):
             # but I couldn't make it work
             # It feels like new States should not be created here, but I didn't find a good place
             # for creating states for the first puzzle
-            state = PuzzleTeamState.get_or_create_state(team, puzzle)
+            state = PuzzleTeamState.objects.get_or_create(
+                team,
+                puzzle,
+                defaults={'started_at': now() if team.is_online else None}
+            )
             puzzle.passed = not state.is_open
             puzzle.current_submissions = puzzle.team_submissions(
                 team).order_by('-submitted_at')
@@ -261,7 +265,11 @@ class GameView(GetTeamMixin, DetailView):
         if not puzzle.can_team_submit(team):
             messages.error(request, 'Odpoveď nie je možné odovzdať')
             return redirect('kos:game')
-        state = PuzzleTeamState.get_or_create_state(team, puzzle)
+        state = PuzzleTeamState.objects.get_or_create(
+            team,
+            puzzle,
+            defaults={'started_at': now() if team.is_online else None}
+        )
         if not puzzle.can_team_see(team):
             # The team can't see the puzzle, so it's an unlock code
             state.submit_unlock_code(answer)

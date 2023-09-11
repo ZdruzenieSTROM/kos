@@ -347,7 +347,7 @@ class PuzzleTeamState(models.Model):
     solved = models.BooleanField(
         verbose_name='Tím vyriešil šifru', default=False)
     started_at = models.DateTimeField(
-        verbose_name='Začiatok riešenia', null=True, blank=True)
+        verbose_name='Začiatok riešenia', null=True, blank=True, auto_now_add=True)
     ended_at = models.DateTimeField(
         verbose_name='Koniec riešenia', null=True, blank=True, default=None)
 
@@ -393,22 +393,6 @@ class PuzzleTeamState(models.Model):
         )
         if is_correct:
             self.solve_puzzle()
-
-    # Shouldn't we use this https://docs.djangoproject.com/en/4.2/ref/models/querysets/#get-or-create ?
-    @classmethod
-    def get_or_create_state(cls, team, puzzle):
-        try:
-            return cls.objects.get(team=team, puzzle=puzzle)
-        except PuzzleTeamState.DoesNotExist:
-            started_at = now() if team.is_online else None
-            return cls.objects.create(
-                puzzle=puzzle,
-                team=team,
-                skipped=False,
-                solved=False,
-                started_at=started_at,
-                ended_at=None
-            )
 
 
 class Submission(models.Model):
