@@ -1,7 +1,7 @@
 
 
 import json
-from typing import Any, Optional
+from typing import Optional
 
 from allauth.account.models import EmailAddress
 from allauth.account.signals import email_confirmed
@@ -11,8 +11,7 @@ from django.contrib.auth import logout, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.views import LoginView
-from django.db import IntegrityError, models
-from django.db.models import Count, Max, Q
+from django.db import IntegrityError
 from django.dispatch import receiver
 from django.http import FileResponse
 from django.shortcuts import redirect, render
@@ -21,8 +20,8 @@ from django.utils.timezone import now
 from django.views.generic import DetailView, FormView, ListView
 
 from .forms import AuthForm, ChangePasswordForm, EditTeamForm, RegisterForm
-from .models import (Game, Hint, Puzzle, PuzzleTeamState, Submission, Team,
-                     TeamMember, User, Year)
+from .models import (Game, Hint, Puzzle, PuzzleTeamState, Team, TeamMember,
+                     User, Year)
 
 
 def view_404(request, exception=None):  # pylint: disable=unused-argument
