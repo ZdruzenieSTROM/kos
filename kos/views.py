@@ -1,7 +1,7 @@
 
 
 import json
-from typing import Any, Optional
+from typing import Optional
 
 from allauth.account.models import EmailAddress
 from allauth.account.signals import email_confirmed
@@ -11,8 +11,7 @@ from django.contrib.auth import logout, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.views import LoginView
-from django.db import IntegrityError, models
-from django.db.models import Max, Q
+from django.db import IntegrityError
 from django.dispatch import receiver
 from django.http import FileResponse
 from django.shortcuts import redirect, render
@@ -21,8 +20,8 @@ from django.utils.timezone import now
 from django.views.generic import DetailView, FormView, ListView
 
 from .forms import AuthForm, ChangePasswordForm, EditTeamForm, RegisterForm
-from .models import (Game, Hint, Puzzle, Submission, Team, TeamMember, User,
-                     Year)
+from .models import (Game, Hint, Puzzle, PuzzleTeamState, Team, TeamMember,
+                     User, Year)
 
 
 def view_404(request, exception=None):  # pylint: disable=unused-argument
@@ -53,7 +52,7 @@ class GetTeamMixin(LoginRequiredMixin):
     """Support for resolving team"""
     login_url = reverse_lazy('kos:login')
 
-    def get_team(self):
+    def get_team(self) -> Optional[Team]:
         """Resolve team from game and user"""
         # TODO: Allow multiple teams for user maybe
         return self.request.user.team if hasattr(self.request.user, 'team') else None
@@ -234,8 +233,14 @@ class GameView(GetTeamMixin, DetailView):
         for puzzle in puzzles:
             # TODO: This probably can be done with annotate as a part of the first filter
             # but I couldn't make it work
-            puzzle.correctly_submitted = puzzle.submissions.filter(
-                team=team, correct=True, is_submitted_as_unlock_code=False).exists()
+            # It feels like new States should not be created here, but I didn't find a good place
+            # for creating states for the first puzzle
+            state = PuzzleTeamState.objects.get_or_create(
+                team,
+                puzzle,
+                defaults={'started_at': now() if team.is_online else None}
+            )
+            puzzle.passed = not state.is_open
             puzzle.current_submissions = puzzle.team_submissions(
                 team).order_by('-submitted_at')
         context['visible_puzzles'] = puzzles
@@ -259,32 +264,34 @@ class GameView(GetTeamMixin, DetailView):
         if not puzzle.can_team_submit(team):
             messages.error(request, 'Odpoveď nie je možné odovzdať')
             return redirect('kos:game')
+        state = PuzzleTeamState.objects.get_or_create(
+            team,
+            puzzle,
+            defaults={'started_at': now() if team.is_online else None}
+        )
         if not puzzle.can_team_see(team):
             # The team can't see the puzzle, so it's an unlock code
-            is_correct = puzzle.check_unlock(answer)
-            Submission.objects.create(
-                puzzle=puzzle,
-                team=team,
-                competitor_answer=Puzzle.clean_text(answer),
-                correct=is_correct,
-                is_submitted_as_unlock_code=True
-            )
+            state.submit_unlock_code(answer)
             return redirect('kos:game')
 
         # The team can see the puzzle, so it's not an unlock code
-        is_correct = puzzle.check_solution(answer)
-        Submission.objects.create(
-            puzzle=puzzle,
-            team=team,
-            competitor_answer=Puzzle.clean_text(answer),
-            correct=is_correct,
-            is_submitted_as_unlock_code=False
-        )
-        if is_correct:
-            team.current_level = max(puzzle.level+1, team.current_level)
-            team.save()
-
+        state.submit_solution(answer)
         return redirect('kos:game')
+
+
+class SkipPuzzleView(GetTeamMixin, UserPassesTestMixin, DetailView):
+    model = Puzzle
+    http_method_names = ['post']
+
+    def post(self, request, *args, **kwargs):
+        state = PuzzleTeamState.objects.get(team=self.team, puzzle=self.puzzle)
+        state.skip_puzzle()
+        return redirect('kos:game')
+
+    def test_func(self):
+        self.puzzle: Puzzle = self.get_object()
+        self.team = self.get_team()
+        return self.puzzle.can_team_skip(self.team)
 
 
 class ResultsView(DetailView):

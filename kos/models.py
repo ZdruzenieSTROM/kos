@@ -88,8 +88,9 @@ class Game(models.Model):
         game_results = {}
         results = self.team_set.filter(is_public=True).annotate(
             last_correct_submission=Max(
-                'submissions__submitted_at', filter=Q(submissions__correct=True, submissions__is_submitted_as_unlock_code=False))
-        ).order_by('-current_level', 'last_correct_submission')
+                'states__ended_at', filter=Q(states__solved=True)),
+            solved_puzzles=Count('states', filter=Q(states__solved=True)),
+        ).order_by('-solved_puzzles', 'last_correct_submission')
         game_results['online_teams'] = self.add_places(
             results.filter(is_online=True))
         game_results['offline_teams'] = self.add_places(
@@ -114,17 +115,20 @@ class Puzzle(models.Model):
         verbose_name='Riešenie v PDF', null=True, blank=True)
     level = models.PositiveIntegerField(verbose_name='Úroveň/Poradie')
     location = models.TextField(null=True)
+    skip_allowed_after = models.DurationField(
+        verbose_name='Skip', help_text='Čas po ktorom je možné preskočiť šifru')
 
     def __str__(self):
         return self.name
 
     def team_submissions(self, team):
         """Vráti pokusy o odovzdanie pre daný tím"""
-        return self.submissions.filter(team=team)
+        return PuzzleTeamState.objects.get(team=team, puzzle=self).submissions
 
     def has_team_passed(self, team):
         """Vráti bool či tím už šifru vyriešil"""
-        return self.submissions.filter(team=team, is_submitted_as_unlock_code=False).aggregate(Max('correct'))['correct__max']
+        state = PuzzleTeamState.objects.get(team=team, puzzle=self)
+        return state is not None and not state.is_open
 
     @staticmethod
     def clean_text(string: str):
@@ -134,16 +138,32 @@ class Puzzle(models.Model):
 
     def team_timeout(self, team):
         """Vráti čas, o ktorý bude daný tím môcť znova odovzdať túto úlohu"""
-        submission = self.team_submissions(team).filter(
+        submissions = self.team_submissions(team).filter(
             correct=False, is_submitted_as_unlock_code=False)
-        if submission.count() < 3:
+        if submissions.count() < 3:
             return timedelta(0)
-        time_of_last_submission = submission.order_by(
+        time_of_last_submission = submissions.order_by(
             '-submitted_at')[0].submitted_at
         return time_of_last_submission + timedelta(seconds=60) - now()
 
     def can_team_submit(self, team):
         return team.current_level >= self.level and not self.team_timeout(team) > timedelta(0) and not self.has_team_passed(team)
+
+    def can_team_skip(self, team):
+        started_at = PuzzleTeamState.objects.get(
+            team=team, puzzle=self).started_at
+        if started_at is None:
+            return False
+        return team.current_level >= self.level and not self.has_team_passed(team) and \
+            started_at + self.skip_allowed_after <= now()
+
+    def team_skip_time(self, team):
+        started_at = PuzzleTeamState.objects.get(
+            team=team, puzzle=self).started_at
+        if started_at is None:
+            return None
+        # TODO: temporary solution for 2023 testing, 15 should be stored on the puzzle
+        return started_at + self.skip_allowed_after + timedelta(minutes=15) * team.get_penalties(self.level)
 
     @staticmethod
     def __check_equal(string1: str, string2: str) -> bool:
@@ -162,11 +182,10 @@ class Puzzle(models.Model):
 
     def can_team_see(self, team):
         """Skontroluje, či tím môže vidieť zadanie šifry"""
-        return team.is_online or self.submissions.filter(
-            team=team,
+        return team.is_online or self.team_submissions(team).filter(
             is_submitted_as_unlock_code=True,
             correct=True
-        ).exists()
+        ).exists()  # TODO: this logic should probably be moved to PuzzleTeamState
 
     def earliest_hint_timeout(self, team):
         """Vráti najskorší čas, kedy sa tímu odomkne nejaký hint
@@ -179,17 +198,25 @@ class Puzzle(models.Model):
         return earliest_hint_timeout
 
     def earliest_timeout(self, team):
-        """Vráti najskorší čas, kedy sa tímu odomkne hint alebo odovzdávanie
+        """Vráti najskorší čas, kedy sa tímu odomkne hint, odovzdávanie alebo skip
         Vráti None ak tím na nič nečaká"""
         earliest_hint_timeout = self.earliest_hint_timeout(team)
         submission_timeout = self.team_timeout(team)
-        if earliest_hint_timeout is None:
-            if submission_timeout <= timedelta(0):
-                return None
-            return submission_timeout
-        if submission_timeout <= timedelta(0):
-            return earliest_hint_timeout
-        return min(earliest_hint_timeout, submission_timeout)
+        skip_time = self.team_skip_time(team)
+
+        relevant_timeouts = []
+        if earliest_hint_timeout is not None:
+            relevant_timeouts.append(earliest_hint_timeout)
+        if submission_timeout > timedelta(0):
+            relevant_timeouts.append(submission_timeout)
+        if skip_time is not None:
+            skip_timeout = skip_time - now()
+            if skip_timeout > timedelta(0):
+                relevant_timeouts.append(skip_timeout)
+
+        if not relevant_timeouts:
+            return None
+        return min(relevant_timeouts)
 
 
 class Hint(models.Model):
@@ -205,6 +232,8 @@ class Hint(models.Model):
         verbose_name='Penalta za predošlé hinty', default=timedelta(0))
     count_as_penalty = models.BooleanField(
         verbose_name='Počíta sa do penalty')
+    is_dead = models.BooleanField(
+        verbose_name='Hint je riešenie', default=False)
     prerequisites = models.ManyToManyField(
         'Hint', verbose_name='Nutné zobrať pred', blank=True)
 
@@ -213,11 +242,8 @@ class Hint(models.Model):
 
     def get_time_to_take(self, team):
         """Zostávajúci čas do hintu"""
-        last_submission = team.get_last_correct_submission_time(
-            answers_only=False)
-        if last_submission is None:
-            last_submission = self.puzzle.game.year.start
-        elapsed_time = now() - last_submission
+        last_submission_time = team.current_puzzle_start_time()
+        elapsed_time = now() - last_submission_time
         minimum_elapsed_time = self.show_after + \
             self.hint_penalty*team.get_penalties(self.puzzle.level)
         return minimum_elapsed_time - elapsed_time
@@ -236,11 +262,7 @@ class Hint(models.Model):
             self.all_prerequisites_met(team)
             and not time_to_take > timedelta(0)
             and not team.hints_taken.filter(pk=self.pk).exists()
-            and not team.submissions.filter(
-                correct=True,
-                is_submitted_as_unlock_code=False,
-                puzzle=self.puzzle
-            ).exists()
+            and not self.puzzle.has_team_passed(team)
             and self.puzzle.can_team_see(team)
         )
 
@@ -277,14 +299,23 @@ class Team(models.Model):
         """Spočíta počet zobratých hintov, ktoré sa rátajú ako penalty"""
         return self.hints_taken.filter(count_as_penalty=True, puzzle__level__lt=on_level).count()
 
-    def get_last_correct_submission_time(self, answers_only=True):
-        """Vráti čas poslednej správne odovzdanej šifry"""
-        submissions = self.submissions.filter(correct=True)
-        if answers_only:
-            submissions = submissions.filter(is_submitted_as_unlock_code=False)
-        return submissions.aggregate(
-            Max('submitted_at')
-        )['submitted_at__max']
+    def current_puzzle_state(self):
+        try:
+            current_puzzle = self.game.puzzle_set.get(level=self.current_level)
+        except Puzzle.DoesNotExist:
+            return None
+        return self.states.get(team=self, puzzle=current_puzzle)
+
+    def current_puzzle_start_time(self):
+        """Vráti čas začiatku riešenia aktuálnej šifry alebo začiatok hry ak tím ešte nezačal riešiť žiadnu šifru"""
+        state = self.current_puzzle_state()
+        if not state or not state.started_at:
+            return self.game.year.start
+        return state.started_at
+
+    def pass_level(self, level: int):
+        self.current_level = max(level + 1, self.current_level)
+        self.save()
 
     def members_joined(self):
         return ', '.join([member.name for member in self.members.all()])
@@ -303,16 +334,75 @@ class TeamMember(models.Model):
         return f'{self.name} ({self.team})'
 
 
+class PuzzleTeamState(models.Model):
+    class Meta:
+        verbose_name = 'Stav tímu na šifre'
+        verbose_name_plural = 'Stavy tímov na šifrách'
+    puzzle = models.ForeignKey(
+        Puzzle, on_delete=models.CASCADE, related_name='states')
+    team = models.ForeignKey(
+        Team, on_delete=models.CASCADE, related_name='states')
+    skipped = models.BooleanField(
+        verbose_name='Tím preskočil šifru', default=False)
+    solved = models.BooleanField(
+        verbose_name='Tím vyriešil šifru', default=False)
+    started_at = models.DateTimeField(
+        verbose_name='Začiatok riešenia', null=True, blank=True, auto_now_add=True)
+    ended_at = models.DateTimeField(
+        verbose_name='Koniec riešenia', null=True, blank=True, default=None)
+
+    @property
+    def is_open(self):
+        return not self.solved and not self.skipped
+
+    @property
+    def is_unlocked(self):
+        return self.started_at is not None
+
+    def skip_puzzle(self):
+        self.skipped = True
+        self.ended_at = now()
+        self.team.pass_level(self.puzzle.level)
+        self.save()
+
+    def solve_puzzle(self):
+        self.solved = True
+        self.ended_at = now()
+        self.team.pass_level(self.puzzle.level)
+        self.save()
+
+    def submit_unlock_code(self, unlock_code: str):
+        is_correct = self.puzzle.check_unlock(unlock_code)
+        Submission.objects.create(
+            puzzle_team_state=self,
+            competitor_answer=Puzzle.clean_text(unlock_code),
+            correct=is_correct,
+            is_submitted_as_unlock_code=True
+        )
+        if is_correct and self.started_at is None:
+            self.started_at = now()
+            self.save()
+
+    def submit_solution(self, team_solution: str):
+        is_correct = self.puzzle.check_solution(team_solution)
+        Submission.objects.create(
+            puzzle_team_state=self,
+            competitor_answer=Puzzle.clean_text(team_solution),
+            correct=is_correct,
+            is_submitted_as_unlock_code=False
+        )
+        if is_correct:
+            self.solve_puzzle()
+
+
 class Submission(models.Model):
     """Pokus o odovzdanie odpovede na šifru"""
 
     class Meta:
         verbose_name = 'odovzdanie šifry'
         verbose_name_plural = 'odovzdania šifier'
-    puzzle = models.ForeignKey(
-        Puzzle, on_delete=models.CASCADE, related_name='submissions')
-    team = models.ForeignKey(
-        Team, on_delete=models.CASCADE, related_name='submissions')
+    puzzle_team_state = models.ForeignKey(
+        PuzzleTeamState, on_delete=models.SET_NULL, null=True, related_name='submissions')
     competitor_answer = models.CharField(max_length=100)
     submitted_at = models.DateTimeField(auto_now=True, auto_created=True)
     correct = models.BooleanField()  # Neviem ci bude nutné nechám na zváženie

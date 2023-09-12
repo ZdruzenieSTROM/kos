@@ -29,6 +29,7 @@ urlpatterns = [
     path('archiv-sifier/aktualne',
          views.PuzzleArchiveLatest.as_view(), name='puzzle-archive-latest'),
     path(r'hint/<int:pk>', views.HintView.as_view(), name='hint'),
+    path(r'skip/<int:pk>', views.SkipPuzzleView.as_view(), name='skip'),
     path(r'sifra/<int:pk>', views.PuzzleView.as_view(), name='puzzle'),
     path(r'riesenie-sifry/<int:pk>',
          views.PuzzleSolutionView.as_view(), name='puzzle-solution'),

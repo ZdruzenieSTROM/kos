@@ -24,7 +24,7 @@
             </div>
         {% endif %}
 
-        {% if not puzzle.correctly_submitted %}
+        {% if not puzzle.passed %}
             <form action="" method="post">
                 {% csrf_token %}
                 {% can_team_submit puzzle team as can_submit %}
@@ -47,33 +47,46 @@
                 {% if hint in team.hints_taken.all %}
                     <div>{{hint.text|safe}}</div>
                 {% else %}
-                    {% if not puzzle.correctly_submitted %}
+                    {% if not puzzle.passed %}
                         <form action="{% url 'kos:hint' pk=hint.pk %}" method="post">
                             {% csrf_token %}
                             {% can_team_take_hint hint team as hint_available %}
                             {% if hint_available %}
-                                <input type="Submit" value="Zobrať {% if hint.count_as_penalty %}nápovedu{%else%}riešenie{%endif%}"
+                                <input type="Submit" value="Zobrať {% if not hint.is_dead %}nápovedu{%else%}riešenie{%endif%}"
                                     class="main-button mb-2"
-                                    onclick="return confirm('Skutočne chcete zobrať {% if hint.count_as_penalty %}nápovedu{% else %}riešenie{% endif %}?');" />
+                                    onclick="return confirm('Skutočne chcete zobrať {% if not hint.is_dead %}nápovedu{% else %}riešenie{% endif %}?');" />
                             {% else %}
                                 {% all_prerequisites_met hint team as prerequisites_met %}
                                 {% if not prerequisites_met %}
                                     <!-- This should probably also say which hint is the unmet prerequisite -->
-                                    <input type="Submit" value="Zobrať {% if hint.count_as_penalty %}nápovedu{%else%}riešenie{%endif%}"
+                                    <input type="Submit" value="Zobrať {% if not hint.is_dead %}nápovedu{%else%}riešenie{%endif%}"
                                         class="main-button main-button__disabled mb-2" disabled />
-                                    Pred {% if hint.count_as_penalty %}touto nápovedou{% else %}riešením{% endif %} je nutné zobrať predošlú nápovedu.
+                                    Pred {% if not hint.is_dead %}touto nápovedou{% else %}riešením{% endif %} je nutné zobrať predošlú nápovedu.
                                 {% else %}
                                     {% get_hint_available_time hint team as hint_availability_time %}
                                     <!-- This needs to be displayed in the client's timezone -->
-                                    <input type="Submit" value="Zobrať {% if hint.count_as_penalty %}nápovedu{%else%}riešenie{%endif%}"
+                                    <input type="Submit" value="Zobrať {% if not hint.is_dead %}nápovedu{%else%}riešenie{%endif%}"
                                         class="main-button main-button__disabled mb-2" disabled />
-                                    {% if hint.count_as_penalty %}Nápoveda{% else %}Riešenie{% endif %} sa dá zobrať o {{hint_availability_time|date:'H:i:s' }}
+                                    {% if not hint.is_dead %}Nápoveda{% else %}Riešenie{% endif %} sa dá zobrať o {{hint_availability_time|date:'H:i:s' }}
                                 {% endif %}
                             {% endif %}
                         </form>
                     {% endif %}
                 {% endif %}
             {% endfor %}
+                {% if not puzzle.passed %}
+                    <form action="{% url 'kos:skip' pk=puzzle.pk %}" method="post">
+                        {% csrf_token %}
+                        {% can_team_skip puzzle team as can_skip %}
+                        {% if can_skip %}
+                            <input type="Submit" value="Preskočiť" class="main-button" />
+                        {% else %}
+                            <input type="Submit" value="Preskočiť" class="main-button main-button__disabled" disabled />
+                            {% get_team_skip_time puzzle team as skip_availability_time %}
+                            Preskočiť je možné o {{skip_availability_time|date:'H:i:s' }}
+                        {% endif %}
+                    </form>
+                {% endif %}
         {% endif %}
         <h3>Pokusy:</h3>
         {% for submission in puzzle.current_submissions %}
