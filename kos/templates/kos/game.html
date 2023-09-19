@@ -45,7 +45,7 @@
             <h3>Hinty:</h3>
             {% for hint in puzzle.hint_set.all %}
                 {% if hint in team.hints_taken.all %}
-                    <div>{{hint.text|safe}}</div>
+                    <p>{{hint.text|safe}}</p>
                 {% else %}
                     {% if not puzzle.passed %}
                         <form action="{% url 'kos:hint' pk=hint.pk %}" method="post">
