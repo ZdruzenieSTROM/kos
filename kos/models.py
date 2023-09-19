@@ -1,11 +1,11 @@
 
-
+import logging
 from datetime import timedelta
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db import models
-from django.db.models import Max, Q, Count
+from django.db.models import Count, Max, Q
 from django.utils.timezone import now
 from unidecode import unidecode
 
@@ -368,15 +368,20 @@ class PuzzleTeamState(models.Model):
         self.skipped = True
         self.ended_at = now()
         self.team.pass_level(self.puzzle.level)
+        game_logger = logging.getLogger('game')
+        game_logger.info('Team %s: skipped puzzle %s', self.team, self.puzzle)
         self.save()
 
     def solve_puzzle(self):
         self.solved = True
         self.ended_at = now()
         self.team.pass_level(self.puzzle.level)
+        game_logger = logging.getLogger('game')
+        game_logger.info('Team %s: solved puzzle %s', self.team, self.puzzle)
         self.save()
 
     def submit_unlock_code(self, unlock_code: str):
+        game_logger = logging.getLogger('game')
         is_correct = self.puzzle.check_unlock(unlock_code)
         Submission.objects.create(
             puzzle_team_state=self,
@@ -384,8 +389,11 @@ class PuzzleTeamState(models.Model):
             correct=is_correct,
             is_submitted_as_unlock_code=True
         )
+        game_logger.info('Team %s: submitted unlock code %s on puzzle %s',
+                         self.team, unlock_code.upper(), self.puzzle)
         if is_correct and self.started_at is None:
             self.started_at = now()
+            game_logger.info('Team %s: unlocked %s', self.team, self.puzzle)
             self.save()
 
     def submit_solution(self, team_solution: str):
@@ -396,6 +404,9 @@ class PuzzleTeamState(models.Model):
             correct=is_correct,
             is_submitted_as_unlock_code=False
         )
+        game_logger = logging.getLogger('game')
+        game_logger.info('Team %s: submitted solution %s on puzzle %s',
+                         self.team, team_solution.upper(), self.puzzle)
         if is_correct:
             self.solve_puzzle()
 
