@@ -14,8 +14,8 @@ class TeamMemberInline(admin.TabularInline):
 
 @admin.register(models.Team)
 class TeamAdmin(admin.ModelAdmin):
-    list_display = ('name', 'game', 'is_online')
-    list_filter = ('game', 'is_online')
+    list_display = ('name', 'game', 'is_online', 'paid')
+    list_filter = ('game', 'is_online', 'paid')
     inlines = [TeamMemberInline]
 
 

@@ -289,7 +289,8 @@ class Team(models.Model):
     email = models.EmailField(null=True, blank=True)
     current_level = models.PositiveSmallIntegerField(default=1)
     game = models.ForeignKey(Game, on_delete=models.CASCADE)
-    is_online = models.BooleanField(default=False)
+    is_online = models.BooleanField(
+        verbose_name='Je tím online', default=False)
     hints_taken = models.ManyToManyField(
         Hint, verbose_name='Zobraté hinty', blank=True)
     paid = models.BooleanField(verbose_name='Poplatok uhradený', default=False)
