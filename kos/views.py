@@ -1,7 +1,7 @@
 
 
 import json
-from typing import Optional
+from typing import Any, Optional
 
 from allauth.account.models import EmailAddress
 from allauth.account.signals import email_confirmed
@@ -465,3 +465,38 @@ class TeamInfoView(GetTeamMixin, FormView):
         team.save()
 
         return super().form_valid(form)
+
+
+class StatisticsView(DetailView):
+    model = Year
+    template_name = 'kos/statistics.html'
+
+    def generate_statistics_matrix(self):
+        num_puzzles = self.object.puzzle_set.count()
+        return [
+            {
+                'team': team.name,
+                'puzzles': [
+                    {
+                        'solved_at': state.ended_at,
+                        'solving_time': state.ended_at-state.started_at if state.ended_at else None,
+                        'skipped': state.skipped,
+                        'hints': state.count_hints()
+                    }
+                    for state in team.states.all()
+                ] + [
+                    {
+                        'solved_at': None,
+                        'solving_time': None,
+                        'skipped': None,
+                        'hints': None
+                    }
+                ]*(num_puzzles-team.states.count())
+            }
+            for team in self.object.team_set.all()
+        ]
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['matrix'] = self.generate_statistics_matrix()
+        return context
