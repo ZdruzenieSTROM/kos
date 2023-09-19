@@ -471,8 +471,9 @@ class StatisticsView(DetailView):
     model = Year
     template_name = 'kos/statistics.html'
 
-    def generate_statistics_matrix(self):
-        num_puzzles = self.object.puzzle_set.count()
+    def generate_statistics_matrix(self, game: Game):
+
+        num_puzzles = game.puzzle_set.count()
         return [
             {
                 'team': team.name,
@@ -493,10 +494,15 @@ class StatisticsView(DetailView):
                     }
                 ]*(num_puzzles-team.states.count())
             }
-            for team in self.object.team_set.all()
+            for team in game.team_set.all()
         ]
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['matrix'] = self.generate_statistics_matrix()
+        context['stats'] = []
+        for game in self.object.games:
+            context['stats'].append(
+                {'game': game.name,
+                 'matrix': self.generate_statistics_matrix(game)
+                 })
         return context
