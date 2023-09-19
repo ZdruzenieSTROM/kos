@@ -4,9 +4,13 @@
 
 {% block content %}
 <h2>Registrácia tímu</h2>
-<form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit" class="main-button">Registruj</button>
-</form>
+{% if form.fields.game.queryset %}
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="main-button">Registruj</button>
+    </form>
+{% else %}
+    <p>Práve neprebieha registrácia na žiadnu súťaž.</p>
+{% endif %}
 {% endblock %}
