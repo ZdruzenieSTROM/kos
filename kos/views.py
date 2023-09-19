@@ -236,10 +236,9 @@ class GameView(GetTeamMixin, DetailView):
             # It feels like new States should not be created here, but I didn't find a good place
             # for creating states for the first puzzle
             # get_or_create returns the object and a boolean indicating if it was created, we only need the object
-            state, _ = PuzzleTeamState.objects.get_or_create(
+            state = PuzzleTeamState.get_or_create(
                 team=team,
-                puzzle=puzzle,
-                defaults={'started_at': now() if team.is_online else None}
+                puzzle=puzzle
             )
             puzzle.passed = not state.is_open
             puzzle.current_submissions = puzzle.team_submissions(
@@ -266,10 +265,9 @@ class GameView(GetTeamMixin, DetailView):
             messages.error(request, 'Odpoveď nie je možné odovzdať')
             return redirect('kos:game')
         # get_or_create returns the object and a boolean indicating if it was created, we only need the object
-        state, _ = PuzzleTeamState.objects.get_or_create(
+        state = PuzzleTeamState.get_or_create(
             team=team,
-            puzzle=puzzle,
-            defaults={'started_at': now() if team.is_online else None}
+            puzzle=puzzle
         )
         if not puzzle.can_team_see(team):
             # The team can't see the puzzle, so it's an unlock code

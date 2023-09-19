@@ -5,7 +5,7 @@ from datetime import timedelta
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db import models
-from django.db.models import Max, Q, Count
+from django.db.models import Count, Max, Q
 from django.utils.timezone import now
 from unidecode import unidecode
 
@@ -363,6 +363,19 @@ class PuzzleTeamState(models.Model):
     @property
     def is_unlocked(self):
         return self.started_at is not None
+
+    @classmethod
+    def get_or_create(cls, team: Team, puzzle: Puzzle):
+        if team.is_online:
+            start = now() if puzzle.level > 1 else puzzle.game.year.start
+        else:
+            start = None
+        state, _ = PuzzleTeamState.objects.get_or_create(
+            team=team,
+            puzzle=puzzle,
+            defaults={'started_at': start}
+        )
+        return state
 
     def skip_puzzle(self):
         self.skipped = True
