@@ -86,7 +86,11 @@ class Game(models.Model):
 
     def generate_results(self):
         game_results = {}
-        results = self.team_set.filter(is_public=True).annotate(
+        public_condition = Q(is_public=True)
+        email_verified_condition = Q(user__emailaddress__verified=True)
+        # We want to also display teams with no email address or no user, for example if we delete the users manually
+        no_email_condition = Q(user__emailaddress=None)
+        results = self.team_set.filter(public_condition & (email_verified_condition | no_email_condition)).annotate(
             last_correct_submission=Max(
                 'states__ended_at', filter=Q(states__solved=True)),
             solved_puzzles=Count('states', filter=Q(states__solved=True)),
