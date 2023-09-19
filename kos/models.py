@@ -5,7 +5,7 @@ from datetime import timedelta
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db import models
-from django.db.models import Max, Q
+from django.db.models import Max, Q, Count
 from django.utils.timezone import now
 from unidecode import unidecode
 
@@ -63,21 +63,21 @@ class Game(models.Model):
     def add_places(self, results):
         current_place = 1
         previous_last_correct_submission = None
-        previous_level = None
+        previous_solved = None
         results_list = []
         for i, result_row in enumerate(results):
             if previous_last_correct_submission != result_row.last_correct_submission \
-                    or previous_level != result_row.current_level:
+                    or previous_solved != result_row.solved_puzzles:
                 current_place = i+1
                 previous_last_correct_submission = result_row.last_correct_submission
-                previous_level = result_row.current_level
+                previous_solved = result_row.solved_puzzles
             result_row.place = current_place
             results_list.append(
                 {
                     'place': current_place,
                     'name': result_row.name,
                     'members_joined': result_row.members_joined(),
-                    'current_level': result_row.current_level,
+                    'solved_puzzles': result_row.solved_puzzles,
                     'last_correct_submission': result_row.last_correct_submission
 
                 }
@@ -86,7 +86,11 @@ class Game(models.Model):
 
     def generate_results(self):
         game_results = {}
-        results = self.team_set.filter(is_public=True).annotate(
+        public_condition = Q(is_public=True)
+        email_verified_condition = Q(user__emailaddress__verified=True)
+        # We want to also display teams with no email address or no user, for example if we delete the users manually
+        no_email_condition = Q(user__emailaddress=None)
+        results = self.team_set.filter(public_condition & (email_verified_condition | no_email_condition)).annotate(
             last_correct_submission=Max(
                 'states__ended_at', filter=Q(states__solved=True)),
             solved_puzzles=Count('states', filter=Q(states__solved=True)),
