@@ -352,7 +352,7 @@ class PuzzleTeamState(models.Model):
     solved = models.BooleanField(
         verbose_name='Tím vyriešil šifru', default=False)
     started_at = models.DateTimeField(
-        verbose_name='Začiatok riešenia', null=True, blank=True, auto_now_add=True)
+        verbose_name='Začiatok riešenia', null=True, blank=True)
     ended_at = models.DateTimeField(
         verbose_name='Koniec riešenia', null=True, blank=True, default=None)
 
@@ -363,6 +363,19 @@ class PuzzleTeamState(models.Model):
     @property
     def is_unlocked(self):
         return self.started_at is not None
+
+    @classmethod
+    def get_or_create(cls, team: Team, puzzle: Puzzle):
+        if team.is_online:
+            start = now() if puzzle.level > 1 else puzzle.game.year.start
+        else:
+            start = None
+        state, _ = PuzzleTeamState.objects.get_or_create(
+            team=team,
+            puzzle=puzzle,
+            defaults={'started_at': start}
+        )
+        return state
 
     def skip_puzzle(self):
         self.skipped = True
