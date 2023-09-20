@@ -1,6 +1,7 @@
 
 
 import json
+import logging
 from typing import Optional
 
 from allauth.account.models import EmailAddress
@@ -336,7 +337,11 @@ class HintView(GetTeamMixin, UserPassesTestMixin,  DetailView):
 
     def post(self, request, *args, **kwargs):
         """Pridaj hint"""
-        self.get_team().hints_taken.add(self.get_object())
+        hint: Hint = self.get_object()
+        team = self.get_team()
+        game_logger = logging.getLogger('game')
+        game_logger.info('Team %s: took hint %s', team, hint)
+        team.hints_taken.add(hint)
         return redirect('kos:game')
 
     def handle_no_permission(self):

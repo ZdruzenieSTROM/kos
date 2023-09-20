@@ -153,3 +153,48 @@ EMAIL_FILE_PATH = BASE_DIR / 'emails'
 
 
 SOLUTION_DELIMITER = ','
+
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "verbose": {
+            "format": "{asctime} {name}: {levelname} - {message}",
+            "style": "{",
+        },
+        "simple": {
+            "format": "{asctime} {message}",
+            "style": "{",
+        },
+    },
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+            "formatter": "verbose",
+        },
+        "file": {
+            "level": "INFO",
+            "class": "logging.FileHandler",
+            "filename": "game.log",
+            "encoding": "utf-8",
+            "formatter": "simple",
+        },
+    },
+    "root": {
+        "handlers": ["console"],
+        "level": "WARNING",
+    },
+    "loggers": {
+        "django": {
+            "handlers": ["console"],
+            "level": os.getenv("DJANGO_LOG_LEVEL", "INFO"),
+            "propagate": False,
+        },
+        "game": {
+            "handlers": ["console", "file"],
+            "level": "INFO",
+            "propagate": False,
+        }
+    },
+}
