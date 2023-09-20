@@ -352,7 +352,7 @@ class PuzzleTeamState(models.Model):
     solved = models.BooleanField(
         verbose_name='Tím vyriešil šifru', default=False)
     started_at = models.DateTimeField(
-        verbose_name='Začiatok riešenia', null=True, blank=True, auto_now_add=True)
+        verbose_name='Začiatok riešenia', null=True, blank=True)
     ended_at = models.DateTimeField(
         verbose_name='Koniec riešenia', null=True, blank=True, default=None)
 
