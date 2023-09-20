@@ -235,7 +235,6 @@ class GameView(GetTeamMixin, DetailView):
             # but I couldn't make it work
             # It feels like new States should not be created here, but I didn't find a good place
             # for creating states for the first puzzle
-            # get_or_create returns the object and a boolean indicating if it was created, we only need the object
             state = PuzzleTeamState.get_or_create(
                 team=team,
                 puzzle=puzzle
@@ -264,7 +263,6 @@ class GameView(GetTeamMixin, DetailView):
         if not puzzle.can_team_submit(team):
             messages.error(request, 'Odpoveď nie je možné odovzdať')
             return redirect('kos:game')
-        # get_or_create returns the object and a boolean indicating if it was created, we only need the object
         state = PuzzleTeamState.get_or_create(
             team=team,
             puzzle=puzzle
