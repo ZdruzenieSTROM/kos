@@ -5,7 +5,7 @@ from datetime import timedelta
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db import models
-from django.db.models import Max, Q, Count
+from django.db.models import Count, Max, Q
 from django.utils.timezone import now
 from unidecode import unidecode
 
@@ -398,6 +398,9 @@ class PuzzleTeamState(models.Model):
         )
         if is_correct:
             self.solve_puzzle()
+
+    def count_hints(self):
+        return self.team.hints_taken.filter(puzzle=self.puzzle).count()
 
 
 class Submission(models.Model):
