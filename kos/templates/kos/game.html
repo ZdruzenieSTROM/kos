@@ -79,7 +79,8 @@
                         {% csrf_token %}
                         {% can_team_skip puzzle team as can_skip %}
                         {% if can_skip %}
-                            <input type="Submit" value="Preskočiť" class="main-button" />
+                            <input type="Submit" value="Preskočiť" class="main-button"
+                                onclick="return confirm('Skutočne chcete šifru preskočiť? Táto šifra sa nebude rátať medzi vyriešené.');" />
                         {% else %}
                             <input type="Submit" value="Preskočiť" class="main-button main-button__disabled" disabled />
                             {% get_team_skip_time puzzle team as skip_availability_time %}
