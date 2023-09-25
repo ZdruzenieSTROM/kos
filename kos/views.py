@@ -130,22 +130,21 @@ class SignUpView(FormView):
         return super().form_valid(form)
 
 
-class PuzzleView(UserPassesTestMixin, GetTeamMixin, DetailView):
+class PuzzleView(UserPassesTestMixin, DetailView):
     """Vráti PDF so šifrou"""
     model = Puzzle
 
     def test_func(self):
         puzzle = self.get_object()
         puzzle_year = puzzle.game.year
-        team = self.get_team()
-        team_year = None
+        team = self.request.user.team if self.request.user.is_authenticated and hasattr(
+            self.request.user, 'team') else None
+        team_year = team.game.year if team is not None else None
         if self.request.user.is_staff:
             return True
-        if self.request.user.is_authenticated and team is not None:
-            team_year = team.game.year
         if puzzle_year.solutions_public and (puzzle_year.is_public or puzzle_year == team_year):
             return True
-        if not self.request.user.is_authenticated or team is None:
+        if team is None:
             return False
         return team.current_level >= puzzle.level and puzzle.can_team_see(team)
 
@@ -154,19 +153,18 @@ class PuzzleView(UserPassesTestMixin, GetTeamMixin, DetailView):
         return FileResponse(puzzle.file)
 
 
-class PuzzleSolutionView(UserPassesTestMixin, GetTeamMixin, DetailView):
+class PuzzleSolutionView(UserPassesTestMixin, DetailView):
     """Vráti PDF so šifrou"""
     model = Puzzle
 
     def test_func(self):
         puzzle = self.get_object()
         puzzle_year = puzzle.game.year
-        team = self.get_team()
-        team_year = None
+        team = self.request.user.team if self.request.user.is_authenticated and hasattr(
+            self.request.user, 'team') else None
+        team_year = team.game.year if team is not None else None
         if self.request.user.is_staff:
             return True
-        if self.request.user.is_authenticated and team is not None:
-            team_year = team.game.year
         return puzzle_year.solutions_public and (puzzle_year.is_public or puzzle_year == team_year)
 
     def get(self, request, *args, **kwargs):
