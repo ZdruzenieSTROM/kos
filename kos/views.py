@@ -49,14 +49,13 @@ def logout_view(request):
     return redirect('kos:game')
 
 
-class GetTeamMixin(LoginRequiredMixin):
-    """Support for resolving team"""
-    login_url = reverse_lazy('kos:login')
+class GetTeamMixin():
+    """Support for resolving a team for any user"""
 
     def get_team(self) -> Optional[Team]:
         """Resolve team from game and user"""
         # TODO: Allow multiple teams for user maybe
-        return self.request.user.team if hasattr(self.request.user, 'team') else None
+        return getattr(self.request.user, 'team', None)
 
 
 class LoginFormView(LoginView):
@@ -138,14 +137,12 @@ class PuzzleView(UserPassesTestMixin, GetTeamMixin, DetailView):
         puzzle = self.get_object()
         puzzle_year = puzzle.game.year
         team = self.get_team()
-        team_year = None
+        team_year = team.game.year if team is not None else None
         if self.request.user.is_staff:
             return True
-        if self.request.user.is_authenticated and team is not None:
-            team_year = team.game.year
         if puzzle_year.solutions_public and (puzzle_year.is_public or puzzle_year == team_year):
             return True
-        if not self.request.user.is_authenticated or team is None:
+        if team is None:
             return False
         return team.current_level >= puzzle.level and puzzle.can_team_see(team)
 
@@ -162,11 +159,9 @@ class PuzzleSolutionView(UserPassesTestMixin, GetTeamMixin, DetailView):
         puzzle = self.get_object()
         puzzle_year = puzzle.game.year
         team = self.get_team()
-        team_year = None
+        team_year = team.game.year if team is not None else None
         if self.request.user.is_staff:
             return True
-        if self.request.user.is_authenticated and team is not None:
-            team_year = team.game.year
         return puzzle_year.solutions_public and (puzzle_year.is_public or puzzle_year == team_year)
 
     def get(self, request, *args, **kwargs):
@@ -178,7 +173,6 @@ class BeforeGameView(LoginRequiredMixin, DetailView):
     """Zobrazí sa tímu pred začiatkom hry"""
     model = Game
     template_name = 'kos/before_game.html'
-    login_url = reverse_lazy('kos:login')
     context_object_name = 'game'
 
     def get(self, request, *args, **kwargs):
@@ -193,7 +187,6 @@ class AfterGameView(LoginRequiredMixin, DetailView):
     """Zobrazí sa tímu po konci hry"""
     model = Game
     template_name = 'kos/after_game.html'
-    login_url = reverse_lazy('kos:login')
     context_object_name = 'game'
 
     def get(self, request, *args, **kwargs):
@@ -204,7 +197,7 @@ class AfterGameView(LoginRequiredMixin, DetailView):
         return response
 
 
-class GameView(GetTeamMixin, DetailView):
+class GameView(LoginRequiredMixin, GetTeamMixin, DetailView):
     """View current game state"""
     model = Game
     template_name = 'kos/game.html'
@@ -278,7 +271,7 @@ class GameView(GetTeamMixin, DetailView):
         return redirect('kos:game')
 
 
-class SkipPuzzleView(GetTeamMixin, UserPassesTestMixin, DetailView):
+class SkipPuzzleView(LoginRequiredMixin, GetTeamMixin, UserPassesTestMixin, DetailView):
     model = Puzzle
     http_method_names = ['post']
 
@@ -322,7 +315,7 @@ class ResultsView(DetailView):
         return context
 
 
-class HintView(GetTeamMixin, UserPassesTestMixin,  DetailView):
+class HintView(LoginRequiredMixin, GetTeamMixin, UserPassesTestMixin,  DetailView):
     """Vezme hint"""
     model = Hint
 
@@ -397,7 +390,7 @@ class PuzzleArchiveLatest(PuzzleArchiveView, GetTeamMixin):
             is_public=True).order_by('-end').first()
 
 
-class TeamInfoView(GetTeamMixin, FormView):
+class TeamInfoView(LoginRequiredMixin, GetTeamMixin, FormView):
     """Team profile"""
     form_class = EditTeamForm
     success_url = reverse_lazy("kos:change-profile")
