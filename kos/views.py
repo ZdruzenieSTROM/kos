@@ -129,15 +129,14 @@ class SignUpView(FormView):
         return super().form_valid(form)
 
 
-class PuzzleView(UserPassesTestMixin, DetailView):
+class PuzzleView(UserPassesTestMixin, GetTeamMixin, DetailView):
     """Vráti PDF so šifrou"""
     model = Puzzle
 
     def test_func(self):
         puzzle = self.get_object()
         puzzle_year = puzzle.game.year
-        team = self.request.user.team if self.request.user.is_authenticated and hasattr(
-            self.request.user, 'team') else None
+        team = self.get_team()
         team_year = team.game.year if team is not None else None
         if self.request.user.is_staff:
             return True
@@ -152,15 +151,14 @@ class PuzzleView(UserPassesTestMixin, DetailView):
         return FileResponse(puzzle.file)
 
 
-class PuzzleSolutionView(UserPassesTestMixin, DetailView):
+class PuzzleSolutionView(UserPassesTestMixin, GetTeamMixin, DetailView):
     """Vráti PDF so šifrou"""
     model = Puzzle
 
     def test_func(self):
         puzzle = self.get_object()
         puzzle_year = puzzle.game.year
-        team = self.request.user.team if self.request.user.is_authenticated and hasattr(
-            self.request.user, 'team') else None
+        team = self.get_team()
         team_year = team.game.year if team is not None else None
         if self.request.user.is_staff:
             return True
