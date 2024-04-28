@@ -2,12 +2,16 @@
 
 from .test_settings import *
 
+
 def secret(secret_name: str) -> str:
     secret_path = BASE_DIR / '.secrets' / secret_name
 
     return secret_path.read_text()
 
+
 DEBUG = False
+
+SECRET_KEY = secret('django_secret_key.txt')
 
 ADMINS = [('Kovacs', 'kovacs@strom.sk'), ('Masrna', 'michal.masrna@strom.sk')]
 
