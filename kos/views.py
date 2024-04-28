@@ -49,14 +49,18 @@ def logout_view(request):
     return redirect('kos:game')
 
 
-class GetTeamMixin(LoginRequiredMixin):
+class GetTeamMixin:
     """Support for resolving team"""
-    login_url = reverse_lazy('kos:login')
 
     def get_team(self) -> Optional[Team]:
         """Resolve team from game and user"""
         # TODO: Allow multiple teams for user maybe
         return self.request.user.team if hasattr(self.request.user, 'team') else None
+
+
+class GetLoggedInTeamMixin(LoginRequiredMixin, GetTeamMixin):
+    """Support for resolving team"""
+    login_url = reverse_lazy('kos:login')
 
 
 class LoginFormView(LoginView):
@@ -130,7 +134,7 @@ class SignUpView(FormView):
         return super().form_valid(form)
 
 
-class PuzzleView(UserPassesTestMixin, DetailView):
+class PuzzleView(UserPassesTestMixin, GetTeamMixin, DetailView):
     """Vráti PDF so šifrou"""
     model = Puzzle
 
@@ -202,7 +206,7 @@ class AfterGameView(LoginRequiredMixin, DetailView):
         return response
 
 
-class GameView(GetTeamMixin, DetailView):
+class GameView(GetLoggedInTeamMixin, DetailView):
     """View current game state"""
     model = Game
     template_name = 'kos/game.html'
@@ -276,7 +280,7 @@ class GameView(GetTeamMixin, DetailView):
         return redirect('kos:game')
 
 
-class SkipPuzzleView(GetTeamMixin, UserPassesTestMixin, DetailView):
+class SkipPuzzleView(GetLoggedInTeamMixin, UserPassesTestMixin, DetailView):
     model = Puzzle
     http_method_names = ['post']
 
@@ -320,7 +324,7 @@ class ResultsView(DetailView):
         return context
 
 
-class HintView(GetTeamMixin, UserPassesTestMixin,  DetailView):
+class HintView(GetLoggedInTeamMixin, UserPassesTestMixin,  DetailView):
     """Vezme hint"""
     model = Hint
 
@@ -349,7 +353,7 @@ class ResultsLatexExportView(ResultsView):
     template_name = 'kos/results.tex'
 
 
-class ResultsLatestView(ResultsView, GetTeamMixin):
+class ResultsLatestView(ResultsView, GetLoggedInTeamMixin):
     """Výsledky poslednej šiforvačky"""
     template_name = 'kos/results.html'
 
@@ -361,7 +365,7 @@ class ResultsLatestView(ResultsView, GetTeamMixin):
             is_public=True).order_by('-end').first()
 
 
-class ArchiveView(ListView, GetTeamMixin):
+class ArchiveView(ListView, GetLoggedInTeamMixin):
     """Archive of old games"""
     template_name = 'kos/archive.html'
     context_object_name = 'years'
@@ -385,7 +389,7 @@ class PuzzleArchiveView(DetailView):
         is_public=True)
 
 
-class PuzzleArchiveLatest(PuzzleArchiveView, GetTeamMixin):
+class PuzzleArchiveLatest(PuzzleArchiveView, GetLoggedInTeamMixin):
 
     def get_object(self, *args, **kwargs):
         team = self.get_team()
@@ -395,7 +399,7 @@ class PuzzleArchiveLatest(PuzzleArchiveView, GetTeamMixin):
             is_public=True).order_by('-end').first()
 
 
-class TeamInfoView(GetTeamMixin, FormView):
+class TeamInfoView(GetLoggedInTeamMixin, FormView):
     """Team profile"""
     form_class = EditTeamForm
     success_url = reverse_lazy("kos:change-profile")
