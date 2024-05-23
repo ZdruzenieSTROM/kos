@@ -11,15 +11,18 @@ services:
     volumes:
       - "staticfiles:/app/static"
       - type: "bind"
-        source: "./db.sqlite3"
+        source: "/data/www/kos/db.sqlite3"
         target: "/app/db.sqlite3"
       - type: "bind"
-        source: "./media"
+        source: "/data/www/kos/media"
         target: "/app/media"
+      - type: "bind"
+        source: "/data/www/kos/.secrets"
+        target: "/app/.secrets"
     restart: always
 
   static:
-    image: "nginx:1.23"
+    image: "nginx:1.25"
     depends_on:
       - "website"
     ports:
