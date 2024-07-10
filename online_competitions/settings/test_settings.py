@@ -32,7 +32,9 @@ CSRF_TRUSTED_ORIGINS = [
     'https://kos.strom.sk',
     'https://www.kos.strom.sk',
     'http://kostest.strom.sk',
-    'http://www.kostest.strom.sk']
+    'http://www.kostest.strom.sk',
+    'https://kostest.strom.sk',
+    'https://www.kostest.strom.sk']
 
 # Application definition
 
