@@ -6,7 +6,7 @@ from . import views
 app_name = 'kos'
 
 urlpatterns = [
-    path('', flatpage, {'url': '/pravidla/'}, name='home'),
+    path('', flatpage, {'url': '/info/'}, name='home'),
     path('registracia', views.SignUpView.as_view(), name='registration'),
     path('zmena-profilu', views.TeamInfoView.as_view(), name='change-profile'),
     path('zmena-hesla', views.change_password,
@@ -21,8 +21,7 @@ urlpatterns = [
          name='results-latest'),
     path(r'poradie-latex/<int:pk>',
          views.ResultsLatexExportView.as_view(), name='results-latex'),
-    path('pravidla', flatpage, {'url': '/pravidla/'}, name='rules'),
-    path('pokyny', flatpage, {'url': '/pokyny/'}, name='info'),
+    path('info', flatpage, {'url': '/info/'}, name='info'),
     path('archiv', views.ArchiveView.as_view(), name='archive'),
     path(r'archiv-sifier/<int:pk>',
          views.PuzzleArchiveView.as_view(), name='puzzle-archive'),
