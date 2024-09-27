@@ -405,6 +405,7 @@ class TeamInfoView(LoginRequiredMixin, GetTeamMixin, FormView):
     def get_initial(self):
         team = self.get_team()
         init_dict = {
+            'team_name': team.name,
             'is_online': team.is_online
         }
         for i, member in enumerate(team.members.all()):
