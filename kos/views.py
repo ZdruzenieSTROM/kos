@@ -249,9 +249,11 @@ class GameView(LoginRequiredMixin, GetTeamMixin, DetailView):
 
     def post(self, request, *args, **kwargs):
         """Submit answer for puzzle"""
+        answer = request.POST['answer']
+        if answer == '':
+            return redirect('kos:game')
         team = self.get_team()
         puzzle_id = int(request.POST['puzzle'])
-        answer = request.POST['answer']
         # Check if team can submit
         puzzle = Puzzle.objects.get(pk=puzzle_id)
         if not puzzle.can_team_submit(team):
