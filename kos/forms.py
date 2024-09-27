@@ -146,4 +146,8 @@ class EditTeamForm(forms.Form):
         widget=forms.TextInput(attrs={'class': 'form-control main-input'}),
         label='5. člen tímu', required=False
     )
-    is_online = forms.BooleanField(required=False)
+    is_online = forms.BooleanField(
+        required=False,
+        widget=forms.CheckboxInput(attrs={'class': 'checkbox-input'}),
+        label='Chcem riešiť online'
+    )
