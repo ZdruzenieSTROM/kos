@@ -407,6 +407,7 @@ class TeamInfoView(LoginRequiredMixin, GetTeamMixin, FormView):
     def get_initial(self):
         team = self.get_team()
         init_dict = {
+            'team_name': team.name,
             'is_online': team.is_online
         }
         for i, member in enumerate(team.members.all()):
@@ -421,25 +422,31 @@ class TeamInfoView(LoginRequiredMixin, GetTeamMixin, FormView):
         context['paid'] = (
             team.paid if hasattr(team, 'paid') else False
         )
-        context['disabled'] = team.game.year.registration_deadline < now()
+        context['disabled'] = not team.editable
         return context
 
     def post(self, request, *args, **kwargs):
         team = self.get_team()
         if team is None:
             return redirect('kos:game')
-        if team.game.year.registration_deadline < now():
+        if not team.editable:
             messages.error(
                 request, 'Tieto údaje nie je možné meniť po skončení registrácie')
             return redirect('kos:change-profile')
+        # TODO: Check that the team did not change their is_online
+        # status after the registration deadline. Currently this
+        # is only disabled on frontend but can be bypassed.
         return super().post(request, *args, **kwargs)
 
     def get_form(self, form_class=None):
         form = super().get_form(form_class)
         team = self.get_team()
-        if team.game.year.registration_deadline < now():
+        if not team.editable:
             for field in form.fields.values():
                 field.widget.attrs['disabled'] = True
+        # Po konci registracie uz nechceme timu dovolit menit ci je online
+        if team.game.year.registration_deadline < now():
+            form.fields['is_online'].widget.attrs['disabled'] = True
         return form
 
     def form_valid(self, form):

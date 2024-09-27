@@ -297,6 +297,15 @@ class Team(models.Model):
     is_public = models.BooleanField(
         verbose_name='Tím je verejný', default=True)
 
+    @property
+    def editable(self) -> bool:
+        """
+        Vráti, či je ešte možné robiť zmeny v tíme.
+        Aktuálne tímom dovoľujeme meniť meno a členov tímu
+        do konca šifrovačky. Zákaz menenia toho, či je tím
+        online je implementovaný inde."""
+        return self.game.year.end > now()
+
     def __str__(self):
         return f'{self.name}'
 
