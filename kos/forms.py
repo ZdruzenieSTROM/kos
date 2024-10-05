@@ -130,6 +130,9 @@ class CustomResetPasswordFromKey(ResetPasswordKeyForm):
 
 class EditTeamForm(forms.Form):
     """Form na úpravu tímových údajov"""
+    team_name = forms.CharField(
+        widget=forms.TextInput(attrs={'class': 'form-control main-input'}),
+        label='Názov tímu')
     team_member_1 = forms.CharField(
         widget=forms.TextInput(attrs={'class': 'form-control main-input'}),
         label='1. člen tímu')
@@ -146,4 +149,8 @@ class EditTeamForm(forms.Form):
         widget=forms.TextInput(attrs={'class': 'form-control main-input'}),
         label='5. člen tímu', required=False
     )
-    is_online = forms.BooleanField(required=False)
+    is_online = forms.BooleanField(
+        required=False,
+        widget=forms.CheckboxInput(attrs={'class': 'checkbox-input'}),
+        label='Chcem riešiť online'
+    )

@@ -17,4 +17,15 @@
 {% else %}
     <div class="answer-alert error">Platbu za súťaž zatiaľ neevidujeme.</div>
 {% endif %}
+
+<script>
+// TODO: Solve this more properly and also check for this on backend
+// Hack to remove the disable attribute of is_online field on submit
+// Otherwise the value of is_online is not sent at post and the team
+// is marked as offline upon e. g. changing their name after the 
+// registration ends but before the game concludes.
+$("form").submit(function() {
+    $("input").removeAttr("disabled");
+});
+</script>
 {% endblock %}
