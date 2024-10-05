@@ -162,6 +162,7 @@ class Puzzle(models.Model):
             started_at + self.skip_allowed_after <= now()
 
     def team_skip_time(self, team):
+        # TODO: use team.current_puzzle_start_time()
         started_at = PuzzleTeamState.objects.get(
             team=team, puzzle=self).started_at
         if started_at is None:
