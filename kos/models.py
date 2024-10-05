@@ -246,8 +246,7 @@ class Hint(models.Model):
 
     def get_time_to_take(self, team):
         """Zostávajúci čas do hintu"""
-        last_submission_time = team.current_puzzle_start_time()
-        elapsed_time = now() - last_submission_time
+        elapsed_time = now() - team.current_puzzle_start_time()
         minimum_elapsed_time = self.show_after + \
             self.hint_penalty*team.get_penalties(self.puzzle.level)
         return minimum_elapsed_time - elapsed_time
