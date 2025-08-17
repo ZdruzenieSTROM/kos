@@ -8,6 +8,8 @@
     <form method="post">
         {% csrf_token %}
         {{ form.as_p }}
+        <!-- Text inspirovany textom pod registraciou na hlavnej stranke zdruzenia. -->
+        <p>Vyplnením a odoslaním registrácie beriem na vedomie, že poskytnuté osobné údaje budú spracované v súlade so zákonom o ochrane osobných údajov. Bližšie informácie nájdete na <a href="https://strom.sk/strom/gdpr" target="_blank">tomto odkaze</a>.</p>
         <button type="submit" class="main-button">Registruj</button>
     </form>
 {% else %}
