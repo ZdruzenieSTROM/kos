@@ -352,6 +352,10 @@ class PuzzleTeamState(models.Model):
     class Meta:
         verbose_name = 'Stav tímu na šifre'
         verbose_name_plural = 'Stavy tímov na šifrách'
+        constraints = [
+            models.UniqueConstraint(
+                fields=['team', 'puzzle'], name='unique_puzzle_team_state'),
+        ]
     puzzle = models.ForeignKey(
         Puzzle, on_delete=models.CASCADE, related_name='states')
     team = models.ForeignKey(
