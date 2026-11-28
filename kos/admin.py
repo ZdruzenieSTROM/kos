@@ -87,7 +87,8 @@ class TeamAdmin(admin.ModelAdmin):
         """Zmaže používateľov vybraných tímov"""
         return delete_team_users(self, request, queryset, queryset)
 
-    @admin.action(description='Poslať email vybraným tímom')
+    @admin.action(description='Poslať email vybraným tímom',
+                  permissions=['change'])
     def send_email(self, request, queryset):
         """Pošle email každému vybranému tímu zvlášť"""
         teams = list(queryset.select_related('user', 'game__year'))

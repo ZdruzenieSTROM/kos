@@ -5,6 +5,7 @@ from unittest import mock
 from allauth.account.models import EmailAddress
 from django.contrib.admin import helpers
 from django.contrib.auth import get_user_model
+from django.contrib.auth.models import Permission
 from django.core import mail
 from django.core.management import call_command
 from django.test import TestCase, override_settings
@@ -220,6 +221,31 @@ class TeamBulkEmailTests(TestCase):
             **extra,
         }
         return self.client.post(self.url, data, follow=True)
+
+    def _login_staff_with(self, *codenames):
+        staff = User.objects.create_user(
+            'staff', 'staff@example.com', 'x', is_staff=True)
+        staff.user_permissions.set(Permission.objects.filter(
+            content_type__app_label='kos', codename__in=codenames))
+        self.client.force_login(staff)
+
+    def test_view_only_staff_cannot_send(self):
+        self._login_staff_with('view_team')
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 200)
+        action_form = response.context['action_form']
+        if action_form is not None:
+            self.assertNotIn(
+                'send_email', dict(action_form.fields['action'].choices))
+        self._post([self.team_own_email], apply='1',
+                   subject='Info', body='<p>Ahoj</p>')
+        self.assertEqual(len(mail.outbox), 0)
+
+    def test_staff_with_change_permission_can_send(self):
+        self._login_staff_with('view_team', 'change_team')
+        self._post([self.team_own_email], apply='1',
+                   subject='Info', body='<p>Ahoj</p>')
+        self.assertEqual(len(mail.outbox), 1)
 
     def test_contact_email_fallback(self):
         self.assertEqual(self.team_own_email.contact_email, 'team@example.com')
