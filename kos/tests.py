@@ -10,7 +10,7 @@ from django.urls import reverse
 from django.utils.timezone import now
 
 from kos.forms import RegisterForm
-from kos.models import Game, Team, Year
+from kos.models import Game, Puzzle, PuzzleTeamState, Team, Year
 
 User = get_user_model()
 
@@ -179,3 +179,55 @@ class OnlineLockAfterDeadlineTest(TestCase):
         self.make_team(is_online=True)
         response = self.client.get(self.url)
         self.assertTrue(response.context['form'].fields['is_online'].disabled)
+
+
+class SubmitAfterGameEndTest(TestCase):
+    """Po konci hry sa nesmie dať odovzdať riešenie, ani keď má tím
+    ešte načítanú stránku (regresia pre issue #152)."""
+
+    def setUp(self):
+        current = now()
+        self.year = Year.objects.create(
+            name='Kos test',
+            start=current - timedelta(hours=5),
+            end=current + timedelta(hours=1),
+            is_public=True,
+            is_active=True,
+            registration_deadline=current - timedelta(days=1),
+        )
+        self.game = Game.objects.create(name='Hlavná', year=self.year)
+        self.puzzle = Puzzle.objects.create(
+            name='Šifra', game=self.game, solution='RIESENIE',
+            unlock_code='KOD', file='zadanie.pdf', level=1,
+            skip_allowed_after=timedelta(0))
+        self.user = User.objects.create_user(
+            'team@example.com', 'team@example.com', 'tajneheslo123')
+        self.team = Team.objects.create(
+            name='Tím', user=self.user, game=self.game, is_online=True)
+        PuzzleTeamState.get_or_create(team=self.team, puzzle=self.puzzle)
+        self.client.force_login(self.user)
+
+    def end_game(self):
+        self.year.end = now() - timedelta(minutes=1)
+        self.year.save()
+
+    def test_can_submit_during_game(self):
+        self.assertTrue(self.puzzle.can_team_submit(self.team))
+        self.assertTrue(self.puzzle.can_team_skip(self.team))
+
+    def test_cannot_submit_or_skip_after_end(self):
+        self.end_game()
+        self.puzzle.refresh_from_db()
+        self.assertFalse(self.puzzle.can_team_submit(self.team))
+        self.assertFalse(self.puzzle.can_team_skip(self.team))
+
+    def test_post_after_end_is_rejected(self):
+        self.end_game()
+        self.client.post(reverse('kos:game'), {
+            'answer': 'RIESENIE', 'puzzle': self.puzzle.pk})
+        state = PuzzleTeamState.objects.get(
+            team=self.team, puzzle=self.puzzle)
+        self.assertFalse(state.solved)
+        self.assertFalse(state.submissions.exists())
+        self.team.refresh_from_db()
+        self.assertEqual(self.team.current_level, 1)

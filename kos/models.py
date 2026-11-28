@@ -35,6 +35,10 @@ class Year(models.Model):
     def __str__(self):
         return self.name
 
+    def is_running(self) -> bool:
+        """Vráti, či práve prebieha hra (medzi začiatkom a koncom)"""
+        return self.start <= now() <= self.end
+
 
 class Game(models.Model):
     """Šifrovacia hra/ ročník šifrovačky"""
@@ -150,10 +154,19 @@ class Puzzle(models.Model):
             '-submitted_at')[0].submitted_at
         return time_of_last_submission + timedelta(seconds=60) - now()
 
+    def is_game_running(self) -> bool:
+        """Vráti, či hra, do ktorej šifra patrí, práve prebieha"""
+        return self.game is not None and self.game.year is not None \
+            and self.game.year.is_running()
+
     def can_team_submit(self, team):
-        return team.current_level >= self.level and not self.team_timeout(team) > timedelta(0) and not self.has_team_passed(team)
+        return self.is_game_running() and team.current_level >= self.level \
+            and not self.team_timeout(team) > timedelta(0) \
+            and not self.has_team_passed(team)
 
     def can_team_skip(self, team):
+        if not self.is_game_running():
+            return False
         started_at = PuzzleTeamState.objects.get(
             team=team, puzzle=self).started_at
         if started_at is None:
@@ -263,7 +276,8 @@ class Hint(models.Model):
     def can_team_take(self, team):
         time_to_take = self.get_time_to_take(team)
         return (
-            self.all_prerequisites_met(team)
+            self.puzzle.is_game_running()
+            and self.all_prerequisites_met(team)
             and not time_to_take > timedelta(0)
             and not team.hints_taken.filter(pk=self.pk).exists()
             and not self.puzzle.has_team_passed(team)
