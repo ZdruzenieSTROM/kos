@@ -1,4 +1,4 @@
-FROM python:3.8.2
+FROM python:3.13
 
 ARG SETTINGS_MODULE=online_competitions.settings.prod_settings
 
@@ -9,7 +9,6 @@ WORKDIR /app
 COPY requirements.txt /app/
 
 RUN ["pip", "install", "-r", "requirements.txt"]
-RUN ["pip", "install", "daphne"]
 
 COPY . /app/
 

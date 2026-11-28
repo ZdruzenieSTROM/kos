@@ -30,15 +30,23 @@ class Migration(migrations.Migration):
             field=models.DurationField(default=datetime.timedelta(0), help_text='Čas po ktorom je možné preskočiť šifru', verbose_name='Skip'),
             preserve_default=False,
         ),
-        migrations.AddField(
-            model_name='team',
-            name='is_public',
-            field=models.BooleanField(default=True, verbose_name='Tím je verejný'),
-        ),
-        migrations.AddField(
-            model_name='year',
-            name='photo_url',
-            field=models.TextField(blank=True, null=True, verbose_name='Link na fotogalériu'),
+        # The same two fields are also added by the parallel migration
+        # 0029_game_frozen_results_json_team_is_public_and_more, which creates
+        # the DB columns. Here they only update migration state, otherwise a
+        # fresh `migrate` fails with "duplicate column name".
+        migrations.SeparateDatabaseAndState(
+            state_operations=[
+                migrations.AddField(
+                    model_name='team',
+                    name='is_public',
+                    field=models.BooleanField(default=True, verbose_name='Tím je verejný'),
+                ),
+                migrations.AddField(
+                    model_name='year',
+                    name='photo_url',
+                    field=models.TextField(blank=True, null=True, verbose_name='Link na fotogalériu'),
+                ),
+            ],
         ),
         migrations.CreateModel(
             name='PuzzleTeamState',

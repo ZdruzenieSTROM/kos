@@ -2,7 +2,7 @@
 
 import datetime
 from django.db import migrations, models
-from django.utils.timezone import utc
+
 
 
 class Migration(migrations.Migration):
@@ -15,7 +15,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='year',
             name='registration_deadline',
-            field=models.DateTimeField(default=datetime.datetime(2023, 8, 21, 16, 40, 0, 820558, tzinfo=utc), verbose_name='Registrácia do'),
+            field=models.DateTimeField(default=datetime.datetime(2023, 8, 21, 16, 40, 0, 820558, tzinfo=datetime.timezone.utc), verbose_name='Registrácia do'),
             preserve_default=False,
         ),
     ]

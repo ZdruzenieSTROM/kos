@@ -6,7 +6,6 @@ from typing import Optional
 
 from allauth.account.models import EmailAddress
 from allauth.account.signals import email_confirmed
-from allauth.account.utils import send_email_confirmation
 from django.contrib import messages
 from django.contrib.auth import logout, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
@@ -99,7 +98,7 @@ class SignUpView(FormView):
             user = User.objects.create_user(email, email, password)
             user.is_active = False
             user.save()
-            EmailAddress.objects.create(
+            email_address = EmailAddress.objects.create(
                 user=user, email=email, primary=True, verified=False)
         except IntegrityError:
             messages.error(
@@ -125,7 +124,7 @@ class SignUpView(FormView):
                 name=member_name,
                 team=team
             )
-        send_email_confirmation(self.request, user, True)
+        email_address.send_confirmation(self.request, signup=True)
         return super().form_valid(form)
 
 
