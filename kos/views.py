@@ -427,9 +427,6 @@ class TeamInfoView(LoginRequiredMixin, GetTeamMixin, FormView):
             messages.error(
                 request, 'Tieto údaje nie je možné meniť po skončení registrácie')
             return redirect('kos:change-profile')
-        # TODO: Check that the team did not change their is_online
-        # status after the registration deadline. Currently this
-        # is only disabled on frontend but can be bypassed.
         return super().post(request, *args, **kwargs)
 
     def get_form(self, form_class=None):
@@ -437,10 +434,12 @@ class TeamInfoView(LoginRequiredMixin, GetTeamMixin, FormView):
         team = self.get_team()
         if not team.editable:
             for field in form.fields.values():
-                field.widget.attrs['disabled'] = True
-        # Po konci registracie uz nechceme timu dovolit menit ci je online
+                field.disabled = True
+        # Po konci registracie uz nechceme timu dovolit menit ci je online.
+        # Disabled pole Django ignoruje v POST dátach a použije initial
+        # hodnotu, takže zámok platí aj na backende.
         if team.game.year.registration_deadline < now():
-            form.fields['is_online'].widget.attrs['disabled'] = True
+            form.fields['is_online'].disabled = True
         return form
 
     def form_valid(self, form):

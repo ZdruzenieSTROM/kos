@@ -46,10 +46,17 @@ class RegisterForm(forms.Form):
     # FIXME: Add ordering
     game = forms.ModelChoiceField(
         widget=forms.Select(attrs={'class': 'main-input'}),
-        queryset=Game.objects.filter(
-            year__in=Year.objects.filter(is_active=True, is_public=True, registration_deadline__gte=now())),
+        queryset=Game.objects.none(),
         label='Kategória'
     )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Queryset musí byť vyhodnotený pri každom requeste, nie pri importe
+        # modulu, inak by registrácia nikdy neskončila (viď issue #157).
+        self.fields['game'].queryset = Game.objects.filter(
+            year__in=Year.objects.filter(
+                is_active=True, is_public=True, registration_deadline__gte=now()))
 
     def clean_password2(self):
         """Heslo a zopakované heslo sa rovnajú"""
