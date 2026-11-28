@@ -1,0 +1,98 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_urls %}
+
+{% block extrahead %}
+{{ block.super }}
+<link href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
+<style>
+  .rich-text-editor-wrapper { display: inline-block; width: 100%; max-width: 760px; vertical-align: top; }
+  .rich-text-editor-wrapper .ql-container { min-height: 260px; font-size: 14px; }
+  .rich-text-editor-wrapper .ql-editor { min-height: 260px; }
+</style>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    if (typeof Quill === 'undefined') {
+      return; // CDN nedostupné - ostane obyčajné textové pole (HTML)
+    }
+    document.querySelectorAll('textarea.rich-text-source').forEach(function (textarea) {
+      var wrapper = document.createElement('div');
+      wrapper.className = 'rich-text-editor-wrapper';
+      var editorEl = document.createElement('div');
+      wrapper.appendChild(editorEl);
+      textarea.parentNode.insertBefore(wrapper, textarea.nextSibling);
+      textarea.style.display = 'none';
+      textarea.removeAttribute('required');
+
+      var quill = new Quill(editorEl, {
+        theme: 'snow',
+        modules: {
+          toolbar: [
+            [{ header: [2, 3, false] }],
+            ['bold', 'italic', 'underline'],
+            ['link'],
+            [{ list: 'ordered' }, { list: 'bullet' }],
+            ['clean']
+          ]
+        }
+      });
+      if (textarea.value) {
+        quill.clipboard.dangerouslyPasteHTML(textarea.value);
+      }
+
+      textarea.form.addEventListener('submit', function () {
+        var empty = quill.getText().trim().length === 0;
+        // getSemanticHTML vráti štandardné <ul>/<ol>, vhodné do emailu
+        textarea.value = empty ? '' : quill.getSemanticHTML().replace(/&nbsp;/g, ' ');
+      });
+    });
+  });
+</script>
+{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+  <a href="{% url 'admin:index' %}">{% translate 'Home' %}</a>
+  &rsaquo; <a href="{% url 'admin:app_list' app_label=opts.app_label %}">{{ opts.app_config.verbose_name }}</a>
+  &rsaquo; <a href="{% url opts|admin_urlname:'changelist' %}">{{ opts.verbose_name_plural|capfirst }}</a>
+  &rsaquo; {{ title }}
+</div>
+{% endblock %}
+
+{% block content %}
+<form method="post">
+  {% csrf_token %}
+  {% for obj in queryset %}
+  <input type="hidden" name="{{ action_checkbox_name }}" value="{{ obj.pk }}">
+  {% endfor %}
+  <input type="hidden" name="action" value="{{ action_name }}">
+  <input type="hidden" name="apply" value="1">
+
+  <fieldset class="module aligned">
+    {{ form.non_field_errors }}
+    {% for field in form %}
+    <div class="form-row">
+      {{ field.errors }}
+      {{ field.label_tag }} {{ field }}
+    </div>
+    {% endfor %}
+  </fieldset>
+
+  <h2>Príjemcovia ({{ recipients|length }})</h2>
+  <p>Každý tím dostane samostatný email. Na rovnakú adresu sa pošle iba jeden email.</p>
+  <ul>
+    {% for team, address, duplicate_of in recipients %}
+    <li>{{ team.name }} &ndash;
+      {% if not address %}<strong>bez emailovej adresy (nebude odoslané)</strong>
+      {% elif duplicate_of %}{{ address }} <em>(rovnaká adresa ako {{ duplicate_of.name }}, nepošle sa znova)</em>
+      {% else %}{{ address }}{% endif %}
+    </li>
+    {% endfor %}
+  </ul>
+
+  <div class="submit-row">
+    <input type="submit" class="default" value="Odoslať">
+    <a href="{% url opts|admin_urlname:'changelist' %}" class="button cancel-link">Zrušiť</a>
+  </div>
+</form>
+{% endblock %}

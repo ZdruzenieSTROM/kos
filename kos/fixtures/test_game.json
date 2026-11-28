@@ -36,6 +36,7 @@
             "solution": "banan",
             "unlock_code": "kolomaz",
             "level": 1,
+            "skip_allowed_after": "00:30:00",
             "location": "Dóm slepej Alžbety"
         }
     },
@@ -79,6 +80,7 @@
             "solution": "jablko",
             "unlock_code": "kolobeh",
             "level": 2,
+            "skip_allowed_after": "00:30:00",
             "location": "Turbanova veža"
         }
     },
@@ -122,6 +124,7 @@
             "solution": "hruska",
             "unlock_code": "koloman",
             "level": 3,
+            "skip_allowed_after": "00:30:00",
             "location": "Košický hostinec (na bare)"
         }
     },
@@ -155,6 +158,7 @@
             "solution": "slivka",
             "unlock_code": "zlodej",
             "level": 4,
+            "skip_allowed_after": "00:30:00",
             "location": "Mestsky park"
         }
     },
@@ -188,6 +192,7 @@
             "solution": "pomaranc",
             "unlock_code": "hladomor",
             "level": 5,
+            "skip_allowed_after": "00:30:00",
             "location": "Spievajuca fontana"
         }
     },
@@ -211,6 +216,7 @@
             "solution": "mandarinka",
             "unlock_code": "vinobranie",
             "level": 6,
+            "skip_allowed_after": "00:30:00",
             "location": "Morovy stlp"
         }
     },

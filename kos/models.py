@@ -31,6 +31,10 @@ class Year(models.Model):
     photo_url = models.TextField(
         verbose_name='Link na fotogalériu', null=True, blank=True)
     registration_deadline = models.DateTimeField(verbose_name='Registrácia do')
+    contact_email = models.EmailField(
+        verbose_name='Kontaktný email',
+        help_text='Použije sa ako Reply-To pri hromadných emailoch tímom',
+        default='kos@strom.sk', blank=True)
 
     def __str__(self):
         return self.name
@@ -308,6 +312,15 @@ class Team(models.Model):
 
     def __str__(self):
         return f'{self.name}'
+
+    @property
+    def contact_email(self):
+        """Emailová adresa tímu, ak nie je vyplnená, použije sa email používateľa"""
+        if self.email:
+            return self.email
+        if self.user is not None and self.user.email:
+            return self.user.email
+        return None
 
     def get_penalties(self, on_level) -> int:
         """Spočíta počet zobratých hintov, ktoré sa rátajú ako penalty"""

@@ -1,9 +1,15 @@
 """Admin for Kos app"""
 import json
 
-from django.contrib import admin
+from django import forms
+from django.conf import settings
+from django.contrib import admin, messages
+from django.contrib.admin import helpers
+from django.core.mail import EmailMultiAlternatives, get_connection
+from django.template.response import TemplateResponse
 
 from kos import models
+from kos.emails import html_to_text, wrap_html
 
 # pylint: disable=missing-docstring
 
@@ -12,11 +18,126 @@ class TeamMemberInline(admin.TabularInline):
     model = models.TeamMember
 
 
+class EmailConfirmedFilter(admin.SimpleListFilter):
+    title = 'email potvrdený'
+    parameter_name = 'email_confirmed'
+
+    def lookups(self, request, model_admin):
+        return (('yes', 'Áno'), ('no', 'Nie'))
+
+    def queryset(self, request, queryset):
+        if self.value() == 'yes':
+            return queryset.filter(user__emailaddress__verified=True).distinct()
+        if self.value() == 'no':
+            return queryset.exclude(user__emailaddress__verified=True)
+        return queryset
+
+
+class TeamEmailForm(forms.Form):
+    subject = forms.CharField(label='Predmet', max_length=200)
+    body = forms.CharField(label='Text správy', widget=forms.Textarea(
+        attrs={'rows': 15, 'cols': 80, 'class': 'rich-text-source'}))
+
+    def clean_body(self):
+        body = self.cleaned_data['body']
+        if not html_to_text(body):
+            raise forms.ValidationError('Text správy nesmie byť prázdny.')
+        return body
+
+
 @admin.register(models.Team)
 class TeamAdmin(admin.ModelAdmin):
     list_display = ('name', 'game', 'is_online', 'paid')
-    list_filter = ('game', 'is_online', 'paid')
+    list_filter = ('game', 'is_online', 'paid', EmailConfirmedFilter)
     inlines = [TeamMemberInline]
+
+    actions = ['send_email']
+
+    @admin.action(description='Poslať email vybraným tímom')
+    def send_email(self, request, queryset):
+        """Pošle email každému vybranému tímu zvlášť"""
+        teams = list(queryset.select_related('user', 'game__year'))
+        form = TeamEmailForm(request.POST if 'apply' in request.POST else None)
+
+        if form.is_bound and form.is_valid():
+            self._send_team_emails(request, teams, form.cleaned_data)
+            return None
+
+        context = {
+            **self.admin_site.each_context(request),
+            'title': 'Poslať email vybraným tímom',
+            'opts': self.model._meta,
+            'form': form,
+            'recipients': self._plan_recipients(teams),
+            'queryset': queryset,
+            'action_checkbox_name': helpers.ACTION_CHECKBOX_NAME,
+            'action_name': 'send_email',
+        }
+        return TemplateResponse(
+            request, 'admin/kos/team/send_email.html', context)
+
+    @staticmethod
+    def _plan_recipients(teams):
+        """Vráti zoznam (tím, adresa, tím s rovnakou adresou ktorému už email ide).
+        Na každú adresu (bez ohľadu na veľkosť písmen) sa pošle iba jeden email."""
+        first_team_by_address = {}
+        rows = []
+        for team in teams:
+            address = (team.contact_email or '').strip() or None
+            duplicate_of = None
+            if address:
+                key = address.lower()
+                duplicate_of = first_team_by_address.setdefault(key, team)
+                if duplicate_of is team:
+                    duplicate_of = None
+            rows.append((team, address, duplicate_of))
+        return rows
+
+    def _send_team_emails(self, request, teams, data):
+        sent = 0
+        failed = []
+        no_email = []
+        duplicates = []
+        connection = get_connection()
+        text_body = html_to_text(data['body'])
+        html_body = wrap_html(data['body'])
+        for team, address, duplicate_of in self._plan_recipients(teams):
+            if not address:
+                no_email.append(team.name)
+                continue
+            if duplicate_of is not None:
+                duplicates.append(f'{team.name} (= {duplicate_of.name})')
+                continue
+            year = team.game.year
+            reply_to = [year.contact_email] if year is not None and year.contact_email else None
+            message = EmailMultiAlternatives(
+                subject=data['subject'],
+                body=text_body,
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                to=[address],
+                reply_to=reply_to,
+                connection=connection,
+            )
+            message.attach_alternative(html_body, 'text/html')
+            try:
+                message.send()
+                sent += 1
+            except Exception:  # pylint: disable=broad-except
+                failed.append(f'{team.name} ({address})')
+
+        self.message_user(request, f'Odoslané emaily: {sent}', messages.SUCCESS)
+        if no_email:
+            self.message_user(
+                request, 'Tímy bez emailovej adresy: ' + ', '.join(no_email),
+                messages.WARNING)
+        if duplicates:
+            self.message_user(
+                request, 'Rovnaká adresa ako iný tím, email poslaný iba raz: '
+                + ', '.join(duplicates), messages.INFO)
+        if failed:
+            self.message_user(
+                request, 'Nepodarilo sa odoslať: ' + ', '.join(failed),
+                messages.ERROR)
 
 
 @admin.register(models.Puzzle)
@@ -27,7 +148,8 @@ class PuzzleAdmin(admin.ModelAdmin):
 
 @admin.register(models.Year)
 class YearAdmin(admin.ModelAdmin):
-    list_display = ('name', 'start', 'end', 'is_active', 'is_public')
+    list_display = ('name', 'start', 'end', 'is_active', 'is_public',
+                    'contact_email')
 
 
 @admin.register(models.Game)
