@@ -6,7 +6,6 @@ from typing import Optional
 
 from allauth.account.models import EmailAddress
 from allauth.account.signals import email_confirmed
-from allauth.account.utils import send_email_confirmation
 from django.contrib import messages
 from django.contrib.auth import logout, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
@@ -99,7 +98,7 @@ class SignUpView(FormView):
             user = User.objects.create_user(email, email, password)
             user.is_active = False
             user.save()
-            EmailAddress.objects.create(
+            email_address = EmailAddress.objects.create(
                 user=user, email=email, primary=True, verified=False)
         except IntegrityError:
             messages.error(
@@ -125,7 +124,7 @@ class SignUpView(FormView):
                 name=member_name,
                 team=team
             )
-        send_email_confirmation(self.request, user, True)
+        email_address.send_confirmation(self.request, signup=True)
         return super().form_valid(form)
 
 
@@ -341,11 +340,6 @@ class HintView(LoginRequiredMixin, GetTeamMixin, UserPassesTestMixin,  DetailVie
         return redirect('kos:game')
 
 
-class ResultsLatexExportView(ResultsView):
-    """Results for pdf"""
-    template_name = 'kos/results.tex'
-
-
 class ResultsLatestView(ResultsView, GetTeamMixin):
     """Výsledky poslednej šiforvačky"""
     template_name = 'kos/results.html'
@@ -433,9 +427,6 @@ class TeamInfoView(LoginRequiredMixin, GetTeamMixin, FormView):
             messages.error(
                 request, 'Tieto údaje nie je možné meniť po skončení registrácie')
             return redirect('kos:change-profile')
-        # TODO: Check that the team did not change their is_online
-        # status after the registration deadline. Currently this
-        # is only disabled on frontend but can be bypassed.
         return super().post(request, *args, **kwargs)
 
     def get_form(self, form_class=None):
@@ -443,10 +434,12 @@ class TeamInfoView(LoginRequiredMixin, GetTeamMixin, FormView):
         team = self.get_team()
         if not team.editable:
             for field in form.fields.values():
-                field.widget.attrs['disabled'] = True
-        # Po konci registracie uz nechceme timu dovolit menit ci je online
+                field.disabled = True
+        # Po konci registracie uz nechceme timu dovolit menit ci je online.
+        # Disabled pole Django ignoruje v POST dátach a použije initial
+        # hodnotu, takže zámok platí aj na backende.
         if team.game.year.registration_deadline < now():
-            form.fields['is_online'].widget.attrs['disabled'] = True
+            form.fields['is_online'].disabled = True
         return form
 
     def form_valid(self, form):

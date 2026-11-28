@@ -1,0 +1,47 @@
+{% extends "admin/base_site.html" %}
+{% load i18n l10n admin_urls %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+  <a href="{% url 'admin:index' %}">{% translate 'Home' %}</a>
+  &rsaquo; <a href="{% url 'admin:app_list' app_label=opts.app_label %}">{{ opts.app_config.verbose_name }}</a>
+  &rsaquo; <a href="{% url opts|admin_urlname:'changelist' %}">{{ opts.verbose_name_plural|capfirst }}</a>
+  &rsaquo; {{ title }}
+</div>
+{% endblock %}
+
+{% block content %}
+{% if to_delete %}
+<p>Naozaj chceš zmazať používateľov nasledujúcich tímov? E-mail používateľa sa uloží do tímu, tím aj jeho výsledky zostanú zachované. Túto akciu nie je možné vrátiť späť.</p>
+<ul>
+  {% for team in to_delete %}
+  <li>{{ team }} ({{ team.game }}) &ndash; {{ team.user }}</li>
+  {% endfor %}
+</ul>
+{% else %}
+<p>Vybrané tímy nemajú žiadnych používateľov, ktorých by bolo možné zmazať.</p>
+{% endif %}
+
+{% if skipped %}
+<p>Nasledujúci používatelia majú prístup do administrácie a nebudú zmazaní:</p>
+<ul>
+  {% for team in skipped %}
+  <li>{{ team }} ({{ team.game }}) &ndash; {{ team.user }}</li>
+  {% endfor %}
+</ul>
+{% endif %}
+
+<form method="post">{% csrf_token %}
+  <div>
+    {% for obj in queryset %}
+    <input type="hidden" name="{{ action_checkbox_name }}" value="{{ obj.pk|unlocalize }}">
+    {% endfor %}
+    <input type="hidden" name="action" value="{{ action }}">
+    {% if to_delete %}
+    <input type="hidden" name="confirm" value="yes">
+    <input type="submit" value="Áno, zmazať">
+    {% endif %}
+    <a href="{% url opts|admin_urlname:'changelist' %}" class="button cancel-link">Späť</a>
+  </div>
+</form>
+{% endblock %}

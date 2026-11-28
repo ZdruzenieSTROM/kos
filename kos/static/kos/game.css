@@ -84,7 +84,20 @@ tr:nth-child(even) {
     font-weight: bold;
 }
 
-.main-button:hover {
+a.main-button {
+    display: inline-block;
+    padding: 8px 20px;
+    font-size: 18px;
+    font-family: Arial, sans-serif;
+    text-decoration: none;
+}
+
+a.main-button:visited {
+    color: black;
+}
+
+.main-button:hover,
+a.main-button:visited:hover {
     color: white;
     background-color: black;
 }

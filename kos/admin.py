@@ -14,6 +14,34 @@ from kos.emails import html_to_text, wrap_html
 # pylint: disable=missing-docstring
 
 
+def delete_team_users(modeladmin, request, selected, teams):
+    """
+    Spoločná logika pre admin akcie na zmazanie používateľov tímov.
+    Najprv zobrazí potvrdzovaciu stránku, po potvrdení používateľov zmaže."""
+    teams = teams.select_related('user', 'game')
+    if request.POST.get('confirm'):
+        deleted = sum(1 for team in teams if team.delete_user())
+        modeladmin.message_user(
+            request, f'Zmazaných používateľov: {deleted}', messages.SUCCESS)
+        return None
+
+    teams_with_user = [team for team in teams if team.user is not None]
+    context = {
+        **modeladmin.admin_site.each_context(request),
+        'title': 'Zmazať používateľov tímov',
+        'opts': modeladmin.model._meta,
+        'queryset': selected,
+        'action_checkbox_name': helpers.ACTION_CHECKBOX_NAME,
+        'action': request.POST.get('action'),
+        'to_delete': [team for team in teams_with_user
+                      if not (team.user.is_staff or team.user.is_superuser)],
+        'skipped': [team for team in teams_with_user
+                    if team.user.is_staff or team.user.is_superuser],
+    }
+    return TemplateResponse(
+        request, 'admin/kos/delete_team_users_confirmation.html', context)
+
+
 class TeamMemberInline(admin.TabularInline):
     model = models.TeamMember
 
@@ -51,7 +79,13 @@ class TeamAdmin(admin.ModelAdmin):
     list_filter = ('game', 'is_online', 'paid', EmailConfirmedFilter)
     inlines = [TeamMemberInline]
 
-    actions = ['send_email']
+    actions = ['send_email', 'delete_users']
+
+    @admin.action(description='Zmaž používateľov vybraných tímov',
+                  permissions=['delete'])
+    def delete_users(self, request, queryset):
+        """Zmaže používateľov vybraných tímov"""
+        return delete_team_users(self, request, queryset, queryset)
 
     @admin.action(description='Poslať email vybraným tímom')
     def send_email(self, request, queryset):
@@ -157,7 +191,7 @@ class GameAdmin(admin.ModelAdmin):
     list_display = ('name', 'year')
     list_filter = ('year',)
 
-    actions = ["freeze_results"]
+    actions = ["freeze_results", "delete_users"]
 
     @admin.action(description="Zmraz výsledky")
     def freeze_results(self, request, queryset):
@@ -166,6 +200,14 @@ class GameAdmin(admin.ModelAdmin):
             game.frozen_results_json = json.dumps(
                 game.generate_results(), default=str)
             game.save()
+
+    @admin.action(description="Zmaž používateľov tímov",
+                  permissions=['delete'])
+    def delete_users(self, request, queryset):
+        """Zmaže používateľov všetkých tímov vo vybraných šifrovačkách"""
+        return delete_team_users(
+            self, request, queryset,
+            models.Team.objects.filter(game__in=queryset))
 
 
 @admin.register(models.Submission)

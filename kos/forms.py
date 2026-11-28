@@ -46,10 +46,17 @@ class RegisterForm(forms.Form):
     # FIXME: Add ordering
     game = forms.ModelChoiceField(
         widget=forms.Select(attrs={'class': 'main-input'}),
-        queryset=Game.objects.filter(
-            year__in=Year.objects.filter(is_active=True, is_public=True, registration_deadline__gte=now())),
+        queryset=Game.objects.none(),
         label='Kategória'
     )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Queryset musí byť vyhodnotený pri každom requeste, nie pri importe
+        # modulu, inak by registrácia nikdy neskončila (viď issue #157).
+        self.fields['game'].queryset = Game.objects.filter(
+            year__in=Year.objects.filter(
+                is_active=True, is_public=True, registration_deadline__gte=now()))
 
     def clean_password2(self):
         """Heslo a zopakované heslo sa rovnajú"""
@@ -68,14 +75,14 @@ class AuthForm(AuthenticationForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['username'].label = 'Login'
+        self.fields['username'].label = 'Email'
         self.fields['username'].widget = forms.TextInput(
             attrs={'autofocus': True, 'class': 'main-input'})
         self.fields['password'].label = 'Heslo'
         self.fields['password'].widget = forms.PasswordInput(
             attrs={'autocomplete': 'current-password', 'class': 'main-input'})
 
-        self.error_messages['invalid_login'] = 'Zadaný login alebo heslo bolo nesprávne.'
+        self.error_messages['invalid_login'] = 'Zadaný email alebo heslo bolo nesprávne.'
 
 
 class ChangePasswordForm(PasswordChangeForm):
