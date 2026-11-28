@@ -61,3 +61,51 @@ class RegistrationDeadlineTest(TestCase):
         self.assertFalse(Team.objects.exists())
         self.assertFalse(
             get_user_model().objects.filter(email='late@example.com').exists())
+
+
+class OnlineLockAfterDeadlineTest(TestCase):
+    """Po deadline registrácie sa is_online nesmie dať zmeniť ani
+    podvrhnutým requestom (regresia pre issue #158)."""
+
+    def setUp(self):
+        current = now()
+        year = Year.objects.create(
+            name='Kos test',
+            start=current + timedelta(days=1),
+            end=current + timedelta(days=2),
+            is_public=True,
+            is_active=True,
+            registration_deadline=current - timedelta(days=1),
+        )
+        Game.objects.create(name='Hlavná', year=year)
+        self.user = get_user_model().objects.create_user(
+            'team@example.com', 'team@example.com', 'tajneheslo123')
+        self.client.force_login(self.user)
+        self.url = reverse('kos:change-profile')
+
+    def make_team(self, is_online):
+        return Team.objects.create(
+            name='Tím', user=self.user, game=Game.objects.get(),
+            is_online=is_online, email=self.user.email)
+
+    def test_offline_team_cannot_switch_to_online(self):
+        team = self.make_team(is_online=False)
+        self.client.post(self.url, {
+            'team_name': 'Tím', 'team_member_1': 'Jano', 'is_online': 'on'})
+        team.refresh_from_db()
+        self.assertFalse(team.is_online)
+
+    def test_online_team_stays_online_without_is_online_in_post(self):
+        # Prehliadač disabled pole neodošle - tím nesmie spadnúť na offline.
+        team = self.make_team(is_online=True)
+        self.client.post(self.url, {
+            'team_name': 'Tím', 'team_member_1': 'Jano'})
+        team.refresh_from_db()
+        self.assertTrue(team.is_online)
+        self.assertEqual(
+            list(team.members.values_list('name', flat=True)), ['Jano'])
+
+    def test_is_online_rendered_disabled(self):
+        self.make_team(is_online=True)
+        response = self.client.get(self.url)
+        self.assertTrue(response.context['form'].fields['is_online'].disabled)
