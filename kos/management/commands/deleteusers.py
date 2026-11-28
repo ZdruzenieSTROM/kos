@@ -1,4 +1,3 @@
-
 from django.core.management.base import BaseCommand
 
 from kos.models import Team
@@ -12,14 +11,13 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         game_id: int = options['game_id']
-        teams = Team.objects.filter(game=game_id).all()
+        teams = Team.objects.filter(game=game_id).select_related('user')
         for team in teams:
             user = team.user
             if user is None:
-                print(f'Team {team} already has no user')
+                self.stdout.write(f'Team {team} already has no user')
                 continue
-            team.email = user.email
-            print(f'Deleting user {user}')
-            team.user = None
-            user.delete()
-            team.save()
+            if team.delete_user():
+                self.stdout.write(f'Deleted user {user}')
+            else:
+                self.stdout.write(f'Skipping staff user {user} of team {team}')

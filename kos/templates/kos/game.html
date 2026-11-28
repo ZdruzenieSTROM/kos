@@ -12,10 +12,14 @@
         <div>
             {% can_team_see_puzzle puzzle team as can_team_see %}
             <h2>
-                {{puzzle.level}}. {%if can_team_see %}{{puzzle.name}} - <a href="{% url 'kos:puzzle' pk=puzzle.pk %}"
-                    target="_blank" class="main-link">Stiahnuť</a>{% else %} šifra sa
+                {{puzzle.level}}. {%if can_team_see %}{{puzzle.name}}{% else %} šifra sa
                 zobrazí po zadaní kódu zo stanovišťa {% endif %}
             </h2>
+            {% if can_team_see %}
+                <p>
+                    <a href="{% url 'kos:puzzle' pk=puzzle.pk %}" target="_blank" class="main-button">Stiahnuť zadanie</a>
+                </p>
+            {% endif %}
         </div>
         {% if not team.is_online and not can_team_see %}
             <div class="answer-alert info">
@@ -28,14 +32,18 @@
             <form action="" method="post">
                 {% csrf_token %}
                 {% can_team_submit puzzle team as can_submit %}
+                {% if not can_team_see %}
+                    <label for="answer{{puzzle.id}}"><b>Kód zo stanovišťa (názov šifry)</b></label>
+                    <p>Po zadaní kódu zo stanovišťa sa šifra odomkne a spustí sa jej čas, od ktorého sa počíta dostupnosť nápoved a preskočenia.</p>
+                {% endif %}
                 {% if can_submit %}
                     <input type="text" id="answer{{puzzle.id}}" name="answer" class="main-input">
                     <input type="hidden" name="puzzle" value="{{puzzle.id}}">
-                    <input type="Submit" value="Odovzdať" class="main-button" />
+                    <input type="Submit" value="{% if can_team_see %}Odovzdať{% else %}Odomknúť šifru{% endif %}" class="main-button" />
                 {% else %}
                     <input type="text" id="answer{{puzzle.id}}" name="answer" class="main-input main-input__disabled" disabled>
                     <input type="hidden" name="puzzle" value="{{puzzle.id}}">
-                    <input type="Submit" value="Odovzdať" class="main-button main-button__disabled" disabled />
+                    <input type="Submit" value="{% if can_team_see %}Odovzdať{% else %}Odomknúť šifru{% endif %}" class="main-button main-button__disabled" disabled />
                     {% get_team_timeout puzzle team as timeout %}
                     Ďalšiu odpoveď je možné zadať o {{ timeout|date:'H:i:s' }}
                 {% endif %}

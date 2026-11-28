@@ -340,11 +340,6 @@ class HintView(LoginRequiredMixin, GetTeamMixin, UserPassesTestMixin,  DetailVie
         return redirect('kos:game')
 
 
-class ResultsLatexExportView(ResultsView):
-    """Results for pdf"""
-    template_name = 'kos/results.tex'
-
-
 class ResultsLatestView(ResultsView, GetTeamMixin):
     """Výsledky poslednej šiforvačky"""
     template_name = 'kos/results.html'
