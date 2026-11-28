@@ -1,0 +1,5 @@
+-r requirements.in
+-c requirements.txt
+pylint==4.1.4
+pylint-django==2.8.0
+autopep8==2.3.2

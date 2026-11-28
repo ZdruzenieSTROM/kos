@@ -1,4 +1,4 @@
-FROM python:3.13
+FROM python:3.15-trixie
 
 ARG SETTINGS_MODULE=online_competitions.settings.prod_settings
 
