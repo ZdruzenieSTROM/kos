@@ -32,14 +32,18 @@
             <form action="" method="post">
                 {% csrf_token %}
                 {% can_team_submit puzzle team as can_submit %}
+                {% if not can_team_see %}
+                    <label for="answer{{puzzle.id}}"><b>Kód zo stanovišťa (názov šifry)</b></label>
+                    <p>Po zadaní kódu zo stanovišťa sa šifra odomkne a spustí sa jej čas, od ktorého sa počíta dostupnosť nápoved a preskočenia.</p>
+                {% endif %}
                 {% if can_submit %}
                     <input type="text" id="answer{{puzzle.id}}" name="answer" class="main-input">
                     <input type="hidden" name="puzzle" value="{{puzzle.id}}">
-                    <input type="Submit" value="Odovzdať" class="main-button" />
+                    <input type="Submit" value="{% if can_team_see %}Odovzdať{% else %}Odomknúť šifru{% endif %}" class="main-button" />
                 {% else %}
                     <input type="text" id="answer{{puzzle.id}}" name="answer" class="main-input main-input__disabled" disabled>
                     <input type="hidden" name="puzzle" value="{{puzzle.id}}">
-                    <input type="Submit" value="Odovzdať" class="main-button main-button__disabled" disabled />
+                    <input type="Submit" value="{% if can_team_see %}Odovzdať{% else %}Odomknúť šifru{% endif %}" class="main-button main-button__disabled" disabled />
                     {% get_team_timeout puzzle team as timeout %}
                     Ďalšiu odpoveď je možné zadať o {{ timeout|date:'H:i:s' }}
                 {% endif %}
