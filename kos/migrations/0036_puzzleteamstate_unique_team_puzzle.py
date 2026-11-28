@@ -24,15 +24,27 @@ def merge_duplicate_states(apps, schema_editor):
             .order_by('id')
         )
         keep, others = states[0], states[1:]
-        for other in others:
-            keep.solved = keep.solved or other.solved
-            keep.skipped = keep.skipped or other.skipped
-            if other.started_at is not None and (
-                    keep.started_at is None or other.started_at < keep.started_at):
-                keep.started_at = other.started_at
-            if other.ended_at is not None and (
-                    keep.ended_at is None or other.ended_at < keep.ended_at):
-                keep.ended_at = other.ended_at
+
+        started = [s.started_at for s in states if s.started_at is not None]
+        keep.started_at = min(started) if started else None
+
+        # Platí to ukončenie šifry (vyriešenie alebo preskočenie), ktoré
+        # nastalo ako prvé. Príznaky a čas konca sa preberajú z jedného stavu
+        # spolu, aby nevznikol zmiešaný stav (napr. solved s časom skipu).
+        ended = [s for s in states
+                 if (s.solved or s.skipped) and s.ended_at is not None]
+        if ended:
+            first = min(ended, key=lambda s: (s.ended_at, s.id))
+            keep.solved = first.solved
+            keep.skipped = first.skipped
+            keep.ended_at = first.ended_at
+        else:
+            first_closed = next(
+                (s for s in states if s.solved or s.skipped), None)
+            if first_closed is not None:
+                keep.solved = first_closed.solved
+                keep.skipped = first_closed.skipped
+                keep.ended_at = first_closed.ended_at
         Submission.objects.filter(
             puzzle_team_state__in=others).update(puzzle_team_state=keep)
         keep.save()
