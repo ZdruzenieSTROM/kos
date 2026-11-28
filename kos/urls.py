@@ -19,8 +19,6 @@ urlpatterns = [
     path(r'poradie/<int:pk>', views.ResultsView.as_view(), name='results'),
     path('poradie/aktualne', views.ResultsLatestView.as_view(),
          name='results-latest'),
-    path(r'poradie-latex/<int:pk>',
-         views.ResultsLatexExportView.as_view(), name='results-latex'),
     path('info', flatpage, {'url': '/info/'}, name='info'),
     path('archiv', views.ArchiveView.as_view(), name='archive'),
     path(r'archiv-sifier/<int:pk>',
