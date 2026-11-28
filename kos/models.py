@@ -334,6 +334,20 @@ class Team(models.Model):
     def members_joined(self):
         return ', '.join([member.name for member in self.members.all()])
 
+    def delete_user(self) -> bool:
+        """
+        Zmaže používateľa priradeného k tímu. E-mail používateľa sa
+        presunie do tímu, aby zostal kontakt. Používateľov s prístupom
+        do administrácie nemaže. Vráti, či bol používateľ zmazaný."""
+        user = self.user
+        if user is None or user.is_staff or user.is_superuser:
+            return False
+        self.email = user.email
+        self.user = None
+        self.save()
+        user.delete()
+        return True
+
 
 class TeamMember(models.Model):
     """Člen tímu"""
